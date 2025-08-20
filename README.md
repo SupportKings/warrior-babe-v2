@@ -210,3 +210,4 @@ export const siteConfig = {
 # templatev2
 # warrior-babe
 # warrior-babe
+# warrior-babe-v2
