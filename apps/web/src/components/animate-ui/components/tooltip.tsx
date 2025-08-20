@@ -9,7 +9,7 @@ import {
   LayoutGroup,
   motion,
   type Transition,
-} from "motion/react";
+} from "framer-motion";
 import { createPortal } from "react-dom";
 
 type Side = "top" | "bottom" | "left" | "right";

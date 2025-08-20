@@ -13,7 +13,7 @@ import {
   TooltipTrigger,
 } from "@/components/animate-ui/components/tooltip";
 
-import { motion, type Transition } from "motion/react";
+import { motion, type Transition } from "framer-motion";
 
 type AvatarProps = TooltipProps & {
   children: React.ReactNode;

@@ -6,7 +6,7 @@ import DashboardHeader from "@/features/dashboard/layout/dashboard-header";
 export default function DashboardLoading() {
   return (
     <MainLayout
-      headers={[<DashboardHeader key="dashboard-header" permissions={[]} />]}
+      headers={[<DashboardHeader key="dashboard-header" />]}
     >
       <div className="space-y-6 p-6">
         <div className="space-y-2">

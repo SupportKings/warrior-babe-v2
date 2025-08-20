@@ -6,7 +6,7 @@ import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 
 import { cn } from "@/lib/utils";
 
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 type CheckboxProps = React.ComponentPropsWithoutRef<
   typeof CheckboxPrimitive.Root

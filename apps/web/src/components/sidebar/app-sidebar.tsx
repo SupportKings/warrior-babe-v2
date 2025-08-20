@@ -25,18 +25,29 @@ import {
 import {
   ArrowLeft,
   BrickWallFireIcon,
-  CreditCard,
   FocusIcon,
   GoalIcon,
   InboxIcon,
-  Settings,
   ShieldCheckIcon,
   Users,
+  CreditCard,
+  Settings,
+  MessageSquare,
+  Star,
+  Activity,
+  Phone,
+  DollarSign,
+  FileText,
+  Package,
+  Cog,
+  CheckSquare,
+  Tag,
 } from "lucide-react";
 import { NavMain } from "./nav-main";
-import { SidebarItemComponent } from "./sidebar-item";
 
 type Session = typeof authClient.$Infer.Session;
+
+// Reusable components and data (kept for future use)
 
 // Back to main navigation button
 function BackToMainButton() {
@@ -108,159 +119,99 @@ const settingsNavItems = [
 
 export function AppSidebar({
   session,
-  rawPermissions,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   session: Session;
-  rawPermissions?: any;
 }) {
-  const pathname = usePathname();
-  const currentArea = pathname.includes("/dashboard/settings")
-    ? "settings"
-    : "main";
 
   const isImpersonating =
     session.session.impersonatedBy !== null &&
     session.session.impersonatedBy !== undefined;
 
-  // Check permissions for different navigation sections
-  const canAccessAnalytics =
-    rawPermissions?.analytics?.includes("read") || false;
-  const canAccessClients = rawPermissions?.clients?.includes("read") || false;
-  const canAccessCoaches = rawPermissions?.coaches?.includes("read") || false;
-  const canAccessTickets = rawPermissions?.tickets?.includes("read") || false;
-  const canAccessBilling = rawPermissions?.billing?.includes("read") || false;
-  const canAccessUsers = rawPermissions?.user?.includes("list") || false;
-  const canAccessTeamSettings =
-    rawPermissions?.user?.includes("create") || false;
-
-  console.log(rawPermissions);
-  // Check specific permissions for onboarding/offboarding
-  const canAccessOnboarding =
-    rawPermissions?.clients?.includes("onboarding_read") || false;
-  const canAccessOffboarding =
-    rawPermissions?.clients?.includes("offboarding_read") || false;
-
-  // Define roles that can see "All Tickets"
-  const userRole = session.user.role || "user";
-  const canSeeAllTickets = [
-    "csRep",
-    "csc",
-    "csManager",
-    "admin",
-    "cpo",
-  ].includes(userRole);
-
-  // Build navigation items dynamically based on permissions
-  const buildNavigation = () => {
-    const navItems = [];
-
-    // Client Management section
-    if (canAccessClients) {
-      const clientItems = [
-        {
-          title: "All Clients",
-          url: "/dashboard/clients",
-        },
-      ];
-
-      // Add onboarding if user has permission
-      if (canAccessOnboarding) {
-        clientItems.push({
-          title: "Onboarding",
-          url: "/dashboard/onboarding",
-        });
-      }
-
-      navItems.push({
-        title: "Client Management",
+  // Navigation data with full structure
+  const data = {
+    navMain: [
+      {
+        title: "Clients",
         url: "#",
         icon: Users,
-        items: clientItems,
-      });
-    }
-
-    // Coaches section
-    if (canAccessCoaches) {
-      navItems.push({
+        items: [
+          {
+            title: "Clients",
+            url: "/dashboard/clients",
+          },
+          {
+            title: "Activity Periods",
+            url: "/dashboard/clients/activity-periods",
+          },
+          {
+            title: "Call Feedback",
+            url: "/dashboard/clients/call-feedback",
+          },
+          {
+            title: "Testimonials",
+            url: "/dashboard/clients/testimonials",
+          },
+        ],
+      },
+      {
         title: "Coaches",
         url: "#",
-        icon: Users,
+        icon: Star,
         items: [
           {
             title: "Coaches",
             url: "/dashboard/coaches",
           },
           {
-            title: "Capacity",
-            url: "/dashboard/capacity",
+            title: "Premiere Coaches",
+            url: "/dashboard/coaches/premiere-coaches",
           },
         ],
-      });
-    }
-
-    // Support section
-    /*     if (canAccessTickets) {
-      const ticketItems = [];
-
-      // Only specific roles can see "All Tickets"
-      if (canSeeAllTickets) {
-        ticketItems.push({
-          title: "All Tickets",
-          url: "/dashboard/tickets/all",
-        });
-      }
-
-      ticketItems.push({
-        title: "My Tickets",
-        url: "/dashboard/tickets/my-tickets",
-      });
-
-      navItems.push({
-        title: "Support",
-        url: "#",
-        icon: Ticket,
-        items: ticketItems,
-      });
-    } */
-
-    // Overview section - only show if user can access analytics
-    /* if (canAccessAnalytics) {
-      navItems.push({
-        title: "Overview",
-        url: "#",
-        icon: ChartLineIcon,
-        isActive: true,
-        items: [
-          {
-            title: "Reports & Analytics",
-            url: "/dashboard/reports",
-          },
-        ],
-      });
-    } */
-
-    // Finance section
-    if (canAccessBilling) {
-      navItems.push({
+      },
+      {
         title: "Finance",
         url: "#",
         icon: CreditCard,
         items: [
           {
-            title: "Billing & Finance",
-            url: "/dashboard/finance",
+            title: "Payments",
+            url: "/dashboard/finance/payments",
+          },
+          {
+            title: "Coach Payments",
+            url: "/dashboard/finance/coach-payments",
           },
         ],
-      });
-    }
-
-    return navItems;
-  };
-
-  // Build navigation data dynamically based on permissions
-  const data = {
-    navMain: buildNavigation(),
+      },
+      {
+        title: "System Config",
+        url: "#",
+        icon: Settings,
+        items: [
+          {
+            title: "Payment Plan Templates",
+            url: "/dashboard/system-config/payment-plan-templates",
+          },
+          {
+            title: "Products",
+            url: "/dashboard/system-config/products",
+          },
+          {
+            title: "Financial Settings",
+            url: "/dashboard/system-config/financial-settings",
+          },
+          {
+            title: "Checklist Settings",
+            url: "/dashboard/system-config/checklist-settings",
+          },
+          {
+            title: "Client Win Tags",
+            url: "/dashboard/system-config/client-win-tags",
+          },
+        ],
+      },
+    ],
     mainNav: [
       {
         name: "Inbox",
@@ -279,73 +230,19 @@ export function AppSidebar({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent className="overflow-hidden">
-        <div className="relative h-full w-full overflow-hidden">
-          <div
-            className="flex h-full w-[200%] transition-transform duration-300 ease-in-out"
-            style={{
-              transform:
-                currentArea === "settings"
-                  ? "translateX(-50%)"
-                  : "translateX(0)",
-            }}
-          >
-            {/* Main Area */}
-            <div className="h-full w-1/2 px-2">
-              <div className="flex h-full flex-col">
-                {/* Show impersonation banner at the top if impersonating */}
-                {isImpersonating && <ImpersonationBanner session={session} />}
+      <SidebarContent>
+        <div className="flex h-full flex-col px-2">
+          {/* Show impersonation banner at the top if impersonating */}
+          {isImpersonating && <ImpersonationBanner session={session} />}
 
-                {/*  <div className="mt-4">
-                  <NewButton />
-                </div> */}
-                <div className="mt-4">
-                  <NavMain items={data.mainNav} />
-                </div>
-                <div className="mt-8">
-                  <NavCollapsible items={data.navMain} />
-                </div>
-
-                {/* Settings button that triggers area switch */}
-                <SidebarItemComponent
-                  href="/dashboard/settings/profile"
-                  label="Settings"
-                  icon={<Settings size={16} />}
-                />
-
-                <NavSecondary className="mt-auto" />
-              </div>
-            </div>
-
-            {/* Settings Area */}
-            <div className="h-full w-1/2 px-2">
-              <div className="flex h-full flex-col overflow-y-auto">
-                <div className="mb-4">
-                  <BackToMainButton />
-                </div>
-
-                <div className="flex-1 space-y-6">
-                  {settingsNavItems.map((group) => (
-                    <div key={group.name} className="space-y-2">
-                      <h2 className="px-2 font-medium text-muted-foreground text-xs">
-                        {group.name}
-                      </h2>
-                      <div className="space-y-1">
-                        {group.items.map((item) => (
-                          <SidebarItemComponent
-                            key={item.name}
-                            href={item.href}
-                            label={item.name}
-                            icon={item.icon}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+          <div className="mt-4">
+            <NavMain items={data.mainNav} />
           </div>
+          <div className="mt-8">
+            <NavCollapsible items={data.navMain} />
+          </div>
+
+          <NavSecondary className="mt-auto" />
         </div>
       </SidebarContent>
       <SidebarFooter>

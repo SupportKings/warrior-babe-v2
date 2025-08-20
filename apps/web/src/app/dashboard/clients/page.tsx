@@ -1,29 +1,44 @@
+import { Suspense } from "react";
+import { redirect } from "next/navigation";
+
+import MainLayout from "@/components/layout/main-layout";
+import { getUser } from "@/queries/getUser";
+
 import {
-  QueryClient,
   dehydrate,
   HydrationBoundary,
+  QueryClient,
 } from "@tanstack/react-query";
-import { getClients } from "@/features/clients/actions";
-import { clientQueryKeys } from "@/features/clients/queries/keys";
-import { ClientsPageContent } from "@/features/clients/pages/ClientsPageContent";
 
-export default async function ClientsPage() {
+import ClientsHeader from "@/features/clients/layout/clients-header";
+import ClientsContent from "@/features/clients/components/clients-content";
+import ClientsLoading from "./loading";
+
+export default function ClientsPage() {
+  return (
+    <Suspense fallback={<ClientsLoading />}>
+      <ClientsPageAsync />
+    </Suspense>
+  );
+}
+
+async function ClientsPageAsync() {
   const queryClient = new QueryClient();
+  const session = await getUser();
 
-  await queryClient.prefetchQuery({
-    queryKey: clientQueryKeys.lists(),
-    queryFn: async () => {
-      const result = await getClients();
-      if (!result.success) {
-        throw new Error(result.error);
-      }
-      return result.data;
-    },
-  });
+  if (!session) {
+    redirect("/");
+  }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ClientsPageContent />
+      <MainLayout
+        headers={[
+          <ClientsHeader key="clients-header" />,
+        ]}
+      >
+        <ClientsContent />
+      </MainLayout>
     </HydrationBoundary>
   );
 }

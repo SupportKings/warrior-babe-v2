@@ -8,5 +8,8 @@ export const appRouter = router({
     return "OK";
   }),
   getUser: publicProcedure.query(async ({ ctx }) => {
+    return null;
+  }),
 });
+
 export type AppRouter = typeof appRouter;

@@ -19,7 +19,7 @@ import { siteConfig } from "@/siteConfig";
 
 import { useForm } from "@tanstack/react-form";
 import { Key, Loader } from "lucide-react";
-import { AnimatePresence, motion as m } from "motion/react";
+import { AnimatePresence, motion as m } from "framer-motion";
 import { toast } from "sonner";
 import * as z from "zod";
 

@@ -10,14 +10,12 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
-  SidebarGroup,
-  SidebarGroupLabel,
-  SidebarMenu,
+  SidebarGroup, SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem,
+  SidebarMenuSubItem
 } from "@/components/ui/sidebar";
 
 import { ChevronIcon } from "@/icons/collapsibleIcon";
@@ -115,10 +113,23 @@ export function NavCollapsible({
 
   // Function to check if a URL is active
   const isActive = (url: string) => {
-    if (url === "/dashboard") {
-      return pathname === "/dashboard";
+    // Exact match for all routes
+    return pathname === url;
+  };
+
+  // Function to check if a parent should be highlighted (when on sub-routes)
+  const isParentActive = (parentUrl: string, subItems?: { title: string; url: string }[]) => {
+    // Parent is active if we're exactly on the parent URL
+    if (pathname === parentUrl) {
+      return true;
     }
-    return pathname.startsWith(url);
+    
+    // Parent is also active if we're on any of its direct sub-items
+    if (subItems) {
+      return subItems.some(subItem => pathname === subItem.url);
+    }
+    
+    return false;
   };
 
   // Function to check if any sub-item is active
@@ -129,16 +140,17 @@ export function NavCollapsible({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
-          const itemIsActive =
-            isActive(item.url) || hasActiveSubItem(item.items);
+          // Parent item is highlighted when on parent URL or any direct sub-item
+          const itemIsActive = isParentActive(item.url, item.items);
+          
+          // Check if any sub-item is active for collapsible expansion
+          const hasActiveChild = hasActiveSubItem(item.items);
 
           // If there's only one item, render it directly without collapsible
           if (item.items?.length === 1) {
             const singleItem = item.items[0];
-            const singleItemIsActive = isActive(singleItem.url);
 
             return (
               <SidebarItemComponent
@@ -156,7 +168,7 @@ export function NavCollapsible({
               key={item.title}
               item={item}
               itemIsActive={itemIsActive}
-              hasActiveSubItem={hasActiveSubItem(item.items)}
+              hasActiveSubItem={hasActiveChild}
               isActive={isActive}
             />
           );

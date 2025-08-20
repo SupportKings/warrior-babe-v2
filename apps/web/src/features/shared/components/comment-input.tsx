@@ -7,7 +7,7 @@ import { TextEditor } from "@/features/editor/components/editor";
 
 import type { Editor } from "@tiptap/react";
 import { LoaderIcon, Send } from "lucide-react";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 
 interface CommentInputProps {
   entityId: string;
