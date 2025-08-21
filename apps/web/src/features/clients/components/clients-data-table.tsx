@@ -52,9 +52,9 @@ const clientTableColumns = [
 				aria-label="Select row"
 			/>
 		),
-		enableSorting: false,
+		enableSorting: true,
 		enableHiding: false,
-		enableColumnFilter: false,
+		enableColumnFilter: true,
 	}),
 	columnHelper.accessor('first_name', {
 		id: 'first_name',
