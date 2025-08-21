@@ -2,8 +2,8 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-    revokeAllOtherSessions,
-    revokeSession,
+	revokeAllOtherSessions,
+	revokeSession,
 } from "../actions/revokeSession";
 
 export const useSessionMutations = () => {

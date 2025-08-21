@@ -9,41 +9,34 @@ import DashboardHeader from "@/features/dashboard/layout/dashboard-header";
 import { getUser } from "@/queries/getUser";
 
 import {
-  dehydrate,
-  HydrationBoundary,
-  QueryClient,
+	dehydrate,
+	HydrationBoundary,
+	QueryClient,
 } from "@tanstack/react-query";
-
 import DashboardLoading from "./loading";
 
 export default function Home() {
-  return (
-    <Suspense fallback={<DashboardLoading />}>
-      <HomeAsync />
-    </Suspense>
-  );
+	return (
+		<Suspense fallback={<DashboardLoading />}>
+			<HomeAsync />
+		</Suspense>
+	);
 }
 
 async function HomeAsync() {
-  const queryClient = new QueryClient();
+	const queryClient = new QueryClient();
 
-  const session = await getUser();
+	const session = await getUser();
 
-  if (!session) {
-    redirect("/");
-  }
+	if (!session) {
+		redirect("/");
+	}
 
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <MainLayout
-        headers={[
-          <DashboardHeader
-            key="dashboard-header"
-          />,
-        ]}
-      >
-        <div></div>
-      </MainLayout>
-    </HydrationBoundary>
-  );
+	return (
+		<HydrationBoundary state={dehydrate(queryClient)}>
+			<MainLayout headers={[<DashboardHeader key="dashboard-header" />]}>
+				<div />
+			</MainLayout>
+		</HydrationBoundary>
+	);
 }

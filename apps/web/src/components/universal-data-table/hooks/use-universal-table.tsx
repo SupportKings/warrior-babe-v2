@@ -1,184 +1,164 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useState } from "react";
+
+import { useDataTableFilters } from "@/components/data-table-filter";
+import type {
+	ColumnConfig,
+	FiltersState,
+} from "@/components/data-table-filter/core/types";
+
 import {
 	getCoreRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
+	type SortingState,
 	useReactTable,
-	type SortingState
-} from '@tanstack/react-table'
-import { createClient } from '@/utils/supabase/client'
-import { useDataTableFilters } from '@/components/data-table-filter'
-import { buildSupabaseQuery, buildFacetedCountQuery } from '../utils/query-builder'
-import type {
-	UniversalTableRow,
-	UniversalTableConfig,
-	FacetedData
-} from '../types'
-import type { FiltersState } from '@/components/data-table-filter/core/types'
+} from "@tanstack/react-table";
+import type { FacetedData, RowAction, UniversalTableRow } from "../types";
 
-interface UseUniversalTableProps<T extends UniversalTableRow> extends UniversalTableConfig<T> {
-	filters: FiltersState
-	onFiltersChange: React.Dispatch<React.SetStateAction<FiltersState>>
+interface UseUniversalTableProps<T extends UniversalTableRow> {
+	// Data passed from feature
+	data: T[];
+	totalCount?: number;
+
+	// Table configuration
+	columns: any[];
+	columnsConfig: ColumnConfig<T>[];
+
+	// Filter system
+	filters: FiltersState;
+	onFiltersChange: React.Dispatch<React.SetStateAction<FiltersState>>;
+	faceted?: FacetedData;
+
+	// UI configuration
+	enableSelection?: boolean;
+	pageSize?: number;
+	serverSide?: boolean;
+	rowActions?: RowAction<T>[];
+
+	// Loading state (passed from feature)
+	isLoading?: boolean;
+	isError?: boolean;
+	error?: Error | null;
+
+	// Server-side callbacks
+	onPaginationChange?: (pageIndex: number, pageSize: number) => void;
+	onSortingChange?: (sorting: SortingState) => void;
 }
 
 export function useUniversalTable<T extends UniversalTableRow>({
-	table,
-	supabaseSchema = 'public',
+	data,
+	totalCount = 0,
 	columns,
 	columnsConfig,
-	relationships,
-	searchColumns,
-	facetedColumns,
 	filters,
 	onFiltersChange,
+	faceted = {},
 	enableSelection = false,
 	pageSize = 25,
 	serverSide = true,
-	rowActions
+	rowActions,
+	isLoading = false,
+	isError = false,
+	error = null,
+	onPaginationChange,
+	onSortingChange,
 }: UseUniversalTableProps<T>) {
-	const supabase = createClient()
-	const [rowSelection, setRowSelection] = useState({})
-	const [pagination, setPagination] = useState({ pageIndex: 0, pageSize })
-	const [sorting, setSorting] = useState<SortingState>([])
-	
-	// Fetch main data
-	const dataQuery = useQuery({
-		queryKey: [table, 'data', filters, pagination.pageIndex, pagination.pageSize, sorting],
-		queryFn: async () => {
-			if (!serverSide) return { data: [], count: 0 }
+	const [rowSelection, setRowSelection] = useState({});
+	const [pagination, setPagination] = useState({ pageIndex: 0, pageSize });
+	const [sorting, setSorting] = useState<SortingState>([]);
 
-			// Extract search term from filters (assuming there's a global search filter)
-			const searchFilter = filters.find(f => f.columnId === '__global_search__')
-			const searchTerm = searchFilter?.values?.[0] || undefined
+	// Handle pagination changes
+	const handlePaginationChange = (updater: any) => {
+		const newPagination =
+			typeof updater === "function" ? updater(pagination) : updater;
+		setPagination(newPagination);
 
-			// Convert TanStack sorting to our sorting format
-			const sortingConfig = sorting.length > 0 
-				? sorting.map(sort => ({ 
-					column: sort.id, 
-					direction: sort.desc ? 'desc' as const : 'asc' as const
-				}))
-				: [{ column: 'created_at', direction: 'desc' as const }] // Default sorting
-
-			const query = buildSupabaseQuery(supabase, {
-				table,
-				schema: supabaseSchema as string,
-				filters: filters.filter(f => f.columnId !== '__global_search__'), // Remove global search from filters
-				searchTerm,
-				searchColumns,
-				relationships,
-				page: pagination.pageIndex,
-				pageSize: pagination.pageSize,
-				sorting: sortingConfig
-			})
-
-			const { data, error, count } = await query as any
-			if (error) throw error
-			return { data: data as T[], count: count || 0 }
-		},
-		enabled: serverSide
-	})
-
-	// Fetch faceted data for filters
-	const facetedQueries = facetedColumns?.map(columnId => 
-		useQuery({
-			queryKey: [table, 'faceted', columnId, filters],
-			queryFn: async () => {
-				const query = buildFacetedCountQuery(supabase, table, columnId, filters)
-				const { data, error } = await query as any
-				if (error) throw error
-
-				// Convert to Map format expected by data-table-filter
-				const facetedMap = new Map<string, number>()
-				data?.forEach((item: any) => {
-					const value = item[columnId]
-					if (value) {
-						facetedMap.set(String(value), 1) // Simplified count for now
-					}
-				})
-				return facetedMap
-			},
-			enabled: serverSide
-		})
-	) || []
-
-	// Create faceted data object
-	const facetedData: FacetedData = {}
-	facetedColumns?.forEach((columnId, index) => {
-		const query = facetedQueries[index]
-		if (query.data) {
-			facetedData[columnId] = query.data
+		// Notify parent component if callback provided
+		if (onPaginationChange && serverSide) {
+			onPaginationChange(newPagination.pageIndex, newPagination.pageSize);
 		}
-	})
+	};
+
+	// Handle sorting changes
+	const handleSortingChange = (updater: any) => {
+		const newSorting =
+			typeof updater === "function" ? updater(sorting) : updater;
+		setSorting(newSorting);
+
+		// Notify parent component if callback provided
+		if (onSortingChange && serverSide) {
+			onSortingChange(newSorting);
+		}
+	};
 
 	// Use the existing data table filters hook
-	const { 
-		columns: filterColumns, 
-		filters: filterState, 
-		actions, 
-		strategy 
+	const {
+		columns: filterColumns,
+		filters: filterState,
+		actions,
+		strategy,
 	} = useDataTableFilters({
-		strategy: serverSide ? 'server' : 'client',
-		data: dataQuery.data?.data || [],
+		strategy: serverSide ? "server" : "client",
+		data: data || [],
 		columnsConfig,
 		filters,
 		onFiltersChange,
-		faceted: facetedData as any
-	})
+		faceted: faceted as any,
+	});
 
 	// Reset pagination when filters change
-	const [previousFilters, setPreviousFilters] = useState(filters)
+	const [previousFilters, setPreviousFilters] = useState(filters);
 	if (JSON.stringify(previousFilters) !== JSON.stringify(filters)) {
-		setPreviousFilters(filters)
-		setPagination(prev => ({ ...prev, pageIndex: 0 }))
+		setPreviousFilters(filters);
+		setPagination((prev) => ({ ...prev, pageIndex: 0 }));
 	}
 
 	// Create TanStack table instance
 	const tableInstance = useReactTable({
-		data: dataQuery.data?.data || [],
+		data: data || [],
 		columns,
 		getRowId: (row: T) => row.id || String(Math.random()),
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		onRowSelectionChange: enableSelection ? setRowSelection : undefined,
-		onPaginationChange: setPagination, // Connect pagination state
-		onSortingChange: setSorting, // Connect sorting state
-		manualPagination: serverSide, // Enable manual pagination for server-side
-		manualSorting: serverSide, // Enable manual sorting for server-side
-		pageCount: serverSide ? Math.ceil((dataQuery.data?.count || 0) / pagination.pageSize) : -1,
+		onPaginationChange: handlePaginationChange,
+		onSortingChange: handleSortingChange,
+		manualPagination: serverSide,
+		manualSorting: serverSide,
+		pageCount: serverSide ? Math.ceil(totalCount / pagination.pageSize) : -1,
 		state: {
 			pagination,
 			rowSelection: enableSelection ? rowSelection : {},
-			sorting
-		}
-	})
+			sorting,
+		},
+	});
 
 	return {
 		// Table instance for rendering
 		table: tableInstance,
-		
+
 		// Filter components
 		filterColumns,
 		filterState,
 		actions,
 		strategy,
-		
+
 		// Loading states
-		isLoading: dataQuery.isLoading,
-		isError: dataQuery.isError,
-		error: dataQuery.error,
-		
+		isLoading,
+		isError,
+		error,
+
 		// Data
-		data: dataQuery.data?.data || [],
-		
+		data: data || [],
+
 		// Row actions
 		rowActions,
-		
+
 		// Pagination (server-side)
-		totalCount: dataQuery.data?.count || 0,
-		pageCount: Math.ceil((dataQuery.data?.count || 0) / pageSize)
-	}
+		totalCount,
+		pageCount: Math.ceil(totalCount / pageSize),
+	};
 }

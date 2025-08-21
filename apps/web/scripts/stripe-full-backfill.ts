@@ -135,7 +135,9 @@ class StripeBackfillRunner {
 				const startTime = Date.now();
 
 				// Use chunking for both entities to prevent timeouts (all-time data in chunks)
-				console.log(`🔄 Processing ${entity} in ${this.options.chunkDays}-day chunks (all-time data)...`);
+				console.log(
+					`🔄 Processing ${entity} in ${this.options.chunkDays}-day chunks (all-time data)...`,
+				);
 				await this.processEntityInChunks(entity);
 
 				const duration = Date.now() - startTime;
@@ -154,7 +156,7 @@ class StripeBackfillRunner {
 
 				if (attempt < this.options.maxRetries) {
 					const backoffMs = 2 ** attempt * 2000; // Longer exponential backoff
-					console.log(`⏳ Retrying in ${Math.round(backoffMs/1000)}s...`);
+					console.log(`⏳ Retrying in ${Math.round(backoffMs / 1000)}s...`);
 					await this.sleep(backoffMs);
 				}
 			}
@@ -244,7 +246,7 @@ class StripeBackfillRunner {
 			console.log(`  ✓ API Response: ${result.message}`);
 		} catch (error) {
 			clearTimeout(timeoutId);
-			if (error instanceof Error && error.name === 'AbortError') {
+			if (error instanceof Error && error.name === "AbortError") {
 				throw new Error(`Request timeout after 10 minutes for ${entity}`);
 			}
 			throw error;

@@ -5,7 +5,9 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 
 // Export Better Auth types for sessions
-export type ListSessionsResponse = Awaited<ReturnType<typeof auth.api.listSessions>>;
+export type ListSessionsResponse = Awaited<
+	ReturnType<typeof auth.api.listSessions>
+>;
 export type Session = ListSessionsResponse[0];
 
 // Server action to get sessions

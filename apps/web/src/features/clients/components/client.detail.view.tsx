@@ -1,21 +1,20 @@
 "use client";
 
-import { format } from "date-fns";
-
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/status-badge";
 
+import { format } from "date-fns";
 import {
+	Calendar,
+	CheckCircle2,
+	Clock,
+	ExternalLink,
 	Mail,
 	Phone,
-	Calendar,
+	Target,
 	User,
-	ExternalLink,
-	CheckCircle2,
 	XCircle,
-	Clock,
-	Target
 } from "lucide-react";
 
 interface ClientDetailViewProps {
@@ -85,40 +84,10 @@ const formatDate = (dateString: string | null) => {
 	}
 };
 
-const getStatusColor = (status: string | null) => {
-	switch (status?.toLowerCase()) {
-		case "active":
-			return "bg-green-500/10 text-green-700 border-green-500/20";
-		case "paused":
-			return "bg-yellow-500/10 text-yellow-700 border-yellow-500/20";
-		case "churned":
-			return "bg-red-500/10 text-red-700 border-red-500/20";
-		case "onboarding":
-			return "bg-blue-500/10 text-blue-700 border-blue-500/20";
-		case "pending":
-			return "bg-gray-500/10 text-gray-700 border-gray-500/20";
-		default:
-			return "bg-gray-500/10 text-gray-700 border-gray-500/20";
-	}
-};
-
-const getPlatformAccessColor = (status: string | null) => {
-	switch (status?.toLowerCase()) {
-		case "granted":
-			return "bg-green-500/10 text-green-700 border-green-500/20";
-		case "pending":
-			return "bg-yellow-500/10 text-yellow-700 border-yellow-500/20";
-		case "revoked":
-		case "expired":
-			return "bg-red-500/10 text-red-700 border-red-500/20";
-		default:
-			return "bg-gray-500/10 text-gray-700 border-gray-500/20";
-	}
-};
-
 export default function ClientDetailView({ client }: ClientDetailViewProps) {
 	const fullName = `${client.first_name} ${client.last_name}`;
-	const initials = `${client.first_name[0]}${client.last_name[0]}`.toUpperCase();
+	const initials =
+		`${client.first_name[0]}${client.last_name[0]}`.toUpperCase();
 
 	return (
 		<div className="space-y-6 p-6">
@@ -126,12 +95,12 @@ export default function ClientDetailView({ client }: ClientDetailViewProps) {
 			<div className="flex items-start justify-between">
 				<div className="flex items-start space-x-4">
 					<Avatar className="h-16 w-16">
-						<AvatarFallback className="text-lg font-semibold">
+						<AvatarFallback className="font-semibold text-lg">
 							{initials}
 						</AvatarFallback>
 					</Avatar>
 					<div>
-						<h1 className="text-2xl font-bold">{fullName}</h1>
+						<h1 className="font-bold text-2xl">{fullName}</h1>
 						<div className="flex items-center space-x-2 text-muted-foreground">
 							<Mail className="h-4 w-4" />
 							<span>{client.email}</span>
@@ -142,13 +111,13 @@ export default function ClientDetailView({ client }: ClientDetailViewProps) {
 								<span>{client.phone}</span>
 							</div>
 						)}
-						<div className="flex items-center space-x-2 mt-2">
-							<Badge className={getStatusColor(client.status)}>
-								{client.status || "Unknown"}
-							</Badge>
-							<Badge className={getPlatformAccessColor(client.platform_access_status)}>
-								Platform: {client.platform_access_status || "Unknown"}
-							</Badge>
+						<div className="mt-2 flex items-center space-x-2">
+							<StatusBadge>{client.status}</StatusBadge>
+							<StatusBadge>
+								{client.platform_access_status
+									? `Platform: ${client.platform_access_status}`
+									: "Platform: Unknown"}
+							</StatusBadge>
 						</div>
 					</div>
 				</div>
@@ -165,25 +134,31 @@ export default function ClientDetailView({ client }: ClientDetailViewProps) {
 					</CardHeader>
 					<CardContent className="space-y-4">
 						<div>
-							<label className="text-sm font-medium text-muted-foreground">Full Name</label>
+							<label className="font-medium text-muted-foreground text-sm">
+								Full Name
+							</label>
 							<p className="text-sm">{fullName}</p>
 						</div>
 						<div>
-							<label className="text-sm font-medium text-muted-foreground">Email</label>
+							<label className="font-medium text-muted-foreground text-sm">
+								Email
+							</label>
 							<p className="text-sm">{client.email}</p>
 						</div>
 						{client.phone && (
 							<div>
-								<label className="text-sm font-medium text-muted-foreground">Phone</label>
+								<label className="font-medium text-muted-foreground text-sm">
+									Phone
+								</label>
 								<p className="text-sm">{client.phone}</p>
 							</div>
 						)}
 						<div>
-							<label className="text-sm font-medium text-muted-foreground">Status</label>
+							<label className="font-medium text-muted-foreground text-sm">
+								Status
+							</label>
 							<p className="text-sm">
-								<Badge className={getStatusColor(client.status)}>
-									{client.status || "Unknown"}
-								</Badge>
+								<StatusBadge>{client.status}</StatusBadge>
 							</p>
 						</div>
 					</CardContent>
@@ -199,36 +174,48 @@ export default function ClientDetailView({ client }: ClientDetailViewProps) {
 					</CardHeader>
 					<CardContent className="space-y-4">
 						<div>
-							<label className="text-sm font-medium text-muted-foreground">Start Date</label>
+							<label className="font-medium text-muted-foreground text-sm">
+								Start Date
+							</label>
 							<p className="text-sm">{formatDate(client.start_date)}</p>
 						</div>
 						{client.end_date && (
 							<div>
-								<label className="text-sm font-medium text-muted-foreground">End Date</label>
+								<label className="font-medium text-muted-foreground text-sm">
+									End Date
+								</label>
 								<p className="text-sm">{formatDate(client.end_date)}</p>
 							</div>
 						)}
 						{client.renewal_date && (
 							<div>
-								<label className="text-sm font-medium text-muted-foreground">Renewal Date</label>
+								<label className="font-medium text-muted-foreground text-sm">
+									Renewal Date
+								</label>
 								<p className="text-sm">{formatDate(client.renewal_date)}</p>
 							</div>
 						)}
 						{client.churned_at && (
 							<div>
-								<label className="text-sm font-medium text-muted-foreground">Churned Date</label>
+								<label className="font-medium text-muted-foreground text-sm">
+									Churned Date
+								</label>
 								<p className="text-sm">{formatDate(client.churned_at)}</p>
 							</div>
 						)}
 						{client.paused_at && (
 							<div>
-								<label className="text-sm font-medium text-muted-foreground">Paused Date</label>
+								<label className="font-medium text-muted-foreground text-sm">
+									Paused Date
+								</label>
 								<p className="text-sm">{formatDate(client.paused_at)}</p>
 							</div>
 						)}
 						{client.offboard_date && (
 							<div>
-								<label className="text-sm font-medium text-muted-foreground">Offboard Date</label>
+								<label className="font-medium text-muted-foreground text-sm">
+									Offboard Date
+								</label>
 								<p className="text-sm">{formatDate(client.offboard_date)}</p>
 							</div>
 						)}
@@ -245,22 +232,24 @@ export default function ClientDetailView({ client }: ClientDetailViewProps) {
 					</CardHeader>
 					<CardContent className="space-y-4">
 						<div>
-							<label className="text-sm font-medium text-muted-foreground">Access Status</label>
+							<label className="font-medium text-muted-foreground text-sm">
+								Access Status
+							</label>
 							<p className="text-sm">
-								<Badge className={getPlatformAccessColor(client.platform_access_status)}>
-									{client.platform_access_status || "Unknown"}
-								</Badge>
+								<StatusBadge>{client.platform_access_status}</StatusBadge>
 							</p>
 						</div>
 						{client.platform_link && (
 							<div>
-								<label className="text-sm font-medium text-muted-foreground">Platform Link</label>
+								<label className="font-medium text-muted-foreground text-sm">
+									Platform Link
+								</label>
 								<p className="text-sm">
-									<a 
-										href={client.platform_link} 
-										target="_blank" 
+									<a
+										href={client.platform_link}
+										target="_blank"
 										rel="noopener noreferrer"
-										className="text-blue-600 hover:text-blue-800 underline"
+										className="text-blue-600 underline hover:text-blue-800"
 									>
 										{client.platform_link}
 									</a>
@@ -280,7 +269,9 @@ export default function ClientDetailView({ client }: ClientDetailViewProps) {
 					</CardHeader>
 					<CardContent className="space-y-4">
 						<div className="flex items-center justify-between">
-							<label className="text-sm font-medium text-muted-foreground">Consultation Form</label>
+							<label className="font-medium text-muted-foreground text-sm">
+								Consultation Form
+							</label>
 							<div className="flex items-center space-x-2">
 								{client.consultation_form_completed ? (
 									<CheckCircle2 className="h-4 w-4 text-green-600" />
@@ -288,12 +279,16 @@ export default function ClientDetailView({ client }: ClientDetailViewProps) {
 									<XCircle className="h-4 w-4 text-red-600" />
 								)}
 								<span className="text-sm">
-									{client.consultation_form_completed ? "Completed" : "Not Completed"}
+									{client.consultation_form_completed
+										? "Completed"
+										: "Not Completed"}
 								</span>
 							</div>
 						</div>
 						<div className="flex items-center justify-between">
-							<label className="text-sm font-medium text-muted-foreground">VIP Terms</label>
+							<label className="font-medium text-muted-foreground text-sm">
+								VIP Terms
+							</label>
 							<div className="flex items-center space-x-2">
 								{client.vip_terms_signed ? (
 									<CheckCircle2 className="h-4 w-4 text-green-600" />
@@ -321,14 +316,20 @@ export default function ClientDetailView({ client }: ClientDetailViewProps) {
 					<CardContent>
 						<div className="space-y-3">
 							{client.client_assignments.map((assignment) => (
-								<div key={assignment.id} className="flex items-center justify-between p-3 border rounded-lg">
+								<div
+									key={assignment.id}
+									className="flex items-center justify-between rounded-lg border p-3"
+								>
 									<div>
 										<p className="font-medium">{assignment.coach.name}</p>
-										<p className="text-sm text-muted-foreground">{assignment.coach.email}</p>
+										<p className="text-muted-foreground text-sm">
+											{assignment.coach.email}
+										</p>
 									</div>
 									<div className="text-right">
-										<p className="text-sm text-muted-foreground">
-											{assignment.assignment_type} - Started {formatDate(assignment.start_date)}
+										<p className="text-muted-foreground text-sm">
+											{assignment.assignment_type} - Started{" "}
+											{formatDate(assignment.start_date)}
 										</p>
 									</div>
 								</div>
@@ -350,22 +351,24 @@ export default function ClientDetailView({ client }: ClientDetailViewProps) {
 					<CardContent>
 						<div className="space-y-3">
 							{client.client_goals.map((goal) => (
-								<div key={goal.id} className="p-3 border rounded-lg">
-									<div className="flex items-center justify-between mb-2">
-										<h4 className="font-medium">{goal.goal_type?.name || "Unknown Goal Type"}</h4>
-										{goal.status && (
-											<Badge className={getStatusColor(goal.status)}>
-												{goal.status}
-											</Badge>
-										)}
+								<div key={goal.id} className="rounded-lg border p-3">
+									<div className="mb-2 flex items-center justify-between">
+										<h4 className="font-medium">
+											{goal.goal_type?.name || "Unknown Goal Type"}
+										</h4>
+										{goal.status && <StatusBadge>{goal.status}</StatusBadge>}
 									</div>
 									{goal.description && (
-										<p className="text-sm text-muted-foreground mb-2">{goal.description}</p>
+										<p className="mb-2 text-muted-foreground text-sm">
+											{goal.description}
+										</p>
 									)}
 									{goal.goal_type?.description && (
-										<p className="text-xs text-muted-foreground">{goal.goal_type.description}</p>
+										<p className="text-muted-foreground text-xs">
+											{goal.goal_type.description}
+										</p>
 									)}
-									<p className="text-xs text-muted-foreground mt-2">
+									<p className="mt-2 text-muted-foreground text-xs">
 										Created {formatDate(goal.created_at)}
 									</p>
 								</div>
@@ -382,7 +385,9 @@ export default function ClientDetailView({ client }: ClientDetailViewProps) {
 						<CardTitle>Onboarding Notes</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<p className="text-sm whitespace-pre-wrap">{client.onboarding_notes}</p>
+						<p className="whitespace-pre-wrap text-sm">
+							{client.onboarding_notes}
+						</p>
 					</CardContent>
 				</Card>
 			)}
@@ -395,16 +400,22 @@ export default function ClientDetailView({ client }: ClientDetailViewProps) {
 					</CardHeader>
 					<CardContent className="space-y-3">
 						<div>
-							<label className="text-sm font-medium text-muted-foreground">Product</label>
+							<label className="font-medium text-muted-foreground text-sm">
+								Product
+							</label>
 							<p className="text-sm">{client.product.name}</p>
 						</div>
 						<div>
-							<label className="text-sm font-medium text-muted-foreground">Client Units</label>
+							<label className="font-medium text-muted-foreground text-sm">
+								Client Units
+							</label>
 							<p className="text-sm">{client.product.client_unit}</p>
 						</div>
 						{client.product.description && (
 							<div>
-								<label className="text-sm font-medium text-muted-foreground">Description</label>
+								<label className="font-medium text-muted-foreground text-sm">
+									Description
+								</label>
 								<p className="text-sm">{client.product.description}</p>
 							</div>
 						)}
@@ -423,17 +434,25 @@ export default function ClientDetailView({ client }: ClientDetailViewProps) {
 				<CardContent className="space-y-4">
 					{client.created_by && (
 						<div>
-							<label className="text-sm font-medium text-muted-foreground">Created By</label>
-							<p className="text-sm">{client.created_by.name} ({client.created_by.email})</p>
+							<label className="font-medium text-muted-foreground text-sm">
+								Created By
+							</label>
+							<p className="text-sm">
+								{client.created_by.name} ({client.created_by.email})
+							</p>
 						</div>
 					)}
 					<div>
-						<label className="text-sm font-medium text-muted-foreground">Created At</label>
+						<label className="font-medium text-muted-foreground text-sm">
+							Created At
+						</label>
 						<p className="text-sm">{formatDate(client.created_at)}</p>
 					</div>
 					{client.updated_at && (
 						<div>
-							<label className="text-sm font-medium text-muted-foreground">Last Updated</label>
+							<label className="font-medium text-muted-foreground text-sm">
+								Last Updated
+							</label>
 							<p className="text-sm">{formatDate(client.updated_at)}</p>
 						</div>
 					)}

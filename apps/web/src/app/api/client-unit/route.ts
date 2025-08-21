@@ -8,7 +8,6 @@ const requestSchema = z.object({
 	client_id: z.string().uuid(),
 });
 
-
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
@@ -34,10 +33,7 @@ export async function POST(request: NextRequest) {
 			.single();
 
 		if (clientError || !client) {
-			return NextResponse.json(
-				{ error: "Client not found" },
-				{ status: 404 },
-			);
+			return NextResponse.json({ error: "Client not found" }, { status: 404 });
 		}
 
 		// Get current coach assignment (if any) - be more flexible with the query
@@ -50,27 +46,37 @@ export async function POST(request: NextRequest) {
 		console.log("All assignments for client:", assignments);
 
 		// Find active coach assignment or any coach assignment
-		let coach_assignment = assignments?.find(a => 
-			a.assignment_type === "coach" && a.end_date === null
+		let coach_assignment = assignments?.find(
+			(a) => a.assignment_type === "coach" && a.end_date === null,
 		);
 
 		// If no active coach, find the most recent coach assignment
 		if (!coach_assignment) {
-			coach_assignment = assignments?.find(a => a.assignment_type === "coach");
+			coach_assignment = assignments?.find(
+				(a) => a.assignment_type === "coach",
+			);
 		}
 
 		// If still no coach, use any assignment or default
-		const coach_id = coach_assignment?.user_id || 
-			assignments?.[0]?.user_id || 
+		const coach_id =
+			coach_assignment?.user_id ||
+			assignments?.[0]?.user_id ||
 			"00000000-0000-0000-0000-000000000000"; // Use a valid UUID format
 
 		console.log("Selected coach_id:", coach_id);
 
 		// Get the client unit value from the product, fallback to 1.0 if no product assigned
 		// Note: products is an array due to Supabase's relationship structure, so we take the first element
-		const product = Array.isArray(client.products) ? client.products[0] : client.products;
+		const product = Array.isArray(client.products)
+			? client.products[0]
+			: client.products;
 		const productClientUnit = product?.client_unit || 1.0;
-		console.log("Product client unit:", productClientUnit, "Product:", product?.name);
+		console.log(
+			"Product client unit:",
+			productClientUnit,
+			"Product:",
+			product?.name,
+		);
 
 		// Calculate client units
 		const calculatedUnits = await calculateClientUnits(
@@ -212,7 +218,9 @@ async function calculateClientUnits(
 
 	const ticketsCount = tickets?.length || 0;
 	const escalationTickets =
-		tickets?.filter((t: { ticket_type: string }) => t.ticket_type === "escalation").length || 0;
+		tickets?.filter(
+			(t: { ticket_type: string }) => t.ticket_type === "escalation",
+		).length || 0;
 
 	escalations_factor = ticketsCount * 0.1; // 0.1 per ticket
 	escalations_factor += escalationTickets * 0.1; // Additional 0.1 for escalations

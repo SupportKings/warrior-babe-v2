@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -12,6 +11,9 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 interface DatePickerProps {
 	value?: string;
@@ -31,7 +33,7 @@ export function DatePicker({
 	id,
 }: DatePickerProps) {
 	const [date, setDate] = React.useState<Date | undefined>(
-		value ? new Date(value) : undefined
+		value ? new Date(value) : undefined,
 	);
 
 	const handleDateSelect = (newDate: Date | undefined) => {
@@ -42,7 +44,7 @@ export function DatePicker({
 			const month = newDate.getMonth();
 			const day = newDate.getDate();
 			const utcDate = new Date(Date.UTC(year, month, day));
-			onChange(utcDate.toISOString().split('T')[0]);
+			onChange(utcDate.toISOString().split("T")[0]);
 		} else if (onChange && !newDate) {
 			onChange("");
 		}
@@ -51,8 +53,14 @@ export function DatePicker({
 	React.useEffect(() => {
 		if (value) {
 			// Parse date string as local date to avoid timezone issues
-			const [year, month, day] = value.split('-');
-			setDate(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)));
+			const [year, month, day] = value.split("-");
+			setDate(
+				new Date(
+					Number.parseInt(year),
+					Number.parseInt(month) - 1,
+					Number.parseInt(day),
+				),
+			);
 		} else {
 			setDate(undefined);
 		}
@@ -65,9 +73,9 @@ export function DatePicker({
 					id={id}
 					variant={"outline"}
 					className={cn(
-						"w-full justify-start text-left font-normal h-10",
+						"h-10 w-full justify-start text-left font-normal",
 						!date && "text-muted-foreground",
-						className
+						className,
 					)}
 					disabled={disabled}
 				>

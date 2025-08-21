@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button'
-import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
 	Table,
 	TableBody,
@@ -7,24 +7,28 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@/components/ui/table'
-import { FilterIcon } from 'lucide-react'
+} from "@/components/ui/table";
+
+import { FilterIcon } from "lucide-react";
 
 export interface TableSkeletonProps {
-	numCols: number
-	numRows: number
+	numCols: number;
+	numRows: number;
 }
 
-export function UniversalTableSkeleton({ numRows, numCols }: TableSkeletonProps) {
-	const rows = Array.from(Array(numRows).keys())
+export function UniversalTableSkeleton({
+	numRows,
+	numCols,
+}: TableSkeletonProps) {
+	const rows = Array.from(Array(numRows).keys());
 	// Always add 1 column for actions
-	const cols = Array.from(Array(numCols + 1).keys())
+	const cols = Array.from(Array(numCols + 1).keys());
 
 	return (
 		<>
 			{/* Pagination skeleton at top */}
 			<div className="flex items-center justify-between py-4">
-				<div className="flex-1 text-sm text-muted-foreground tabular-nums">
+				<div className="flex-1 text-muted-foreground text-sm tabular-nums">
 					<Skeleton className="h-[20px] w-[200px]" />
 				</div>
 				<div className="flex items-center gap-2">
@@ -42,7 +46,7 @@ export function UniversalTableSkeleton({ numRows, numCols }: TableSkeletonProps)
 					</Button>
 				</div>
 			</div>
-			
+
 			{/* Table skeleton */}
 			<div className="rounded-md border bg-white dark:bg-inherit">
 				<Table>
@@ -69,7 +73,7 @@ export function UniversalTableSkeleton({ numRows, numCols }: TableSkeletonProps)
 				</Table>
 			</div>
 		</>
-	)
+	);
 }
 
 export function UniversalTableFilterSkeleton() {
@@ -82,16 +86,22 @@ export function UniversalTableFilterSkeleton() {
 			<Skeleton className="h-7 w-20" />
 			<Skeleton className="h-7 w-24" />
 		</div>
-	)
+	);
 }
 
-export function UniversalTableFallback({ numCols, numRows = 10 }: { numCols: number; numRows?: number }) {
+export function UniversalTableFallback({
+	numCols,
+	numRows = 10,
+}: {
+	numCols: number;
+	numRows?: number;
+}) {
 	return (
 		<div className="w-full space-y-4">
-			<div className="flex items-center pb-4 gap-2">
+			<div className="flex items-center gap-2 pb-4">
 				<UniversalTableFilterSkeleton />
 			</div>
 			<UniversalTableSkeleton numCols={numCols} numRows={numRows} />
 		</div>
-	)
+	);
 }

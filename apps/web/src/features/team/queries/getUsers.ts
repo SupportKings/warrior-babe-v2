@@ -17,17 +17,17 @@ export const getUsers = async (): Promise<ListUsersResponse> => {
 		},
 		headers: await headers(),
 	});
-	
+
 	// Filter out banned users
 	if (users.users) {
-		users.users = users.users.filter(user => user.banned !== true);
+		users.users = users.users.filter((user) => user.banned !== true);
 		users.total = users.users.length;
 	}
-	
+
 	return users;
 };
 
-// Rare case - includes banned users  
+// Rare case - includes banned users
 export const getAllUsers = async (): Promise<ListUsersResponse> => {
 	return await auth.api.listUsers({
 		query: {

@@ -1,10 +1,17 @@
 "use server";
 
-import { actionClient } from "@/lib/safe-action";
-import { createClient } from "@/utils/supabase/server";
-import { returnValidationErrors } from "next-safe-action";
-import { clientUpdateSchema } from "@/features/clients/types/client";
 import { revalidatePath } from "next/cache";
+
+import { actionClient } from "@/lib/safe-action";
+
+import { createClient } from "@/utils/supabase/server";
+
+import {
+	clientUpdateSchema,
+	formatValidationError,
+} from "@/features/clients/types/client";
+
+import { returnValidationErrors } from "next-safe-action";
 
 export const updateClientAction = actionClient
 	.inputSchema(clientUpdateSchema)
@@ -47,17 +54,23 @@ export const updateClientAction = actionClient
 
 			// 3. Prepare update data (remove undefined values)
 			const cleanUpdateData: any = Object.fromEntries(
-				Object.entries(updateData).filter(([_, value]) => value !== undefined)
+				Object.entries(updateData).filter(([_, value]) => value !== undefined),
 			);
 
 			// Handle empty strings as null for optional fields
 			const fieldsToNullify = [
-				'phone', 'end_date', 'renewal_date', 'product_id', 
-				'platform_link', 'onboarding_notes', 'churned_at', 
-				'paused_at', 'offboard_date'
+				"phone",
+				"end_date",
+				"renewal_date",
+				"product_id",
+				"platform_link",
+				"onboarding_notes",
+				"churned_at",
+				"paused_at",
+				"offboard_date",
 			];
-			
-			fieldsToNullify.forEach(field => {
+
+			fieldsToNullify.forEach((field) => {
 				if (cleanUpdateData[field] === "") {
 					cleanUpdateData[field] = null;
 				}

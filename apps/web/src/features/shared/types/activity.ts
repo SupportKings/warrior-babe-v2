@@ -11,24 +11,26 @@ export type AuditLog = Database["public"]["Tables"]["audit_log"]["Row"] & {
 };
 
 // Ticket comment type with user information
-export type TicketComment = Database["public"]["Tables"]["ticket_comments"]["Row"] & {
-	user: {
-		id: string;
-		name: string;
-		email: string;
-		image: string | null;
+export type TicketComment =
+	Database["public"]["Tables"]["ticket_comments"]["Row"] & {
+		user: {
+			id: string;
+			name: string;
+			email: string;
+			image: string | null;
+		};
 	};
-};
 
 // Coach comment type with user information
-export type CoachComment = Database["public"]["Tables"]["coach_comments"]["Row"] & {
-	user: {
-		id: string;
-		name: string;
-		email: string;
-		image: string | null;
+export type CoachComment =
+	Database["public"]["Tables"]["coach_comments"]["Row"] & {
+		user: {
+			id: string;
+			name: string;
+			email: string;
+			image: string | null;
+		};
 	};
-};
 
 // Generic activity item that can represent any entity's activity
 export type ActivityItem<T = AuditLog | TicketComment | CoachComment> = {

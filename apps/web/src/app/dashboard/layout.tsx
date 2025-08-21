@@ -9,29 +9,26 @@ import { CommandProvider } from "@/features/commandpallette/components/commandPr
 import { getUser } from "@/queries/getUser";
 
 export default async function DashboardLayout({
-  children,
+	children,
 }: {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }) {
-  const session = await getUser();
+	const session = await getUser();
 
-  if (!session) {
-    redirect("/");
-  }
+	if (!session) {
+		redirect("/");
+	}
 
-  return (
-    <CommandProvider>
-      <SidebarProvider>
-        <AppSidebar
-          variant="inset"
-          session={session}
-        />
+	return (
+		<CommandProvider>
+			<SidebarProvider>
+				<AppSidebar variant="inset" session={session} />
 
-        <SidebarInset className="overflow-x-hidden">
-          {children}
-          <CommandBar />
-        </SidebarInset>
-      </SidebarProvider>
-    </CommandProvider>
-  );
+				<SidebarInset className="overflow-x-hidden">
+					{children}
+					<CommandBar />
+				</SidebarInset>
+			</SidebarProvider>
+		</CommandProvider>
+	);
 }

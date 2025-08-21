@@ -1,31 +1,35 @@
-'use client'
+"use client";
 
-import { Button } from '@/components/ui/button'
+import { cn } from "@/lib/utils";
+
+import { Button } from "@/components/ui/button";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from '@/components/ui/popover'
-import { MoreHorizontalIcon } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { RowAction, UniversalTableRow } from './types'
+} from "@/components/ui/popover";
 
-interface TableActionsPopoverProps<T extends UniversalTableRow = UniversalTableRow> {
-	row: T
-	actions: RowAction<T>[]
+import { MoreHorizontalIcon } from "lucide-react";
+import type { RowAction, UniversalTableRow } from "./types";
+
+interface TableActionsPopoverProps<
+	T extends UniversalTableRow = UniversalTableRow,
+> {
+	row: T;
+	actions: RowAction<T>[];
 }
 
 export function TableActionsPopover<T extends UniversalTableRow>({
 	row,
-	actions
+	actions,
 }: TableActionsPopoverProps<T>) {
 	// Filter out hidden actions
-	const visibleActions = actions.filter(action => 
-		!action.hidden || !action.hidden(row)
-	)
+	const visibleActions = actions.filter(
+		(action) => !action.hidden || !action.hidden(row),
+	);
 
 	if (visibleActions.length === 0) {
-		return null
+		return null;
 	}
 
 	return (
@@ -43,8 +47,8 @@ export function TableActionsPopover<T extends UniversalTableRow>({
 			<PopoverContent className="w-auto p-1" align="end">
 				<div className="flex flex-col">
 					{visibleActions.map((action, index) => {
-						const isDisabled = action.disabled ? action.disabled(row) : false
-						const Icon = action.icon
+						const isDisabled = action.disabled ? action.disabled(row) : false;
+						const Icon = action.icon;
 
 						return (
 							<Button
@@ -52,8 +56,9 @@ export function TableActionsPopover<T extends UniversalTableRow>({
 								variant="ghost"
 								size="sm"
 								className={cn(
-									"justify-start gap-2 h-8 px-2 text-left font-normal",
-									action.variant === 'destructive' && "text-destructive hover:text-destructive"
+									"h-8 justify-start gap-2 px-2 text-left font-normal",
+									action.variant === "destructive" &&
+										"text-destructive hover:text-destructive",
 								)}
 								disabled={isDisabled}
 								onClick={() => action.onClick(row)}
@@ -61,10 +66,10 @@ export function TableActionsPopover<T extends UniversalTableRow>({
 								{Icon && <Icon className="h-4 w-4" />}
 								{action.label}
 							</Button>
-						)
+						);
 					})}
 				</div>
 			</PopoverContent>
 		</Popover>
-	)
+	);
 }

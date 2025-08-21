@@ -4,12 +4,12 @@ import React, { useMemo } from "react";
 
 import type { Action } from "kbar";
 import {
-  ChartLineIcon,
-  CreditCard,
-  InboxIcon,
-  Settings,
-  Ticket,
-  Users,
+	ChartLineIcon,
+	CreditCard,
+	InboxIcon,
+	Settings,
+	Ticket,
+	Users,
 } from "lucide-react";
 
 interface NavigationActionsProps {

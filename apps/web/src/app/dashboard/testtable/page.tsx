@@ -9,14 +9,14 @@ import { IssuesTable } from "./testtable";
 const filtersSchema = z.custom<FiltersState>();
 
 export default function SSRPage() {
-  const [filters, setFilters] = useQueryState<FiltersState>(
-    "filters",
-    parseAsJson(filtersSchema.parse).withDefault([])
-  );
+	const [filters, setFilters] = useQueryState<FiltersState>(
+		"filters",
+		parseAsJson(filtersSchema.parse).withDefault([]),
+	);
 
-  return (
-    <div className="grid grid-cols-3 gap-8">
-      <IssuesTable state={{ filters, setFilters }} />
-    </div>
-  );
+	return (
+		<div className="grid grid-cols-3 gap-8">
+			<IssuesTable state={{ filters, setFilters }} />
+		</div>
+	);
 }

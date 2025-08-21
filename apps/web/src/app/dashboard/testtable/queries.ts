@@ -1,8 +1,8 @@
 import {
-    CheckCircleIcon,
-    CircleDashedIcon,
-    ClockIcon,
-    PlayIcon,
+	CheckCircleIcon,
+	CircleDashedIcon,
+	ClockIcon,
+	PlayIcon,
 } from "lucide-react";
 import type { Issue, IssueLabel, IssueStatus, User } from "./types";
 
@@ -130,8 +130,6 @@ const mockIssues: Issue[] = [
 		startDate: new Date("2024-01-18"),
 		endDate: new Date("2024-01-28"),
 	},
-
-    
 ];
 
 // Mock faceted data

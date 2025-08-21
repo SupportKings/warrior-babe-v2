@@ -4,25 +4,25 @@ import { KBarProvider } from "kbar";
 import { useNavigationActions } from "../actions/navigation";
 import { useThemeActions } from "../actions/theme";
 export const CommandProvider = ({
-  children,
-  permissions,
+	children,
+	permissions,
 }: {
-  children: React.ReactNode;
-  permissions?: any;
+	children: React.ReactNode;
+	permissions?: any;
 }) => {
-  const themeActions = useThemeActions();
-  const navigationActions = useNavigationActions({ permissions });
+	const themeActions = useThemeActions();
+	const navigationActions = useNavigationActions({ permissions });
 
-  const actions: any[] = [...navigationActions, ...themeActions];
+	const actions: any[] = [...navigationActions, ...themeActions];
 
-  return (
-    <KBarProvider
-      actions={actions}
-      options={{
-        disableScrollbarManagement: true,
-      }}
-    >
-      {children}
-    </KBarProvider>
-  );
+	return (
+		<KBarProvider
+			actions={actions}
+			options={{
+				disableScrollbarManagement: true,
+			}}
+		>
+			{children}
+		</KBarProvider>
+	);
 };

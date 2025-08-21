@@ -1,11 +1,19 @@
 "use server";
 
-import { actionClient } from "@/lib/safe-action";
-import { createClient } from "@/utils/supabase/server";
-import { returnValidationErrors } from "next-safe-action";
-import { clientCreateSchema } from "@/features/clients/types/client";
 import { revalidatePath } from "next/cache";
+
+import { actionClient } from "@/lib/safe-action";
+
+import { createClient } from "@/utils/supabase/server";
+
+import {
+	clientCreateSchema,
+	formatValidationError,
+} from "@/features/clients/types/client";
+
 import { getUser } from "@/queries/getUser";
+
+import { returnValidationErrors } from "next-safe-action";
 
 export const createClientAction = actionClient
 	.inputSchema(clientCreateSchema)

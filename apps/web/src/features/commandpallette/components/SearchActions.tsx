@@ -4,10 +4,10 @@ import { useRegisterActions } from "kbar";
 import { useDynamicSearch } from "../hooks/useDynamicSearch";
 
 export function SearchActions() {
-  const dynamicActions = useDynamicSearch();
+	const dynamicActions = useDynamicSearch();
 
-  // Register dynamic actions with kbar
-  useRegisterActions(dynamicActions, [dynamicActions]);
+	// Register dynamic actions with kbar
+	useRegisterActions(dynamicActions, [dynamicActions]);
 
-  return null;
+	return null;
 }

@@ -1,14 +1,21 @@
-import { QueryClient, HydrationBoundary, dehydrate } from "@tanstack/react-query";
-import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { redirect } from "next/navigation";
+
+import { notFound, redirect } from "next/navigation";
 
 import MainLayout from "@/components/layout/main-layout";
-import { getUser } from "@/queries/getUser";
-import ClientEditHeader from "@/features/clients/layout/client-edit-header";
-import ClientEditContent from "@/features/clients/components/client-edit-content";
-import ClientEditSkeleton from "@/features/clients/components/client-edit-skeleton";
+
 import { getClientBasic } from "@/features/clients/actions/getClient";
+import ClientEditContent from "@/features/clients/components/client.edit.content";
+import ClientEditSkeleton from "@/features/clients/components/client.edit.skeleton";
+import ClientEditHeader from "@/features/clients/layout/client.edit.header";
+
+import { getUser } from "@/queries/getUser";
+
+import {
+	dehydrate,
+	HydrationBoundary,
+	QueryClient,
+} from "@tanstack/react-query";
 
 interface ClientEditPageProps {
 	params: Promise<{
@@ -26,7 +33,7 @@ export default function ClientEditPage({ params }: ClientEditPageProps) {
 
 async function ClientEditPageAsync({ params }: ClientEditPageProps) {
 	const { id } = await params;
-	
+
 	// Validate that id is provided
 	if (!id) {
 		notFound();
@@ -53,13 +60,19 @@ async function ClientEditPageAsync({ params }: ClientEditPageProps) {
 	}
 
 	// Extract client name for header
-	const clientName = client ? `${(client as any).first_name} ${(client as any).last_name}` : undefined;
+	const clientName = client
+		? `${(client as any).first_name} ${(client as any).last_name}`
+		: undefined;
 
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>
 			<MainLayout
 				headers={[
-					<ClientEditHeader key="client-edit-header" clientId={id} clientName={clientName} />,
+					<ClientEditHeader
+						key="client-edit-header"
+						clientId={id}
+						clientName={clientName}
+					/>,
 				]}
 			>
 				<ClientEditContent clientId={id} />

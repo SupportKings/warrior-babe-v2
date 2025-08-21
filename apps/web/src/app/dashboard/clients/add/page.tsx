@@ -1,11 +1,14 @@
 import { Suspense } from "react";
+
 import { redirect } from "next/navigation";
 
 import MainLayout from "@/components/layout/main-layout";
-import { getUser } from "@/queries/getUser";
+
+import ClientAddSkeleton from "@/features/clients/components/client.add.skeleton";
 import ClientForm from "@/features/clients/components/client-form";
-import ClientAddHeader from "@/features/clients/layout/client-add-header";
-import ClientAddSkeleton from "@/features/clients/components/client-add-skeleton";
+import ClientAddHeader from "@/features/clients/layout/client.add.header";
+
+import { getUser } from "@/queries/getUser";
 
 import {
 	dehydrate,
@@ -31,11 +34,7 @@ async function ClientAddPageAsync() {
 
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>
-			<MainLayout
-				headers={[
-					<ClientAddHeader key="client-add-header" />,
-				]}
-			>
+			<MainLayout headers={[<ClientAddHeader key="client-add-header" />]}>
 				<div className="p-6">
 					<ClientForm mode="create" />
 				</div>

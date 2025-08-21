@@ -58,73 +58,83 @@ export const addUser = actionClient
 
 			// 1. Create the user first
 			const password = generateSecurePassword();
-			
-			const newUser = await auth.api.createUser({
-				body: {
-					email,
-					password,
-					name,
-					role,
-				},
-			}).catch(async (createUserError: unknown) => {
-				// Check if user already exists - Better Auth throws APIError with status BAD_REQUEST
-				if (createUserError && typeof createUserError === 'object' && 'status' in createUserError) {
-					const apiError = createUserError as { status: string; body?: any };
-					
-					// Check if it's a BAD_REQUEST and contains "User already exists" message
-					if (apiError.status === 'BAD_REQUEST') {
-						const errorMessage = apiError.body?.message || '';
-						if (errorMessage.toLowerCase().includes('user already exists') || 
-							errorMessage.toLowerCase().includes('already exists')) {
-							// User exists - check if they're banned and unban them
-							try {
-								// Search for user by email
-								const searchResult = await auth.api.listUsers({
-									query: {
-										searchValue: email,
-										searchField: "email",
-									},
-									headers: await headers(),
-								});
-								
-								const existingUser = searchResult.users?.find(u => u.email === email);
-								
-								if (existingUser) {
-									// If user is banned, unban them
-									if (existingUser.banned) {
-										await auth.api.unbanUser({
-											body: {
-												userId: existingUser.id,
-											},
-											headers: await headers(),
-										});
-										
-										// Update their role if needed
-										if (existingUser.role !== role) {
-											await auth.api.setRole({
+
+			const newUser = await auth.api
+				.createUser({
+					body: {
+						email,
+						password,
+						name,
+						role,
+					},
+				})
+				.catch(async (createUserError: unknown) => {
+					// Check if user already exists - Better Auth throws APIError with status BAD_REQUEST
+					if (
+						createUserError &&
+						typeof createUserError === "object" &&
+						"status" in createUserError
+					) {
+						const apiError = createUserError as { status: string; body?: any };
+
+						// Check if it's a BAD_REQUEST and contains "User already exists" message
+						if (apiError.status === "BAD_REQUEST") {
+							const errorMessage = apiError.body?.message || "";
+							if (
+								errorMessage.toLowerCase().includes("user already exists") ||
+								errorMessage.toLowerCase().includes("already exists")
+							) {
+								// User exists - check if they're banned and unban them
+								try {
+									// Search for user by email
+									const searchResult = await auth.api.listUsers({
+										query: {
+											searchValue: email,
+											searchField: "email",
+										},
+										headers: await headers(),
+									});
+
+									const existingUser = searchResult.users?.find(
+										(u) => u.email === email,
+									);
+
+									if (existingUser) {
+										// If user is banned, unban them
+										if (existingUser.banned) {
+											await auth.api.unbanUser({
 												body: {
 													userId: existingUser.id,
-													role,
 												},
 												headers: await headers(),
 											});
+
+											// Update their role if needed
+											if (existingUser.role !== role) {
+												await auth.api.setRole({
+													body: {
+														userId: existingUser.id,
+														role,
+													},
+													headers: await headers(),
+												});
+											}
+
+											return existingUser;
 										}
-										
-										return existingUser;
 									}
+								} catch (unbanError) {
+									console.error("Error checking/unbanning user:", unbanError);
 								}
-							} catch (unbanError) {
-								console.error("Error checking/unbanning user:", unbanError);
+
+								throw new Error("USER_ALREADY_EXISTS");
 							}
-							
-							throw new Error("USER_ALREADY_EXISTS");
 						}
 					}
-				}
-				
-				console.error("Error creating user:", createUserError);
-				throw new Error("CREATE_USER_FAILED");
-			});
+
+					console.error("Error creating user:", createUserError);
+					throw new Error("CREATE_USER_FAILED");
+				});
 
 			// 2. Send invite email after successful user creation
 			try {
@@ -146,14 +156,18 @@ export const addUser = actionClient
 					// Note: User was created successfully, but email failed
 					// You might want to handle this differently (e.g., retry email later)
 					return returnValidationErrors(inputSchema, {
-						_errors: ["User created but failed to send invite email. Please try again."],
+						_errors: [
+							"User created but failed to send invite email. Please try again.",
+						],
 					});
 				}
 			} catch (emailError) {
 				console.error("Error sending invite email:", emailError);
 				// Note: User was created successfully, but email failed
 				return returnValidationErrors(inputSchema, {
-					_errors: ["User created but failed to send invite email. Please try again."],
+					_errors: [
+						"User created but failed to send invite email. Please try again.",
+					],
 				});
 			}
 
@@ -163,7 +177,7 @@ export const addUser = actionClient
 			};
 		} catch (error) {
 			console.error("Unexpected error in addUser:", error);
-			
+
 			// Handle specific error types
 			if (error instanceof Error) {
 				if (error.message === "USER_ALREADY_EXISTS") {
@@ -177,7 +191,7 @@ export const addUser = actionClient
 					});
 				}
 			}
-			
+
 			return returnValidationErrors(inputSchema, {
 				_errors: ["Failed to create user. Please try again."],
 			});

@@ -1,10 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Check } from "lucide-react";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 import { cn } from "@/lib/utils";
+
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+} from "@/components/ui/command";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
+
+import { Check } from "lucide-react";
 import { getAllIcons, searchIcons } from "../data/icon-registry";
 
 interface IconPickerProps {
@@ -36,7 +49,7 @@ export function IconPicker({
 						type="button"
 						className={cn(
 							"flex items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted",
-							triggerClassName
+							triggerClassName,
 						)}
 					>
 						{selectedIcon ? (
@@ -73,7 +86,7 @@ export function IconPicker({
 									<div className="relative flex h-full w-full items-center justify-center">
 										<item.icon className="h-4 w-4" />
 										{value === key && (
-											<Check className="absolute bottom-0 right-0 h-2 w-2 text-primary" />
+											<Check className="absolute right-0 bottom-0 h-2 w-2 text-primary" />
 										)}
 									</div>
 									<span className="sr-only">{item.name}</span>
