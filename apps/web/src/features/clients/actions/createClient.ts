@@ -64,7 +64,7 @@ export const createClientAction = actionClient
 					end_date: end_date || null,
 					renewal_date: renewal_date || null,
 					product_id: product_id || null,
-					created_by: user.id,
+					created_by: user.session.userId,
 					status: status || "active",
 					platform_access_status: platform_access_status || "pending",
 					platform_link: platform_link || null,
