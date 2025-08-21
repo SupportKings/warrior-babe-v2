@@ -77,7 +77,7 @@ export function useDeleteClient() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (id: string) => deleteClient(id),
+		mutationFn: (id: string) => deleteClient({ id }),
 		onSuccess: (result, deletedId) => {
 			// Remove the deleted client from the cache
 			queryClient.removeQueries({ queryKey: clientQueries.detail(deletedId) });
