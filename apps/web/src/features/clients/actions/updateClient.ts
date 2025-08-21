@@ -38,13 +38,15 @@ export const updateClientAction = actionClient
 
 				if (emailConflict) {
 					return returnValidationErrors(clientUpdateSchema, {
-						email: ["Client with this email already exists"],
+						email: {
+							_errors: ["Client with this email already exists"],
+						},
 					});
 				}
 			}
 
 			// 3. Prepare update data (remove undefined values)
-			const cleanUpdateData = Object.fromEntries(
+			const cleanUpdateData: any = Object.fromEntries(
 				Object.entries(updateData).filter(([_, value]) => value !== undefined)
 			);
 
