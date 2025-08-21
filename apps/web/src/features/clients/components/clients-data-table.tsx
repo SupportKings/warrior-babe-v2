@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { DataTableFilter } from '@/components/data-table-filter'
 import { UniversalDataTable } from '@/components/universal-data-table/universal-data-table'
 import { UniversalDataTableWrapper } from '@/components/universal-data-table/universal-data-table-wrapper'
@@ -254,14 +255,14 @@ function ClientsTableContent({ filters, setFilters }: {
 				label: 'View Details',
 				icon: EyeIcon,
 				onClick: (client) => {
-					console.log('View client:', client)
+					window.location.href = `/dashboard/clients/${client.id}`
 				}
 			},
 			{
 				label: 'Edit',
 				icon: EditIcon,
 				onClick: (client) => {
-					console.log('Edit client:', client)
+					window.location.href = `/dashboard/clients/${client.id}/edit`
 				}
 			},
 			{
@@ -317,9 +318,11 @@ function ClientsTableContent({ filters, setFilters }: {
 					rowActions={rowActions}
 					emptyStateMessage="No clients found matching your filters"
 					emptyStateAction={
-						<Button size="sm" className="gap-2">
-							<PlusIcon className="w-4 h-4" />
-							Add Client
+						<Button size="sm" className="gap-2" asChild>
+							<Link href="/dashboard/clients/add">
+								<PlusIcon className="w-4 h-4" />
+								Add Client
+							</Link>
 						</Button>
 					}
 				/>

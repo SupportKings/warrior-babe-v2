@@ -37,7 +37,12 @@ export function DatePicker({
 	const handleDateSelect = (newDate: Date | undefined) => {
 		setDate(newDate);
 		if (onChange && newDate) {
-			onChange(newDate.toISOString().split("T")[0]);
+			// Create UTC date at midnight to represent the selected date
+			const year = newDate.getFullYear();
+			const month = newDate.getMonth();
+			const day = newDate.getDate();
+			const utcDate = new Date(Date.UTC(year, month, day));
+			onChange(utcDate.toISOString().split('T')[0]);
 		} else if (onChange && !newDate) {
 			onChange("");
 		}
@@ -45,7 +50,9 @@ export function DatePicker({
 
 	React.useEffect(() => {
 		if (value) {
-			setDate(new Date(value));
+			// Parse date string as local date to avoid timezone issues
+			const [year, month, day] = value.split('-');
+			setDate(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)));
 		} else {
 			setDate(undefined);
 		}
@@ -73,7 +80,7 @@ export function DatePicker({
 					mode="single"
 					selected={date}
 					onSelect={handleDateSelect}
-					initialFocus
+					autoFocus
 				/>
 			</PopoverContent>
 		</Popover>

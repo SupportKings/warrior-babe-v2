@@ -269,14 +269,13 @@ function SidebarTrigger({
       data-slot="sidebar-trigger"
       variant="ghost"
       size="icon"
-      className={cn("size-4", className)}
       onClick={(event) => {
         onClick?.(event);
         toggleSidebar();
       }}
       {...props}
     >
-      <PanelLeftIcon className="size-4" size={16} />
+      <PanelLeftIcon className="size-4" />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

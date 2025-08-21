@@ -8,7 +8,7 @@ export default function CoachesLoading() {
     <MainLayout
       headers={[<CoachesHeader key="coaches-header" />]}
     >
-      <div className="space-y-6 p-6">
+      <div>
         <div className="space-y-2">
           <Skeleton className="h-10 w-64" />
           <Skeleton className="h-4 w-96" />
