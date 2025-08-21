@@ -143,7 +143,7 @@ function __FilterSelector<TData>({
           className={cn('h-7', hasFilters && 'w-fit !px-2')}
         >
           <FilterIcon className="size-4" />
-          {!hasFilters && <span>{t('filter', locale)}</span>}
+          {!hasFilters && <span className="ml-[6px]">{t('filter', locale)}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent

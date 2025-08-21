@@ -17,7 +17,8 @@ export interface TableSkeletonProps {
 
 export function UniversalTableSkeleton({ numRows, numCols }: TableSkeletonProps) {
 	const rows = Array.from(Array(numRows).keys())
-	const cols = Array.from(Array(numCols).keys())
+	// Always add 1 column for actions
+	const cols = Array.from(Array(numCols + 1).keys())
 
 	return (
 		<>

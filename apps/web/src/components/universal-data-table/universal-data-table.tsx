@@ -1,6 +1,6 @@
 import type { DataTableFilterActions } from '@/components/data-table-filter/core/types'
 import { flexRender, type Table as TanStackTable } from '@tanstack/react-table'
-import { XIcon } from 'lucide-react'
+import { XIcon, ChevronRightIcon, ChevronLeftIcon, ArrowUpDownIcon, ArrowUpIcon, ArrowDownIcon, ChevronsLeftIcon, ChevronsRightIcon } from 'lucide-react'
 import { EmptyTableIcon } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,7 +12,8 @@ import {
 	TableRow,
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import type { UniversalTableRow } from './types'
+import { TableActionsPopover } from './table-actions-popover'
+import type { UniversalTableRow, RowAction } from './types'
 
 interface UniversalDataTableProps<T extends UniversalTableRow = UniversalTableRow> {
 	table: TanStackTable<T>
@@ -21,6 +22,7 @@ interface UniversalDataTableProps<T extends UniversalTableRow = UniversalTableRo
 	emptyStateAction?: React.ReactNode
 	totalCount?: number
 	serverSide?: boolean
+	rowActions?: RowAction<T>[]
 }
 
 export function UniversalDataTable<T extends UniversalTableRow>({
@@ -28,8 +30,10 @@ export function UniversalDataTable<T extends UniversalTableRow>({
 	actions,
 	emptyStateMessage = "No data found matching your filters.",
 	emptyStateAction,
-	totalCount
+	totalCount,
+	rowActions
 }: UniversalDataTableProps<T>) {
+	
 	return (
 		<>
 			{/* Pagination at top */}
@@ -48,7 +52,7 @@ export function UniversalDataTable<T extends UniversalTableRow>({
 						onClick={() => table.setPageIndex(0)}
 						disabled={!table.getCanPreviousPage()}
 					>
-						First
+						<ChevronsLeftIcon className="size-3" /> First
 					</Button>
 					<Button
 						variant="outline"
@@ -56,7 +60,7 @@ export function UniversalDataTable<T extends UniversalTableRow>({
 						onClick={() => table.previousPage()}
 						disabled={!table.getCanPreviousPage()}
 					>
-						Previous
+						<ChevronLeftIcon className="size-3" /> Previous
 					</Button>
 					<Button
 						variant="outline"
@@ -64,7 +68,7 @@ export function UniversalDataTable<T extends UniversalTableRow>({
 						onClick={() => table.nextPage()}
 						disabled={!table.getCanNextPage()}
 					>
-						Next
+						Next <ChevronRightIcon className="size-3" /> 
 					</Button>
 					<Button
 						variant="outline"
@@ -72,7 +76,7 @@ export function UniversalDataTable<T extends UniversalTableRow>({
 						onClick={() => table.setPageIndex(table.getPageCount() - 1)}
 						disabled={!table.getCanNextPage()}
 					>
-						Last
+						Last <ChevronsRightIcon className="size-3" /> 
 					</Button>
 				</div>
 			</div>
@@ -84,17 +88,41 @@ export function UniversalDataTable<T extends UniversalTableRow>({
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => {
+									const canSort = header.column.getCanSort()
+									const sortDirection = header.column.getIsSorted()
+									
 									return (
 										<TableHead key={header.id}>
-											{header.isPlaceholder
-												? null
-												: flexRender(
-													header.column.columnDef.header,
-													header.getContext(),
+											{header.isPlaceholder ? null : (
+												<div className={cn(
+													"flex items-center gap-2",
+													canSort && "cursor-pointer select-none"
 												)}
+												onClick={canSort ? header.column.getToggleSortingHandler() : undefined}
+												>
+													{flexRender(
+														header.column.columnDef.header,
+														header.getContext(),
+													)}
+													{canSort && (
+														<span className="text-muted-foreground">
+															{sortDirection === 'asc' ? (
+																<ArrowUpIcon className="h-4 w-4" />
+															) : sortDirection === 'desc' ? (
+																<ArrowDownIcon className="h-4 w-4" />
+															) : (
+																<ArrowUpDownIcon className="h-4 w-4" />
+															)}
+														</span>
+													)}
+												</div>
+											)}
 										</TableHead>
 									)
 								})}
+								{rowActions && rowActions.length > 0 && (
+									<TableHead className="text-right">Actions</TableHead>
+								)}
 							</TableRow>
 						))}
 					</TableHeader>
@@ -114,12 +142,17 @@ export function UniversalDataTable<T extends UniversalTableRow>({
 											)}
 										</TableCell>
 									))}
+									{rowActions && rowActions.length > 0 && (
+										<TableCell className="h-12 text-right">
+											<TableActionsPopover row={row.original} actions={rowActions} />
+										</TableCell>
+									)}
 								</TableRow>
 							))
 						) : (
 							<TableRow className="hover:bg-transparent">
 								<TableCell
-									colSpan={table.getAllColumns().length}
+									colSpan={table.getAllColumns().length + (rowActions && rowActions.length > 0 ? 1 : 0)}
 									className="h-[calc(var(--spacing)*12*10)]"
 								>
 									<div className="flex flex-col items-center justify-center gap-8">

@@ -81,6 +81,7 @@ export function FilterOperator<TData, TType extends ColumnDataType>({
             />
           </CommandList>
         </Command>
+        test
       </PopoverContent>
     </Popover>
   )

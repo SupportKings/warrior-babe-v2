@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 import type { ColumnConfig, FiltersState, ColumnDataType } from '@/components/data-table-filter/core/types'
 import type { Database } from '@/utils/supabase/database.types'
+import type { ReactNode } from 'react'
 
 // Generic types for any Supabase table row
 export type UniversalTableRow = Record<string, any>
@@ -38,6 +39,7 @@ export interface UniversalTableConfig<T extends UniversalTableRow = UniversalTab
 	enableSelection?: boolean
 	pageSize?: number
 	serverSide?: boolean
+	rowActions?: RowAction<T>[]
 	
 	// Empty state
 	emptyStateMessage?: string
@@ -67,6 +69,16 @@ export interface SupabaseQueryConfig {
 // Faceted data for filter counts
 export interface FacetedData {
 	[columnId: string]: Map<string, number> | [number, number] | undefined
+}
+
+// Row action configuration
+export interface RowAction<T extends UniversalTableRow = UniversalTableRow> {
+	label: string
+	icon?: LucideIcon
+	onClick: (row: T) => void
+	variant?: 'default' | 'destructive'
+	disabled?: (row: T) => boolean
+	hidden?: (row: T) => boolean
 }
 
 // Column builder interface

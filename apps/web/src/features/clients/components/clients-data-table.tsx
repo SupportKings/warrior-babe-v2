@@ -11,15 +11,23 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { createColumnHelper } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createClient } from '@/utils/supabase/client'
+import { useState } from 'react'
+import { ClientDeleteModal } from './client-delete-modal'
+import { deleteClient } from '../actions/deleteClient'
+import { useAction } from 'next-safe-action/hooks'
+import { toast } from 'sonner'
 import {
 	UserIcon,
 	CalendarIcon,
 	TagIcon,
 	MailIcon,
 	PlusIcon,
-	PackageIcon
+	PackageIcon,
+	EditIcon,
+	TrashIcon,
+	EyeIcon
 } from 'lucide-react'
 import type { Database } from '@/utils/supabase/database.types'
 
@@ -52,14 +60,15 @@ const clientTableColumns = [
 				aria-label="Select row"
 			/>
 		),
-		enableSorting: true,
+		enableSorting: false,
 		enableHiding: false,
-		enableColumnFilter: true,
+		enableColumnFilter: false,
 	}),
 	columnHelper.accessor('first_name', {
 		id: 'first_name',
 		header: 'Name',
 		enableColumnFilter: true,
+		enableSorting: true,
 		cell: ({ row }) => {
 			const firstName = row.getValue<string>('first_name')
 			const lastName = row.original.last_name
@@ -70,6 +79,7 @@ const clientTableColumns = [
 		id: 'email', 
 		header: 'Email',
 		enableColumnFilter: true,
+		enableSorting: true,
 		cell: ({ row }) => <div className="text-muted-foreground">{row.getValue('email')}</div>,
 	}),
 	columnHelper.display({
@@ -89,6 +99,7 @@ const clientTableColumns = [
 		id: 'status',
 		header: 'Status',
 		enableColumnFilter: true,
+		enableSorting: true,
 		cell: ({ row }) => {
 			const status = row.getValue<string>('status')
 			return (
@@ -102,6 +113,7 @@ const clientTableColumns = [
 		id: 'start_date',
 		header: 'Joined',
 		enableColumnFilter: true,
+		enableSorting: true,
 		cell: ({ row }) => {
 			const date = row.getValue<string>('start_date')
 			if (!date) return null
@@ -146,6 +158,19 @@ function ClientsTableContent({ filters, setFilters }: {
 	setFilters: any
 }) {
 	const supabase = createClient()
+	const queryClient = useQueryClient()
+	const [clientToDelete, setClientToDelete] = useState<ClientRow | null>(null)
+	
+	const { execute: executeDelete } = useAction(deleteClient, {
+		onSuccess: () => {
+			// Invalidate and refetch the clients data
+			queryClient.invalidateQueries({ queryKey: ['clients'] })
+			setClientToDelete(null)
+		},
+		onError: ({ error }) => {
+			console.error('Error deleting client:', error)
+		}
+	})
 	
 	// Fetch products for filter options
 	const { data: products, isPending: isProductsPending } = useQuery({
@@ -204,7 +229,8 @@ function ClientsTableContent({ filters, setFilters }: {
 		isLoading,
 		isError,
 		error,
-		totalCount
+		totalCount,
+		rowActions
 	} = useUniversalTable<ClientRow>({
 		table: 'clients',
 		columns: clientTableColumns,
@@ -222,7 +248,32 @@ function ClientsTableContent({ filters, setFilters }: {
 		facetedColumns: ['product_id'],
 		enableSelection: true,
 		pageSize: 25,
-		serverSide: true
+		serverSide: true,
+		rowActions: [
+			{
+				label: 'View Details',
+				icon: EyeIcon,
+				onClick: (client) => {
+					console.log('View client:', client)
+				}
+			},
+			{
+				label: 'Edit',
+				icon: EditIcon,
+				onClick: (client) => {
+					console.log('Edit client:', client)
+				}
+			},
+			{
+				label: 'Delete',
+				icon: TrashIcon,
+				variant: 'destructive',
+				onClick: (client) => {
+					setClientToDelete(client)
+				},
+				disabled: (client) => client.status === 'active'
+			}
+		]
 	})
 
 	// Check if filter options are still loading
@@ -263,6 +314,7 @@ function ClientsTableContent({ filters, setFilters }: {
 					table={table}
 					actions={actions}
 					totalCount={totalCount}
+					rowActions={rowActions}
 					emptyStateMessage="No clients found matching your filters"
 					emptyStateAction={
 						<Button size="sm" className="gap-2">
@@ -270,6 +322,38 @@ function ClientsTableContent({ filters, setFilters }: {
 							Add Client
 						</Button>
 					}
+				/>
+			)}
+			
+			{clientToDelete && (
+				<ClientDeleteModal
+					client={clientToDelete}
+					open={!!clientToDelete}
+					onOpenChange={(open) => !open && setClientToDelete(null)}
+					onConfirm={async () => {
+						const clientId = clientToDelete.id
+						const clientName = `${clientToDelete.first_name} ${clientToDelete.last_name}`
+						
+						if (!clientId) {
+							toast.error('Client ID is missing')
+							throw new Error('Client ID is missing')
+						}
+						
+						try {
+							await deleteClient({ id: clientId })
+							
+							// Refresh the table after successful deletion
+							queryClient.invalidateQueries({ queryKey: ['clients'] })
+							setClientToDelete(null)
+							
+							// Show success toast
+							toast.success(`${clientName} has been deleted successfully`)
+						} catch (error) {
+							// Show error toast
+							toast.error(`Failed to delete ${clientName}. Please try again.`)
+							throw error
+						}
+					}}
 				/>
 			)}
 		</div>

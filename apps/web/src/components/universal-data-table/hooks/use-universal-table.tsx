@@ -5,7 +5,9 @@ import { useQuery } from '@tanstack/react-query'
 import {
 	getCoreRowModel,
 	getPaginationRowModel,
-	useReactTable
+	getSortedRowModel,
+	useReactTable,
+	type SortingState
 } from '@tanstack/react-table'
 import { createClient } from '@/utils/supabase/client'
 import { useDataTableFilters } from '@/components/data-table-filter'
@@ -34,21 +36,31 @@ export function useUniversalTable<T extends UniversalTableRow>({
 	onFiltersChange,
 	enableSelection = false,
 	pageSize = 25,
-	serverSide = true
+	serverSide = true,
+	rowActions
 }: UseUniversalTableProps<T>) {
 	const supabase = createClient()
 	const [rowSelection, setRowSelection] = useState({})
 	const [pagination, setPagination] = useState({ pageIndex: 0, pageSize })
+	const [sorting, setSorting] = useState<SortingState>([])
 	
 	// Fetch main data
 	const dataQuery = useQuery({
-		queryKey: [table, 'data', filters, pagination.pageIndex, pagination.pageSize],
+		queryKey: [table, 'data', filters, pagination.pageIndex, pagination.pageSize, sorting],
 		queryFn: async () => {
 			if (!serverSide) return { data: [], count: 0 }
 
 			// Extract search term from filters (assuming there's a global search filter)
 			const searchFilter = filters.find(f => f.columnId === '__global_search__')
 			const searchTerm = searchFilter?.values?.[0] || undefined
+
+			// Convert TanStack sorting to our sorting format
+			const sortingConfig = sorting.length > 0 
+				? sorting.map(sort => ({ 
+					column: sort.id, 
+					direction: sort.desc ? 'desc' as const : 'asc' as const
+				}))
+				: [{ column: 'created_at', direction: 'desc' as const }] // Default sorting
 
 			const query = buildSupabaseQuery(supabase, {
 				table,
@@ -59,7 +71,7 @@ export function useUniversalTable<T extends UniversalTableRow>({
 				relationships,
 				page: pagination.pageIndex,
 				pageSize: pagination.pageSize,
-				sorting: [{ column: 'created_at', direction: 'desc' }] // Default sorting
+				sorting: sortingConfig
 			})
 
 			const { data, error, count } = await query as any
@@ -130,13 +142,17 @@ export function useUniversalTable<T extends UniversalTableRow>({
 		getRowId: (row: T) => row.id || String(Math.random()),
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
+		getSortedRowModel: getSortedRowModel(),
 		onRowSelectionChange: enableSelection ? setRowSelection : undefined,
 		onPaginationChange: setPagination, // Connect pagination state
+		onSortingChange: setSorting, // Connect sorting state
 		manualPagination: serverSide, // Enable manual pagination for server-side
+		manualSorting: serverSide, // Enable manual sorting for server-side
 		pageCount: serverSide ? Math.ceil((dataQuery.data?.count || 0) / pagination.pageSize) : -1,
 		state: {
 			pagination,
-			rowSelection: enableSelection ? rowSelection : {}
+			rowSelection: enableSelection ? rowSelection : {},
+			sorting
 		}
 	})
 
@@ -157,6 +173,9 @@ export function useUniversalTable<T extends UniversalTableRow>({
 		
 		// Data
 		data: dataQuery.data?.data || [],
+		
+		// Row actions
+		rowActions,
 		
 		// Pagination (server-side)
 		totalCount: dataQuery.data?.count || 0,
