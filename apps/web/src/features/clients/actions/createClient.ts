@@ -46,7 +46,9 @@ export const createClientAction = actionClient
 
 			if (existingClient) {
 				return returnValidationErrors(clientCreateSchema, {
-					email: ["Client with this email already exists"],
+					email: {
+						_errors: ["Client with this email already exists"],
+					},
 				});
 			}
 

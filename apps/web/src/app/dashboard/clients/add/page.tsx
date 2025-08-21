@@ -36,7 +36,7 @@ async function ClientAddPageAsync() {
 					<ClientAddHeader key="client-add-header" />,
 				]}
 			>
-				<div className="bg-background border rounded-lg p-6">
+				<div className="p-6">
 					<ClientForm mode="create" />
 				</div>
 			</MainLayout>
