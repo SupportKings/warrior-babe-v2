@@ -62,7 +62,7 @@ const detectColorScheme = (
 
 	// Success/positive states
 	if (
-		/(active|completed?|success|granted|approved|done|finished|enabled|online|published|verified)/i.test(
+		/(active|live|completed?|success|granted|approved|done|finished|enabled|online|published|verified)/i.test(
 			normalizedStatus,
 		)
 	) {
@@ -89,7 +89,7 @@ const detectColorScheme = (
 
 	// Info/process states
 	if (
-		/(processing|onboard|progress|running|loading|syncing)/i.test(
+		/(processing|onboard|progress|running|loading|syncing|new)/i.test(
 			normalizedStatus,
 		)
 	) {
@@ -102,7 +102,7 @@ const detectColorScheme = (
 	}
 
 	// Neutral/waiting states
-	if (/(waiting|queued|assigned|new)/i.test(normalizedStatus)) {
+	if (/(waiting|queued|assigned)/i.test(normalizedStatus)) {
 		return "orange";
 	}
 

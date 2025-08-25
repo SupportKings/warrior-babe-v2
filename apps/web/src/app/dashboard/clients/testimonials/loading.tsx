@@ -8,7 +8,7 @@ export default function TestimonialsLoading() {
 		<MainLayout headers={[<TestimonialsHeader key="testimonials-header" />]}>
 			<div className="space-y-6 p-6">
 				<div className="space-y-2">
-					<Skeleton className="h-10 w-64" />	
+					<Skeleton className="h-10 w-64" />
 					<Skeleton className="h-4 w-96" />
 				</div>
 

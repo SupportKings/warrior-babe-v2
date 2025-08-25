@@ -1,4 +1,36 @@
+// Import database types for proper typing
+import type { Enums, Tables } from "@/utils/supabase/database.types";
+
 import { z } from "zod";
+
+// Database client type for better TypeScript support
+export type Client = Tables<"clients">;
+export type ClientWithRelations = Client & {
+	product?: Tables<"products"> | null;
+	client_assignments?: Array<
+		Tables<"client_assignments"> & {
+			coach?:
+				| (Tables<"team_members"> & {
+						user?: Tables<"user"> | null;
+				  })
+				| null;
+		}
+	>;
+	client_goals?: Array<
+		Tables<"client_goals"> & {
+			goal_type?: Tables<"goal_types"> | null;
+		}
+	>;
+	client_wins?: Array<
+		Tables<"client_wins"> & {
+			recorded_by_user?: Tables<"user"> | null;
+		}
+	>;
+	client_testimonials?: Tables<"client_testimonials">[];
+	client_nps?: Tables<"client_nps">[];
+	client_activity_period?: Tables<"client_activity_period">[];
+	payment_plans?: Tables<"payment_plans">[];
+};
 
 // Validation utilities
 export const validationUtils = {
@@ -23,13 +55,13 @@ export const validationUtils = {
 		.toLowerCase()
 		.transform((val) => val.trim()),
 
-	// Phone number validation (optional but validated when provided)
+	// Phone number validation (required by database schema)
 	phone: z
 		.string()
-		.optional()
-		.transform((val) => val?.trim() || "")
+		.min(1, "Phone number is required")
+		.max(20, "Phone must be less than 20 characters")
 		.refine(
-			(val) => !val || /^[\d\s\-+().]{10,20}$/.test(val),
+			(val) => /^[\d\s\-+().]{10,20}$/.test(val),
 			"Phone must be 10-20 characters with only digits, spaces, and common phone symbols",
 		),
 
@@ -47,22 +79,13 @@ export const validationUtils = {
 	optionalDateString: z
 		.string()
 		.optional()
-		.transform((val) => val?.trim() || "")
+		.nullable()
+		.transform((val) => val?.trim() || null)
 		.refine(
 			(val) =>
 				!val ||
 				(/^\d{4}-\d{2}-\d{2}$/.test(val) && !isNaN(new Date(val).getTime())),
 			"Date must be in YYYY-MM-DD format or empty",
-		),
-
-	// URL validation
-	url: z
-		.string()
-		.optional()
-		.transform((val) => val?.trim() || "")
-		.refine(
-			(val) => !val || z.string().url().safeParse(val).success,
-			"Must be a valid URL or empty",
 		),
 
 	// UUID validation
@@ -72,166 +95,91 @@ export const validationUtils = {
 	longText: z
 		.string()
 		.optional()
-		.transform((val) => val?.trim() || "")
-		.refine((val) => val.length <= 2000, "Must be less than 2000 characters"),
+		.nullable()
+		.transform((val) => val?.trim() || null)
+		.refine(
+			(val) => !val || val.length <= 2000,
+			"Must be less than 2000 characters",
+		),
 
-	// Status validation
-	clientStatus: z.enum(
-		["active", "paused", "churned", "onboarding", "pending"],
-		{
+	// Client overall status validation (matches database enum)
+	clientOverallStatus: z
+		.enum(["new", "live", "paused", "churned"], {
 			message: "Invalid client status",
-		},
-	),
+		})
+		.nullable()
+		.optional(),
 
-	platformAccessStatus: z.enum(["pending", "granted", "revoked", "expired"], {
-		message: "Invalid platform access status",
-	}),
+	// Everfit access status validation (matches database enum)
+	everfitAccess: z
+		.enum(["new", "requested", "confirmed"], {
+			message: "Invalid everfit access status",
+		})
+		.nullable()
+		.optional(),
+
+	// Team IDs validation (stored as string in database)
+	teamIds: z.string().nullable().optional(),
 };
 
-// Base client schema for creation
-export const clientCreateSchema = z
-	.object({
-		first_name: validationUtils.name,
-		last_name: validationUtils.name,
-		email: validationUtils.email,
-		phone: validationUtils.phone,
-		start_date: validationUtils.dateString,
-		end_date: validationUtils.optionalDateString,
-		renewal_date: validationUtils.optionalDateString,
-		product_id: z
-			.string()
-			.uuid({ message: "Invalid product ID" })
-			.optional()
-			.or(z.literal("")),
-		created_by: z.string().uuid({ message: "Invalid user ID" }).optional(),
-		status: validationUtils.clientStatus.optional().default("active"),
-		platform_access_status: validationUtils.platformAccessStatus
-			.optional()
-			.default("pending"),
-		platform_link: validationUtils.url,
-		consultation_form_completed: z.boolean().optional().default(false),
-		vip_terms_signed: z.boolean().optional().default(false),
-		onboarding_notes: validationUtils.longText,
-	})
-	.refine(
-		(data) => {
-			// If end_date is provided, it must be after start_date
-			if (data.end_date && data.start_date) {
-				return new Date(data.end_date) > new Date(data.start_date);
-			}
-			return true;
-		},
-		{
-			message: "End date must be after start date",
-			path: ["end_date"],
-		},
-	)
-	.refine(
-		(data) => {
-			// If renewal_date is provided, it must be after start_date
-			if (data.renewal_date && data.start_date) {
-				return new Date(data.renewal_date) > new Date(data.start_date);
-			}
-			return true;
-		},
-		{
-			message: "Renewal date must be after start date",
-			path: ["renewal_date"],
-		},
-	);
+// Base client schema for creation (matches database schema)
+export const clientCreateSchema = z.object({
+	name: validationUtils.name,
+	email: validationUtils.email,
+	phone: validationUtils.phone,
+	overall_status: validationUtils.clientOverallStatus,
+	everfit_access: validationUtils.everfitAccess,
+	team_ids: validationUtils.teamIds,
+	onboarding_call_completed: z.boolean().optional().default(false),
+	two_week_check_in_call_completed: z.boolean().optional().default(false),
+	vip_terms_signed: z.boolean().optional().default(false),
+	onboarding_notes: validationUtils.longText,
+	onboarding_completed_date: validationUtils.optionalDateString,
+	offboard_date: validationUtils.optionalDateString,
+});
 
 // Schema for client updates (all fields optional except id)
-export const clientUpdateSchema = z
-	.object({
-		id: validationUtils.uuid,
-		first_name: validationUtils.name.optional(),
-		last_name: validationUtils.name.optional(),
-		email: validationUtils.email.optional(),
-		phone: validationUtils.phone,
-		start_date: validationUtils.dateString.optional(),
-		end_date: validationUtils.optionalDateString,
-		renewal_date: validationUtils.optionalDateString,
-		product_id: z
-			.string()
-			.uuid({ message: "Invalid product ID" })
-			.optional()
-			.or(z.literal("")),
-		status: validationUtils.clientStatus.optional(),
-		platform_access_status: validationUtils.platformAccessStatus.optional(),
-		platform_link: validationUtils.url,
-		consultation_form_completed: z.boolean().optional(),
-		vip_terms_signed: z.boolean().optional(),
-		onboarding_notes: validationUtils.longText,
-		churned_at: validationUtils.optionalDateString,
-		paused_at: validationUtils.optionalDateString,
-		offboard_date: validationUtils.optionalDateString,
-	})
-	.refine(
-		(data) => {
-			// If end_date is provided and start_date exists, end_date must be after start_date
-			if (data.end_date && data.start_date) {
-				return new Date(data.end_date) > new Date(data.start_date);
-			}
-			return true;
-		},
-		{
-			message: "End date must be after start date",
-			path: ["end_date"],
-		},
-	)
-	.refine(
-		(data) => {
-			// If renewal_date is provided and start_date exists, renewal_date must be after start_date
-			if (data.renewal_date && data.start_date) {
-				return new Date(data.renewal_date) > new Date(data.start_date);
-			}
-			return true;
-		},
-		{
-			message: "Renewal date must be after start date",
-			path: ["renewal_date"],
-		},
-	);
+export const clientUpdateSchema = z.object({
+	id: validationUtils.uuid,
+	name: validationUtils.name.optional(),
+	email: validationUtils.email.optional(),
+	phone: validationUtils.phone.optional(),
+	overall_status: validationUtils.clientOverallStatus,
+	everfit_access: validationUtils.everfitAccess,
+	team_ids: validationUtils.teamIds,
+	onboarding_call_completed: z.boolean().optional(),
+	two_week_check_in_call_completed: z.boolean().optional(),
+	vip_terms_signed: z.boolean().optional(),
+	onboarding_notes: validationUtils.longText,
+	onboarding_completed_date: validationUtils.optionalDateString,
+	offboard_date: validationUtils.optionalDateString,
+});
 
 // Form schema for client creation (used in forms) - more lenient for better UX
-export const clientFormSchema = z
-	.object({
-		first_name: validationUtils.name,
-		last_name: validationUtils.name,
-		email: validationUtils.email,
-		phone: z.string().optional().default(""),
-		start_date: validationUtils.dateString,
-		end_date: z.string().optional().default(""),
-		renewal_date: z.string().optional().default(""),
-		product_id: z.string().optional().default(""),
-		status: validationUtils.clientStatus.optional().default("active"),
-		platform_access_status: validationUtils.platformAccessStatus.optional().default("pending"),
-		platform_link: z.string().optional().default(""),
-		consultation_form_completed: z.boolean().optional().default(false),
-		vip_terms_signed: z.boolean().optional().default(false),
-		onboarding_notes: z.string().optional().default(""),
-	})
-	.refine(
-		(data) => {
-			// Form-level validation for dates
-			if (data.end_date && data.start_date) {
-				const startDate = new Date(data.start_date);
-				const endDate = new Date(data.end_date);
-				return endDate > startDate;
-			}
-			return true;
-		},
-		{
-			message: "End date must be after start date",
-			path: ["end_date"],
-		},
-	);
+export const clientFormSchema = z.object({
+	name: validationUtils.name,
+	email: validationUtils.email,
+	phone: z.string().min(1, "Phone is required"),
+	overall_status: z
+		.enum(["new", "live", "paused", "churned"])
+		.optional()
+		.default("new"),
+	everfit_access: z
+		.enum(["new", "requested", "confirmed"])
+		.optional()
+		.default("new"),
+	team_ids: z.string().optional().default(""),
+	onboarding_call_completed: z.boolean().optional().default(false),
+	two_week_check_in_call_completed: z.boolean().optional().default(false),
+	vip_terms_signed: z.boolean().optional().default(false),
+	onboarding_notes: z.string().optional().default(""),
+	onboarding_completed_date: z.string().optional().default(""),
+	offboard_date: z.string().optional().default(""),
+});
 
 // Form schema for client updates
 export const clientEditFormSchema = clientFormSchema.extend({
 	id: validationUtils.uuid,
-	churned_at: z.string().optional().default(""),
-	paused_at: z.string().optional().default(""),
 	offboard_date: z.string().optional().default(""),
 });
 
@@ -241,21 +189,19 @@ export type ClientUpdateInput = z.infer<typeof clientUpdateSchema>;
 export type ClientFormInput = z.infer<typeof clientFormSchema>;
 export type ClientEditFormInput = z.infer<typeof clientEditFormSchema>;
 
-// Common client status options
-export const CLIENT_STATUS_OPTIONS = [
-	{ value: "active", label: "Active" },
+// Client overall status options (matches database enum)
+export const CLIENT_OVERALL_STATUS_OPTIONS = [
+	{ value: "new", label: "New" },
+	{ value: "live", label: "Live" },
 	{ value: "paused", label: "Paused" },
 	{ value: "churned", label: "Churned" },
-	{ value: "onboarding", label: "Onboarding" },
-	{ value: "pending", label: "Pending" },
 ] as const;
 
-// Platform access status options
-export const PLATFORM_ACCESS_STATUS_OPTIONS = [
-	{ value: "pending", label: "Pending" },
-	{ value: "granted", label: "Granted" },
-	{ value: "revoked", label: "Revoked" },
-	{ value: "expired", label: "Expired" },
+// Everfit access status options (matches database enum)
+export const EVERFIT_ACCESS_OPTIONS = [
+	{ value: "new", label: "New" },
+	{ value: "requested", label: "Requested" },
+	{ value: "confirmed", label: "Confirmed" },
 ] as const;
 
 // Validation helper functions for forms
@@ -277,35 +223,30 @@ export const validateSingleField = <T>(
 // Get field validation function for specific field
 export const getFieldValidator = (fieldName: keyof ClientFormInput) => {
 	const fieldSchemas: Record<string, z.ZodSchema> = {
-		first_name: validationUtils.name,
-		last_name: validationUtils.name,
+		name: validationUtils.name,
 		email: validationUtils.email,
 		phone: validationUtils.phone,
-		start_date: validationUtils.dateString,
-		end_date: validationUtils.optionalDateString,
-		renewal_date: validationUtils.optionalDateString,
-		platform_link: validationUtils.url,
 		onboarding_notes: validationUtils.longText,
-		status: validationUtils.clientStatus,
-		platform_access_status: validationUtils.platformAccessStatus,
+		overall_status: validationUtils.clientOverallStatus,
+		everfit_access: validationUtils.everfitAccess,
 	};
 
 	return (value: any) => validateSingleField(value, fieldSchemas[fieldName]);
 };
 
 // Client status validation helpers
-export const isValidClientStatus = (
+export const isValidClientOverallStatus = (
 	status: string,
-): status is ClientFormInput["status"] => {
-	return CLIENT_STATUS_OPTIONS.some((option) => option.value === status);
-};
-
-export const isValidPlatformStatus = (
-	status: string,
-): status is ClientFormInput["platform_access_status"] => {
-	return PLATFORM_ACCESS_STATUS_OPTIONS.some(
+): status is ClientFormInput["overall_status"] => {
+	return CLIENT_OVERALL_STATUS_OPTIONS.some(
 		(option) => option.value === status,
 	);
+};
+
+export const isValidEverfitAccess = (
+	status: string,
+): status is ClientFormInput["everfit_access"] => {
+	return EVERFIT_ACCESS_OPTIONS.some((option) => option.value === status);
 };
 
 // Type guards for better TypeScript support
@@ -366,11 +307,21 @@ export const getAllValidationErrors = (
 	Object.entries(validationErrors).forEach(([field, fieldErrors]) => {
 		if (field !== "_errors" && fieldErrors) {
 			if (Array.isArray(fieldErrors)) {
-				const fieldName = field.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-				errors.push(...fieldErrors.map((error: string) => `${fieldName}: ${error}`));
+				const fieldName = field
+					.replace(/_/g, " ")
+					.replace(/\b\w/g, (l) => l.toUpperCase());
+				errors.push(
+					...fieldErrors.map((error: string) => `${fieldName}: ${error}`),
+				);
 			} else if (fieldErrors._errors && Array.isArray(fieldErrors._errors)) {
-				const fieldName = field.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-				errors.push(...fieldErrors._errors.map((error: string) => `${fieldName}: ${error}`));
+				const fieldName = field
+					.replace(/_/g, " ")
+					.replace(/\b\w/g, (l) => l.toUpperCase());
+				errors.push(
+					...fieldErrors._errors.map(
+						(error: string) => `${fieldName}: ${error}`,
+					),
+				);
 			}
 		}
 	});

@@ -146,6 +146,7 @@ const [filter, setFilter] = useQueryState("filter", {
 - Double quotes for strings
 - Use `cn()` utility for className composition
 - Follow existing component patterns in `src/components/`
+- No select components with value = ""
 
 ### Type Safety
 - All server actions use Zod schemas for validation
@@ -172,3 +173,23 @@ const [filter, setFilter] = useQueryState("filter", {
 - Use Supabase client for all database operations
 - Types are generated in `database.types.ts`
 - Always use type-safe queries with proper joins
+- For inputs, if database type is string, always use text input, and do not hallucinate on possible options (eg, if Status columns is text, do not try to figure out statuses)
+- If displaying linked record, never display id, but look up the appropriate name
+
+### Reusable Components
+- Always use @universal-data-table for all data tables
+- If data has foreign key relations to be displyed in the table, always lookup relevant user-friendly name field instead of displaying ID
+- Always use <StatusBadge> for displaying status badges
+
+### CRUD Development
+- If asked to implement CRUD for certain feature, based off existing database types, add/edit forms and detail pages should absolutely always include every single possible field and relation outlined in the database, together with queries to fetch data from different tables if needed
+
+### Detail Page Pattern
+- When developing detail page for particular entity, always include all possible info from the database, including foreign key relations and junction tables.
+- Parent level info should be shown on top (eg, if client has many brands, and we're on brand detail page, we should show client info on top)
+- Children level info (opposite of parent level) should be sections above system info
+- Children level info is always displayed with universal-data-table component with CRUD abilities there and all data from the database, except info about parent.
+- If Children level info doesn't contain any pieces of data, display empty state - empty states should always be separate component
+- Universal data table needs to have actions column with ability to delete that record
+- in the section where you place universal data table, there always needs to be button that will trigger modal dialog from Base UI, that will then render component to add relevant records to the junction tables
+- Break the page down into separate components, so each section is it's own component

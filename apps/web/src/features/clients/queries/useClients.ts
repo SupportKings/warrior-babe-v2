@@ -5,7 +5,6 @@ import type { FiltersState } from "@/components/data-table-filter/core/types";
 import { createClientAction } from "@/features/clients/actions/createClient";
 import { deleteClient } from "@/features/clients/actions/deleteClient";
 import {
-	getActiveProducts,
 	getAllClients,
 	getClient,
 	getClientBasic,
@@ -100,22 +99,13 @@ export function useClientsFaceted(
 	});
 }
 
-// Products query for filter options
-export function useActiveProducts() {
-	return useQuery({
-		queryKey: ["products", "active"],
-		queryFn: getActiveProducts,
-		staleTime: 10 * 60 * 1000, // 10 minutes (products don't change often)
-	});
-}
-
 // Combined hook for table data with faceted data - optimized single call
 export function useClientsWithFaceted(
 	filters: FiltersState = [],
 	page = 0,
 	pageSize = 25,
 	sorting: SortingState = [],
-	facetedColumns: string[] = ["product_id"],
+	facetedColumns: string[] = ["overall_status"],
 ) {
 	return useQuery({
 		queryKey: clientQueries.tableDataWithFaceted(

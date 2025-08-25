@@ -10,7 +10,7 @@ import {
 	SidebarMenu,
 } from "@/components/ui/sidebar";
 
-import { BookOpen } from "lucide-react";
+import { Users } from "lucide-react";
 import { SidebarItemComponent } from "./sidebar-item";
 
 export function NavSecondary({
@@ -24,9 +24,9 @@ export function NavSecondary({
 			<SidebarGroupContent>
 				<SidebarMenu>
 					<SidebarItemComponent
-						href="/dashboard/knowledge-base"
-						label="Knowledge Base"
-						icon={<BookOpen size={16} />}
+						href="/dashboard/settings/team"
+						label="Team Members"
+						icon={<Users size={16} />}
 					/>
 				</SidebarMenu>
 			</SidebarGroupContent>

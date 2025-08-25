@@ -2,10 +2,7 @@ import { Suspense } from "react";
 
 import MainLayout from "@/components/layout/main-layout";
 
-import {
-	getActiveProducts,
-	prefetchClientsWithFacetedServer,
-} from "@/features/clients/actions/getClient";
+import { prefetchClientsWithFacetedServer } from "@/features/clients/actions/getClient";
 import ClientsContent from "@/features/clients/components/clients.content";
 import ClientsHeader from "@/features/clients/layout/clients.header";
 
@@ -32,7 +29,7 @@ async function ClientsPageAsync() {
 	const defaultSorting: any[] = [];
 
 	// Create query keys directly (matching client-side keys)
-	const facetedColumns = ["product_id"];
+	const facetedColumns = ["overall_status"];
 	const combinedDataKey = [
 		"clients",
 		"list",
@@ -43,30 +40,20 @@ async function ClientsPageAsync() {
 		defaultSorting,
 		facetedColumns,
 	];
-	const productsKey = ["products", "active"];
 
-	// Prefetch optimized combined data and products using server-side functions
-	await Promise.all([
-		// Prefetch combined clients + faceted data (single optimized call)
-		queryClient.prefetchQuery({
-			queryKey: combinedDataKey,
-			queryFn: () =>
-				prefetchClientsWithFacetedServer(
-					defaultFilters,
-					0,
-					25,
-					defaultSorting,
-					facetedColumns,
-				),
-			staleTime: 2 * 60 * 1000,
-		}),
-		// Prefetch products for filter options
-		queryClient.prefetchQuery({
-			queryKey: productsKey,
-			queryFn: () => getActiveProducts(),
-			staleTime: 10 * 60 * 1000,
-		}),
-	]);
+	// Prefetch optimized combined data using server-side functions
+	await queryClient.prefetchQuery({
+		queryKey: combinedDataKey,
+		queryFn: () =>
+			prefetchClientsWithFacetedServer(
+				defaultFilters,
+				0,
+				25,
+				defaultSorting,
+				facetedColumns,
+			),
+		staleTime: 2 * 60 * 1000,
+	});
 
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>

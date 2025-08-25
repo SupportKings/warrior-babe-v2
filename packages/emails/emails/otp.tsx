@@ -45,7 +45,7 @@ export const OTPEmail = ({ otp, companyName }: OTPEmailProps) => (
 
 OTPEmail.PreviewProps = {
 	otp: "sparo-ndigo-amurt-secan",
-	companyName: "OpsKingsTemplate",
+	companyName: "WarriorBabe",
 } as OTPEmailProps;
 
 export default OTPEmail;

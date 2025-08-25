@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
-import { useClientBasic } from "@/features/clients/queries/useClients";
+import { useClient } from "@/features/clients/queries/useClients";
 
 import ClientForm from "./client-form";
 
@@ -15,7 +15,7 @@ interface ClientEditContentProps {
 export default function ClientEditContent({
 	clientId,
 }: ClientEditContentProps) {
-	const { data: client, error } = useClientBasic(clientId);
+	const { data: client, error } = useClient(clientId);
 
 	if (error || !client) {
 		return (
@@ -36,23 +36,27 @@ export default function ClientEditContent({
 	// Transform the client data for the form
 	const formData = {
 		id: client.id,
-		first_name: client.first_name,
-		last_name: client.last_name,
+		name: client.name,
 		email: client.email,
 		phone: client.phone || "",
-		start_date: client.start_date,
-		end_date: client.end_date || "",
-		renewal_date: client.renewal_date || "",
-		product_id: client.product_id || "",
-		status: (client.status || "active") as "active" | "paused" | "churned" | "onboarding" | "pending",
-		platform_access_status: (client.platform_access_status || "pending") as "pending" | "granted" | "revoked" | "expired",
-		platform_link: client.platform_link || "",
-		consultation_form_completed: client.consultation_form_completed || false,
+		overall_status: client.overall_status || "new",
+		everfit_access: client.everfit_access || "new",
+		team_ids: client.team_ids || "",
+		onboarding_call_completed: client.onboarding_call_completed || false,
+		two_week_check_in_call_completed:
+			client.two_week_check_in_call_completed || false,
 		vip_terms_signed: client.vip_terms_signed || false,
 		onboarding_notes: client.onboarding_notes || "",
-		churned_at: client.churned_at || "",
-		paused_at: client.paused_at || "",
+		onboarding_completed_date: client.onboarding_completed_date || "",
 		offboard_date: client.offboard_date || "",
+		// Relations data
+		client_assignments: client.client_assignments || [],
+		client_goals: client.client_goals || [],
+		client_wins: client.client_wins || [],
+		client_activity_period: client.client_activity_period || [],
+		client_nps: client.client_nps || [],
+		client_testimonials: client.client_testimonials || [],
+		payment_plans: client.payment_plans || [],
 	};
 
 	return (

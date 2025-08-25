@@ -19,30 +19,50 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
 import { createClientAction } from "@/features/clients/actions/createClient";
-import { updateClientAction } from "@/features/clients/actions/updateClient";
-import { useActiveProducts } from "@/features/clients/queries/useClients";
 import {
-	CLIENT_STATUS_OPTIONS,
+	saveClientActivityPeriods,
+	saveClientAssignments,
+	saveClientGoals,
+	saveClientNPSScores,
+	saveClientPaymentPlans,
+	saveClientTestimonials,
+	saveClientWins,
+} from "@/features/clients/actions/manageClientRelations";
+import { updateClientAction } from "@/features/clients/actions/updateClient";
+import {
+	CLIENT_OVERALL_STATUS_OPTIONS,
 	type ClientEditFormInput,
 	type ClientFormInput,
-	clientEditFormSchema,
-	clientFormSchema,
+	EVERFIT_ACCESS_OPTIONS,
 	getAllValidationErrors,
-	getFieldValidator,
-	PLATFORM_ACCESS_STATUS_OPTIONS,
 	validateSingleField,
 	validationUtils,
 } from "@/features/clients/types/client";
+import { useActiveCoaches } from "@/features/coaches/queries/useCoaches";
 
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { z } from "zod";
+import { ClientActivityPeriodsForm } from "./client-activity-periods-form";
+import { ClientAssignmentsForm } from "./client-assignments-form";
+import { ClientGoalsForm } from "./client-goals-form";
+import { ClientNPSForm } from "./client-nps-form";
+import { ClientPaymentPlansForm } from "./client-payment-plans-form";
+import { ClientTestimonialsForm } from "./client-testimonials-form";
+import { ClientWinsForm } from "./client-wins-form";
 
 interface ClientFormProps {
 	mode: "create" | "edit";
-	initialData?: ClientEditFormInput;
+	initialData?: ClientEditFormInput & {
+		client_assignments?: any[];
+		client_goals?: any[];
+		client_wins?: any[];
+		client_activity_period?: any[];
+		client_nps?: any[];
+		client_testimonials?: any[];
+		payment_plans?: any[];
+	};
 	onSuccess?: () => void;
 }
 
@@ -54,53 +74,64 @@ export default function ClientForm({
 	onSuccess,
 }: ClientFormProps) {
 	const [isLoading, setIsLoading] = useState(false);
+	const [assignments, setAssignments] = useState(
+		initialData?.client_assignments || [],
+	);
+	const [goals, setGoals] = useState(initialData?.client_goals || []);
+	const [wins, setWins] = useState(initialData?.client_wins || []);
+	const [activityPeriods, setActivityPeriods] = useState(
+		initialData?.client_activity_period || [],
+	);
+	const [npsScores, setNpsScores] = useState(initialData?.client_nps || []);
+	const [testimonials, setTestimonials] = useState(
+		initialData?.client_testimonials || [],
+	);
+	const [paymentPlans, setPaymentPlans] = useState(
+		initialData?.payment_plans || [],
+	);
+
 	const router = useRouter();
 	const queryClient = useQueryClient();
-	const { data: products = [] } = useActiveProducts();
+
+	// Fetch available coaches for assignments
+	const { data: coaches = [] } = useActiveCoaches();
 
 	const isEditMode = mode === "edit";
-	const schema = isEditMode ? clientEditFormSchema : clientFormSchema;
 
 	const form = useForm({
 		defaultValues:
 			isEditMode && initialData
 				? {
 						id: initialData.id,
-						first_name: initialData.first_name || "",
-						last_name: initialData.last_name || "",
+						name: initialData.name || "",
 						email: initialData.email || "",
 						phone: initialData.phone || "",
-						start_date: initialData.start_date?.split("T")[0] || "",
-						end_date: initialData.end_date?.split("T")[0] || "",
-						renewal_date: initialData.renewal_date?.split("T")[0] || "",
-						product_id: initialData.product_id || "none",
-						status: initialData.status || "active",
-						platform_access_status:
-							initialData.platform_access_status || "pending",
-						platform_link: initialData.platform_link || "",
-						consultation_form_completed:
-							initialData.consultation_form_completed || false,
+						overall_status: initialData.overall_status || "new",
+						everfit_access: initialData.everfit_access || "new",
+						team_ids: initialData.team_ids || "",
+						onboarding_call_completed:
+							initialData.onboarding_call_completed || false,
+						two_week_check_in_call_completed:
+							initialData.two_week_check_in_call_completed || false,
 						vip_terms_signed: initialData.vip_terms_signed || false,
 						onboarding_notes: initialData.onboarding_notes || "",
-						churned_at: initialData.churned_at?.split("T")[0] || "",
-						paused_at: initialData.paused_at?.split("T")[0] || "",
+						onboarding_completed_date:
+							initialData.onboarding_completed_date?.split("T")[0] || "",
 						offboard_date: initialData.offboard_date?.split("T")[0] || "",
 					}
 				: {
-						first_name: "",
-						last_name: "",
+						name: "",
 						email: "",
 						phone: "",
-						start_date: new Date().toISOString().split("T")[0],
-						end_date: "",
-						renewal_date: "",
-						product_id: "none",
-						status: "active",
-						platform_access_status: "pending",
-						platform_link: "",
-						consultation_form_completed: false,
+						overall_status: "new",
+						everfit_access: "new",
+						team_ids: "",
+						onboarding_call_completed: false,
+						two_week_check_in_call_completed: false,
 						vip_terms_signed: false,
 						onboarding_notes: "",
+						onboarding_completed_date: "",
+						offboard_date: "",
 					},
 		onSubmit: async ({ value }) => {
 			console.log("Form onSubmit triggered - value:", value);
@@ -109,21 +140,39 @@ export default function ClientForm({
 			try {
 				let result;
 
-				// Convert "none" product_id back to empty string for the API
-				const submissionValue = {
-					...value,
-					product_id: value.product_id === "none" ? "" : value.product_id,
-				};
-
 				if (isEditMode) {
-					result = await updateClientAction(
-						submissionValue as ClientEditFormInput,
-					);
+					result = await updateClientAction(value as ClientEditFormInput);
 				} else {
-					result = await createClientAction(submissionValue as ClientFormInput);
+					result = await createClientAction(value as ClientFormInput);
 				}
 
 				if (result?.data?.success) {
+					// Get the client ID for both create and edit modes
+					const clientId = isEditMode
+						? initialData?.id
+						: result?.data?.data?.client?.id;
+
+					// Always save relations if we have a client ID (handles both additions and deletions)
+					if (clientId) {
+						try {
+							// Save all relations in parallel - even empty arrays to handle deletions
+							await Promise.all([
+								saveClientAssignments(clientId, assignments),
+								saveClientGoals(clientId, goals),
+								saveClientWins(clientId, wins),
+								saveClientActivityPeriods(clientId, activityPeriods),
+								saveClientNPSScores(clientId, npsScores),
+								saveClientTestimonials(clientId, testimonials),
+								saveClientPaymentPlans(clientId, paymentPlans),
+							]);
+						} catch (relationError) {
+							console.error("Error saving client relations:", relationError);
+							toast.warning(
+								"Client saved, but there was an issue saving some additional data.",
+							);
+						}
+					}
+
 					toast.success(
 						isEditMode
 							? "Client updated successfully!"
@@ -153,7 +202,9 @@ export default function ClientForm({
 						} else if (allErrors.join(", ").length < 100) {
 							toast.error(allErrors.join(", "));
 						} else {
-							toast.error(`${allErrors[0]} (+${allErrors.length - 1} more errors)`);
+							toast.error(
+								`${allErrors[0]} (+${allErrors.length - 1} more errors)`,
+							);
 						}
 					} else {
 						toast.error("Please check your input and try again.");
@@ -199,68 +250,34 @@ export default function ClientForm({
 			<div className="space-y-4">
 				<h3 className="font-medium text-lg">Basic Information</h3>
 
-				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-					<form.Field
-						name="first_name"
-						validators={{
-							onBlur: ({ value }) =>
-								validateSingleField(value, validationUtils.name),
-						}}
-					>
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>First Name *</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									placeholder="Enter first name"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									required
-								/>
-								{field.state.meta.errors &&
-									field.state.meta.errors.length > 0 && (
-										<p className="text-red-500 text-sm">
-											{String(field.state.meta.errors[0] || "")}
-										</p>
-									)}
-							</div>
-						)}
-					</form.Field>
-
-					<form.Field
-						name="last_name"
-						validators={{
-							onBlur: ({ value }) =>
-								validateSingleField(
-									value,
-									z.string().min(2, "Last name must be at least 2 characters"),
-								),
-						}}
-					>
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Last Name *</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									placeholder="Enter last name"
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-									required
-								/>
-								{field.state.meta.errors &&
-									field.state.meta.errors.length > 0 && (
-										<p className="text-red-500 text-sm">
-											{String(field.state.meta.errors[0] || "")}
-										</p>
-									)}
-							</div>
-						)}
-					</form.Field>
-				</div>
+				<form.Field
+					name="name"
+					validators={{
+						onBlur: ({ value }) =>
+							validateSingleField(value, validationUtils.name),
+					}}
+				>
+					{(field) => (
+						<div className="space-y-2">
+							<Label htmlFor={field.name}>Full Name *</Label>
+							<Input
+								id={field.name}
+								name={field.name}
+								placeholder="Enter full name"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+								required
+							/>
+							{field.state.meta.errors &&
+								field.state.meta.errors.length > 0 && (
+									<p className="text-red-500 text-sm">
+										{String(field.state.meta.errors[0] || "")}
+									</p>
+								)}
+						</div>
+					)}
+				</form.Field>
 
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 					<form.Field
@@ -324,15 +341,15 @@ export default function ClientForm({
 				</div>
 			</div>
 
-			{/* Status & Dates */}
+			{/* Status */}
 			<div className="space-y-4">
-				<h3 className="font-medium text-lg">Status & Dates</h3>
+				<h3 className="font-medium text-lg">Status</h3>
 
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-					<form.Field name="status">
+					<form.Field name="overall_status">
 						{(field) => (
 							<div className="space-y-2">
-								<Label htmlFor={field.name}>Status</Label>
+								<Label htmlFor={field.name}>Overall Status</Label>
 								<Select
 									value={field.state.value}
 									onValueChange={(value) => field.handleChange(value)}
@@ -341,7 +358,7 @@ export default function ClientForm({
 										<SelectValue placeholder="Select status" />
 									</SelectTrigger>
 									<SelectContent>
-										{CLIENT_STATUS_OPTIONS.map((status) => (
+										{CLIENT_OVERALL_STATUS_OPTIONS.map((status) => (
 											<SelectItem key={status.value} value={status.value}>
 												{status.label}
 											</SelectItem>
@@ -358,125 +375,10 @@ export default function ClientForm({
 						)}
 					</form.Field>
 
-					<form.Field
-						name="start_date"
-						validators={{
-							onBlur: ({ value }) =>
-								validateSingleField(
-									value,
-									z.string().min(1, "Start date is required"),
-								),
-						}}
-					>
+					<form.Field name="everfit_access">
 						{(field) => (
 							<div className="space-y-2">
-								<Label htmlFor={field.name}>Start Date *</Label>
-								<DatePicker
-									id={field.name}
-									value={field.state.value}
-									onChange={(value) => field.handleChange(value)}
-									placeholder="Select start date"
-								/>
-								{field.state.meta.errors &&
-									field.state.meta.errors.length > 0 && (
-										<p className="text-red-500 text-sm">
-											{String(field.state.meta.errors[0] || "")}
-										</p>
-									)}
-							</div>
-						)}
-					</form.Field>
-				</div>
-
-				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-					<form.Field name="end_date">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>End Date</Label>
-								<DatePicker
-									id={field.name}
-									value={field.state.value}
-									onChange={(value) => field.handleChange(value)}
-									placeholder="Select end date"
-								/>
-								{field.state.meta.errors &&
-									field.state.meta.errors.length > 0 && (
-										<p className="text-red-500 text-sm">
-											{String(field.state.meta.errors[0] || "")}
-										</p>
-									)}
-							</div>
-						)}
-					</form.Field>
-
-					<form.Field name="renewal_date">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Renewal Date</Label>
-								<DatePicker
-									id={field.name}
-									value={field.state.value}
-									onChange={(value) => field.handleChange(value)}
-									placeholder="Select renewal date"
-								/>
-								{field.state.meta.errors &&
-									field.state.meta.errors.length > 0 && (
-										<p className="text-red-500 text-sm">
-											{String(field.state.meta.errors[0] || "")}
-										</p>
-									)}
-							</div>
-						)}
-					</form.Field>
-				</div>
-			</div>
-
-			{/* Product Selection */}
-			<div className="space-y-4">
-				<h3 className="font-medium text-lg">Product & Assignment</h3>
-
-				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-					<form.Field name="product_id">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Product</Label>
-								<Select
-									value={field.state.value}
-									onValueChange={(value) => field.handleChange(value)}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="Select product (optional)" />
-									</SelectTrigger>
-									<SelectContent>
-										<SelectItem value="none">No product assigned</SelectItem>
-										{products.map((product) => (
-											<SelectItem key={product.id} value={product.id}>
-												{product.name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-								{field.state.meta.errors &&
-									field.state.meta.errors.length > 0 && (
-										<p className="text-red-500 text-sm">
-											{String(field.state.meta.errors[0] || "")}
-										</p>
-									)}
-							</div>
-						)}
-					</form.Field>
-				</div>
-			</div>
-
-			{/* Platform Access */}
-			<div className="space-y-4">
-				<h3 className="font-medium text-lg">Platform Access</h3>
-
-				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-					<form.Field name="platform_access_status">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Platform Access Status</Label>
+								<Label htmlFor={field.name}>Everfit Access</Label>
 								<Select
 									value={field.state.value}
 									onValueChange={(value) => field.handleChange(value)}
@@ -485,49 +387,13 @@ export default function ClientForm({
 										<SelectValue placeholder="Select access status" />
 									</SelectTrigger>
 									<SelectContent>
-										{PLATFORM_ACCESS_STATUS_OPTIONS.map((status) => (
-											<SelectItem key={status.value} value={status.value}>
-												{status.label}
+										{EVERFIT_ACCESS_OPTIONS.map((access) => (
+											<SelectItem key={access.value} value={access.value}>
+												{access.label}
 											</SelectItem>
 										))}
 									</SelectContent>
 								</Select>
-								{field.state.meta.errors &&
-									field.state.meta.errors.length > 0 && (
-										<p className="text-red-500 text-sm">
-											{String(field.state.meta.errors[0] || "")}
-										</p>
-									)}
-							</div>
-						)}
-					</form.Field>
-
-					<form.Field
-						name="platform_link"
-						validators={{
-							onBlur: ({ value }) => {
-								if (value && value.trim() !== "") {
-									return validateSingleField(
-										value,
-										z.string().url({ message: "Invalid URL" }),
-									);
-								}
-								return undefined;
-							},
-						}}
-					>
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Platform Link</Label>
-								<Input
-									id={field.name}
-									name={field.name}
-									type="url"
-									placeholder="https://..."
-									value={field.state.value}
-									onBlur={field.handleBlur}
-									onChange={(e) => field.handleChange(e.target.value)}
-								/>
 								{field.state.meta.errors &&
 									field.state.meta.errors.length > 0 && (
 										<p className="text-red-500 text-sm">
@@ -545,7 +411,7 @@ export default function ClientForm({
 				<h3 className="font-medium text-lg">Onboarding & Preferences</h3>
 
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-					<form.Field name="consultation_form_completed">
+					<form.Field name="onboarding_call_completed">
 						{(field) => (
 							<div className="flex items-center space-x-2">
 								<Switch
@@ -553,7 +419,22 @@ export default function ClientForm({
 									checked={field.state.value}
 									onCheckedChange={(checked) => field.handleChange(checked)}
 								/>
-								<Label htmlFor={field.name}>Consultation Form Completed</Label>
+								<Label htmlFor={field.name}>Onboarding Call Completed</Label>
+							</div>
+						)}
+					</form.Field>
+
+					<form.Field name="two_week_check_in_call_completed">
+						{(field) => (
+							<div className="flex items-center space-x-2">
+								<Switch
+									id={field.name}
+									checked={field.state.value}
+									onCheckedChange={(checked) => field.handleChange(checked)}
+								/>
+								<Label htmlFor={field.name}>
+									Two Week Check-in Call Completed
+								</Label>
 							</div>
 						)}
 					</form.Field>
@@ -570,7 +451,59 @@ export default function ClientForm({
 							</div>
 						)}
 					</form.Field>
+
+					<form.Field name="onboarding_completed_date">
+						{(field) => (
+							<div className="space-y-2">
+								<Label htmlFor={field.name}>Onboarding Completed Date</Label>
+								<DatePicker
+									id={field.name}
+									value={field.state.value}
+									onChange={(value) => field.handleChange(value)}
+									placeholder="Select completion date"
+								/>
+								{field.state.meta.errors &&
+									field.state.meta.errors.length > 0 && (
+										<p className="text-red-500 text-sm">
+											{String(field.state.meta.errors[0] || "")}
+										</p>
+									)}
+							</div>
+						)}
+					</form.Field>
 				</div>
+			</div>
+
+			{/* Team Assignment */}
+			<div className="space-y-4">
+				<h3 className="font-medium text-lg">Team Assignment</h3>
+
+				<form.Field name="team_ids">
+					{(field) => (
+						<div className="space-y-2">
+							<Label htmlFor={field.name}>Team IDs</Label>
+							<Input
+								id={field.name}
+								name={field.name}
+								placeholder="Enter team IDs (comma separated)"
+								value={field.state.value}
+								onBlur={field.handleBlur}
+								onChange={(e) => field.handleChange(e.target.value)}
+							/>
+							{field.state.meta.errors &&
+								field.state.meta.errors.length > 0 && (
+									<p className="text-red-500 text-sm">
+										{String(field.state.meta.errors[0] || "")}
+									</p>
+								)}
+						</div>
+					)}
+				</form.Field>
+			</div>
+
+			{/* Notes */}
+			<div className="space-y-4">
+				<h3 className="font-medium text-lg">Notes</h3>
 
 				<form.Field name="onboarding_notes">
 					{(field) => (
@@ -579,7 +512,7 @@ export default function ClientForm({
 							<Textarea
 								id={field.name}
 								name={field.name}
-								placeholder="Enter onboarding notes..."
+								placeholder="Enter onboarding notes and observations..."
 								value={field.state.value}
 								onBlur={field.handleBlur}
 								onChange={(e) => field.handleChange(e.target.value)}
@@ -601,69 +534,56 @@ export default function ClientForm({
 				<div className="space-y-4">
 					<h3 className="font-medium text-lg">Additional Dates</h3>
 
-					<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-						<form.Field name="churned_at">
-							{(field) => (
-								<div className="space-y-2">
-									<Label htmlFor={field.name}>Churned Date</Label>
-									<DatePicker
-										id={field.name}
-										value={field.state.value}
-										onChange={(value) => field.handleChange(value)}
-										placeholder="Select churned date"
-									/>
-									{field.state.meta.errors &&
-										field.state.meta.errors.length > 0 && (
-											<p className="text-red-500 text-sm">
-												{String(field.state.meta.errors[0] || "")}
-											</p>
-										)}
-								</div>
-							)}
-						</form.Field>
-
-						<form.Field name="paused_at">
-							{(field) => (
-								<div className="space-y-2">
-									<Label htmlFor={field.name}>Paused Date</Label>
-									<DatePicker
-										id={field.name}
-										value={field.state.value}
-										onChange={(value) => field.handleChange(value)}
-										placeholder="Select paused date"
-									/>
-									{field.state.meta.errors &&
-										field.state.meta.errors.length > 0 && (
-											<p className="text-red-500 text-sm">
-												{String(field.state.meta.errors[0] || "")}
-											</p>
-										)}
-								</div>
-							)}
-						</form.Field>
-
-						<form.Field name="offboard_date">
-							{(field) => (
-								<div className="space-y-2">
-									<Label htmlFor={field.name}>Offboard Date</Label>
-									<DatePicker
-										id={field.name}
-										value={field.state.value}
-										onChange={(value) => field.handleChange(value)}
-										placeholder="Select offboard date"
-									/>
-									{field.state.meta.errors &&
-										field.state.meta.errors.length > 0 && (
-											<p className="text-red-500 text-sm">
-												{String(field.state.meta.errors[0] || "")}
-											</p>
-										)}
-								</div>
-							)}
-						</form.Field>
-					</div>
+					<form.Field name="offboard_date">
+						{(field) => (
+							<div className="space-y-2">
+								<Label htmlFor={field.name}>Offboard Date</Label>
+								<DatePicker
+									id={field.name}
+									value={field.state.value}
+									onChange={(value) => field.handleChange(value)}
+									placeholder="Select offboard date"
+								/>
+								{field.state.meta.errors &&
+									field.state.meta.errors.length > 0 && (
+										<p className="text-red-500 text-sm">
+											{String(field.state.meta.errors[0] || "")}
+										</p>
+									)}
+							</div>
+						)}
+					</form.Field>
 				</div>
 			)}
+
+			{/* Client Relations */}
+			<ClientAssignmentsForm
+				assignments={assignments}
+				onChange={setAssignments}
+				availableCoaches={coaches}
+			/>
+
+			<ClientGoalsForm goals={goals} onChange={setGoals} />
+
+			<ClientWinsForm wins={wins} onChange={setWins} />
+
+			<ClientActivityPeriodsForm
+				activityPeriods={activityPeriods}
+				onChange={setActivityPeriods}
+				availableCoaches={coaches}
+			/>
+
+			<ClientNPSForm npsScores={npsScores} onChange={setNpsScores} />
+
+			<ClientTestimonialsForm
+				testimonials={testimonials}
+				onChange={setTestimonials}
+			/>
+
+			<ClientPaymentPlansForm
+				paymentPlans={paymentPlans}
+				onChange={setPaymentPlans}
+			/>
 
 			{/* Form Actions */}
 			<div className="flex justify-end gap-2 border-t pt-4">

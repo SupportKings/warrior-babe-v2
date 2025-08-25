@@ -52,30 +52,14 @@ async function ClientDetailPageAsync({ params }: ClientDetailPageProps) {
 		queryFn: () => getClient(id),
 	});
 
-	// Get the prefetched data to check if client exists
-	const client = queryClient.getQueryData(["clients", "detail", id]);
-
-	if (!client) {
-		notFound();
-	}
-
-	// Extract client name for header
-	const clientName = client
-		? `${(client as any).first_name} ${(client as any).last_name}`
-		: undefined;
-
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>
 			<MainLayout
 				headers={[
-					<ClientDetailHeader
-						key="client-detail-header"
-						clientId={id}
-						clientName={clientName}
-					/>,
+					<ClientDetailHeader key="client-detail-header" clientId={id} />,
 				]}
 			>
-				<ClientDetailView client={client as any} />
+				<ClientDetailView clientId={id} />
 			</MainLayout>
 		</HydrationBoundary>
 	);

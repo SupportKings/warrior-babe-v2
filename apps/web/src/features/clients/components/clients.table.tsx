@@ -33,18 +33,29 @@ import {
 	TrashIcon,
 	UserIcon,
 } from "lucide-react";
-import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 import { deleteClient } from "../actions/deleteClient";
-import {
-	useActiveProducts,
-	useClientsWithFaceted,
-} from "../queries/useClients";
+import { useClientsWithFaceted } from "../queries/useClients";
 import { ClientDeleteModal } from "./client.delete.modal";
 
-// Type for client row from Supabase with product relation
+// Type for client row from Supabase with relations
 type ClientRow = Database["public"]["Tables"]["clients"]["Row"] & {
-	product?: Database["public"]["Tables"]["products"]["Row"] | null;
+	client_assignments?: Array<{
+		id: string;
+		coach_id: number | null;
+		assignment_type: string;
+		start_date: string;
+		end_date: string | null;
+		coach: {
+			id: number;
+			name: string | null;
+			user: {
+				id: string;
+				name: string;
+				email: string;
+			} | null;
+		} | null;
+	}>;
 };
 
 // Create column helper for TanStack table
@@ -75,19 +86,14 @@ const clientTableColumns = [
 		enableHiding: false,
 		enableColumnFilter: false,
 	}),
-	columnHelper.accessor("first_name", {
-		id: "first_name",
+	columnHelper.accessor("name", {
+		id: "name",
 		header: "Name",
 		enableColumnFilter: true,
 		enableSorting: true,
 		cell: ({ row }) => {
-			const firstName = row.getValue<string>("first_name");
-			const lastName = row.original.last_name;
-			return (
-				<div className="font-medium">
-					{firstName} {lastName}
-				</div>
-			);
+			const name = row.getValue<string>("name");
+			return <div className="font-medium">{name}</div>;
 		},
 	}),
 	columnHelper.accessor("email", {
@@ -100,33 +106,37 @@ const clientTableColumns = [
 		),
 	}),
 	columnHelper.display({
-		id: "product",
-		header: "Product",
-		enableColumnFilter: true,
+		id: "coach",
+		header: "Coach",
+		enableColumnFilter: false,
 		cell: ({ row }) => {
-			const product = row.original.product;
+			const assignments = row.original.client_assignments;
+			const activeAssignment = assignments?.find((a) => !a.end_date);
+			const coach = activeAssignment?.coach;
 			return (
-				<div className="text-sm">{product?.name || "No product assigned"}</div>
+				<div className="text-sm">
+					{coach?.user?.name || coach?.name || "No coach assigned"}
+				</div>
 			);
 		},
 	}),
-	columnHelper.accessor("status", {
-		id: "status",
+	columnHelper.accessor("overall_status", {
+		id: "overall_status",
 		header: "Status",
 		enableColumnFilter: true,
 		enableSorting: true,
 		cell: ({ row }) => {
-			const status = row.getValue<string>("status");
-			return <StatusBadge>{status}</StatusBadge>;
+			const status = row.getValue<string>("overall_status");
+			return <StatusBadge>{status || "unknown"}</StatusBadge>;
 		},
 	}),
-	columnHelper.accessor("start_date", {
-		id: "start_date",
-		header: "Joined",
+	columnHelper.accessor("created_at", {
+		id: "created_at",
+		header: "Created",
 		enableColumnFilter: true,
 		enableSorting: true,
 		cell: ({ row }) => {
-			const date = row.getValue<string>("start_date");
+			const date = row.getValue<string>("created_at");
 			if (!date) return null;
 			return format(new Date(date), "MMM dd, yyyy");
 		},
@@ -137,29 +147,30 @@ const clientTableColumns = [
 const universalColumnHelper = createUniversalColumnHelper<ClientRow>();
 
 const clientFilterConfig = [
-	universalColumnHelper
-		.text("first_name")
-		.displayName("First Name")
-		.icon(UserIcon)
-		.build(),
+	universalColumnHelper.text("name").displayName("Name").icon(UserIcon).build(),
 	universalColumnHelper
 		.text("email")
 		.displayName("Email")
 		.icon(MailIcon)
 		.build(),
 	universalColumnHelper
-		.option("product_id")
-		.displayName("Product")
-		.icon(PackageIcon)
+		.text("phone")
+		.displayName("Phone")
+		.icon(UserIcon)
 		.build(),
 	universalColumnHelper
-		.option("status")
+		.option("overall_status")
 		.displayName("Status")
 		.icon(TagIcon)
 		.build(),
 	universalColumnHelper
-		.date("start_date")
-		.displayName("Joined Date")
+		.option("everfit_access")
+		.displayName("Everfit Access")
+		.icon(PackageIcon)
+		.build(),
+	universalColumnHelper
+		.date("created_at")
+		.displayName("Created Date")
 		.icon(CalendarIcon)
 		.build(),
 ];
@@ -181,17 +192,6 @@ function ClientsTableContent({
 		setCurrentPage(0);
 	}, [filters]);
 
-	const { execute: executeDelete } = useAction(deleteClient, {
-		onSuccess: () => {
-			// Invalidate and refetch the clients data
-			queryClient.invalidateQueries({ queryKey: ["clients"] });
-			setClientToDelete(null);
-		},
-		onError: ({ error }) => {
-			console.error("Error deleting client:", error);
-		},
-	});
-
 	// Fetch clients data with faceted data in single optimized call
 	const {
 		data: clientsWithFaceted,
@@ -203,11 +203,8 @@ function ClientsTableContent({
 		currentPage,
 		25,
 		sorting,
-		["product_id"], // columns to get faceted data for
+		["overall_status"], // columns to get faceted data for
 	);
-
-	// Fetch products for filter options using server-side hook
-	const { data: products, isPending: isProductsPending } = useActiveProducts();
 
 	// Extract data from combined result
 	const clientsData = clientsWithFaceted
@@ -217,13 +214,13 @@ function ClientsTableContent({
 			}
 		: { data: [], count: 0 };
 
-	const productFaceted = clientsWithFaceted?.facetedData?.product_id;
+	const overallStatusFaceted = clientsWithFaceted?.facetedData?.overall_status;
 
 	// Create dynamic filter config with proper types based on database schema
 	const dynamicFilterConfig = [
 		universalColumnHelper
-			.text("first_name")
-			.displayName("First Name")
+			.text("name")
+			.displayName("Name")
 			.icon(UserIcon)
 			.build(),
 		universalColumnHelper
@@ -231,26 +228,32 @@ function ClientsTableContent({
 			.displayName("Email")
 			.icon(MailIcon)
 			.build(),
+		universalColumnHelper
+			.text("phone")
+			.displayName("Phone")
+			.icon(UserIcon)
+			.build(),
 		{
 			...universalColumnHelper
-				.option("product_id")
-				.displayName("Product")
-				.icon(PackageIcon)
+				.option("overall_status")
+				.displayName("Status")
+				.icon(TagIcon)
 				.build(),
-			options:
-				products?.map((product) => ({
-					value: product.id,
-					label: product.name,
-				})) || [],
+			options: [
+				{ value: "new", label: "New" },
+				{ value: "live", label: "Live" },
+				{ value: "paused", label: "Paused" },
+				{ value: "churned", label: "Churned" },
+			],
 		},
 		universalColumnHelper
-			.text("status") // Status is string | null, so use text filter
-			.displayName("Status")
-			.icon(TagIcon)
+			.option("everfit_access")
+			.displayName("Everfit Access")
+			.icon(PackageIcon)
 			.build(),
 		universalColumnHelper
-			.date("start_date")
-			.displayName("Joined Date")
+			.date("created_at")
+			.displayName("Created Date")
 			.icon(CalendarIcon)
 			.build(),
 	];
@@ -288,7 +291,7 @@ function ClientsTableContent({
 			columnsConfig: dynamicFilterConfig,
 			filters,
 			onFiltersChange: setFilters,
-			faceted: { product_id: productFaceted },
+			faceted: { overall_status: overallStatusFaceted },
 			enableSelection: true,
 			pageSize: 25,
 			serverSide: true,
@@ -303,7 +306,7 @@ function ClientsTableContent({
 		});
 
 	// Check if filter options are still loading
-	const isFilterDataPending = isProductsPending;
+	const isFilterDataPending = false;
 
 	if (isError) {
 		return (
@@ -365,7 +368,7 @@ function ClientsTableContent({
 					onOpenChange={(open) => !open && setClientToDelete(null)}
 					onConfirm={async () => {
 						const clientId = clientToDelete.id;
-						const clientName = `${clientToDelete.first_name} ${clientToDelete.last_name}`;
+						const clientName = clientToDelete.name;
 
 						if (!clientId) {
 							toast.error("Client ID is missing");

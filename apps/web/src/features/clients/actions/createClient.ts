@@ -6,10 +6,7 @@ import { actionClient } from "@/lib/safe-action";
 
 import { createClient } from "@/utils/supabase/server";
 
-import {
-	clientCreateSchema,
-	formatValidationError,
-} from "@/features/clients/types/client";
+import { clientCreateSchema } from "@/features/clients/types/client";
 
 import { getUser } from "@/queries/getUser";
 
@@ -19,20 +16,17 @@ export const createClientAction = actionClient
 	.inputSchema(clientCreateSchema)
 	.action(async ({ parsedInput }) => {
 		const {
-			first_name,
-			last_name,
+			name,
 			email,
 			phone,
-			start_date,
-			end_date,
-			renewal_date,
-			product_id,
-			status,
-			platform_access_status,
-			platform_link,
-			consultation_form_completed,
+			overall_status,
+			everfit_access,
+			team_ids,
+			onboarding_call_completed,
+			two_week_check_in_call_completed,
 			vip_terms_signed,
 			onboarding_notes,
+			onboarding_completed_date,
 		} = parsedInput;
 
 		try {
@@ -64,21 +58,18 @@ export const createClientAction = actionClient
 			const { data: newClient, error: clientError } = await supabase
 				.from("clients")
 				.insert({
-					first_name,
-					last_name,
+					name,
 					email,
 					phone,
-					start_date,
-					end_date: end_date || null,
-					renewal_date: renewal_date || null,
-					product_id: product_id || null,
-					created_by: user.session.userId,
-					status: status || "active",
-					platform_access_status: platform_access_status || "pending",
-					platform_link: platform_link || null,
-					consultation_form_completed: consultation_form_completed || false,
+					overall_status: overall_status || "new",
+					everfit_access: everfit_access || "new",
+					team_ids: team_ids || null,
+					onboarding_call_completed: onboarding_call_completed || false,
+					two_week_check_in_call_completed:
+						two_week_check_in_call_completed || false,
 					vip_terms_signed: vip_terms_signed || false,
 					onboarding_notes: onboarding_notes || null,
+					onboarding_completed_date: onboarding_completed_date || null,
 				})
 				.select()
 				.single();
@@ -106,12 +97,10 @@ export const createClientAction = actionClient
 					success: "Client created successfully",
 					client: {
 						id: newClient.id,
-						first_name: newClient.first_name,
-						last_name: newClient.last_name,
+						name: newClient.name,
 						email: newClient.email,
 						phone: newClient.phone,
-						start_date: newClient.start_date,
-						status: newClient.status,
+						overall_status: newClient.overall_status,
 					},
 				},
 			};

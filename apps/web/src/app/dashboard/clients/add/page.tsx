@@ -7,6 +7,7 @@ import MainLayout from "@/components/layout/main-layout";
 import ClientAddSkeleton from "@/features/clients/components/client.add.skeleton";
 import ClientForm from "@/features/clients/components/client-form";
 import ClientAddHeader from "@/features/clients/layout/client.add.header";
+import { getActiveCoaches } from "@/features/coaches/actions/getCoaches";
 
 import { getUser } from "@/queries/getUser";
 
@@ -31,6 +32,12 @@ async function ClientAddPageAsync() {
 	if (!session) {
 		redirect("/");
 	}
+
+	// Prefetch coaches data for the assignments form
+	await queryClient.prefetchQuery({
+		queryKey: ["coaches", "list", "active"],
+		queryFn: () => getActiveCoaches(),
+	});
 
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>

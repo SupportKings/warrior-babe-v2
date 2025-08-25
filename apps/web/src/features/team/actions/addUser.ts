@@ -3,7 +3,6 @@
 import { headers } from "next/headers";
 
 import { auth } from "@/lib/auth";
-import { rolesMap } from "@/lib/permissions";
 import { actionClient } from "@/lib/safe-action";
 
 import { siteConfig } from "@/siteConfig";
@@ -13,13 +12,9 @@ import { returnValidationErrors } from "next-safe-action";
 import { Resend } from "resend";
 import { z } from "zod";
 
-// Create type for all available roles
-type RoleType = keyof typeof rolesMap;
-
 const inputSchema = z.object({
 	email: z.string().email("Invalid email address"),
 	name: z.string().min(2, "Name must be at least 2 characters"),
-	role: z.enum(Object.keys(rolesMap) as [RoleType, ...RoleType[]]),
 });
 
 // Generate a secure random password
@@ -37,7 +32,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const addUser = actionClient
 	.inputSchema(inputSchema)
-	.action(async ({ parsedInput: { email, name, role } }) => {
+	.action(async ({ parsedInput: { email, name } }) => {
 		try {
 			// Get current user (inviter)
 			const session = await auth.api.getSession({
@@ -65,7 +60,6 @@ export const addUser = actionClient
 						email,
 						password,
 						name,
-						role,
 					},
 				})
 				.catch(async (createUserError: unknown) => {
@@ -109,17 +103,6 @@ export const addUser = actionClient
 												headers: await headers(),
 											});
 
-											// Update their role if needed
-											if (existingUser.role !== role) {
-												await auth.api.setRole({
-													body: {
-														userId: existingUser.id,
-														role,
-													},
-													headers: await headers(),
-												});
-											}
-
 											return existingUser;
 										}
 									}
@@ -139,7 +122,7 @@ export const addUser = actionClient
 			// 2. Send invite email after successful user creation
 			try {
 				const { error } = await resend.emails.send({
-					from: "Warrior Babe <support@send.warriorbabe.com>",
+					from: "WarriorBabe <send@send.warriorbabe.com>",
 					to: [email],
 					subject: `You've been invited to join ${siteConfig.name}`,
 					react: InviteEmail({
@@ -147,7 +130,6 @@ export const addUser = actionClient
 						companyName: siteConfig.name,
 						inviterName,
 						inviterEmail,
-						role: role.charAt(0).toUpperCase() + role.slice(1),
 					}),
 				});
 

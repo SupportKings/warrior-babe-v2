@@ -4,10 +4,11 @@ import { notFound, redirect } from "next/navigation";
 
 import MainLayout from "@/components/layout/main-layout";
 
-import { getClientBasic } from "@/features/clients/actions/getClient";
+import { getClient } from "@/features/clients/actions/getClient";
 import ClientEditContent from "@/features/clients/components/client.edit.content";
 import ClientEditSkeleton from "@/features/clients/components/client.edit.skeleton";
 import ClientEditHeader from "@/features/clients/layout/client.edit.header";
+import { getActiveCoaches } from "@/features/coaches/actions/getCoaches";
 
 import { getUser } from "@/queries/getUser";
 
@@ -46,23 +47,27 @@ async function ClientEditPageAsync({ params }: ClientEditPageProps) {
 		redirect("/");
 	}
 
-	// Prefetch the client basic data for the form
-	await queryClient.prefetchQuery({
-		queryKey: ["clients", "basic", id],
-		queryFn: () => getClientBasic(id),
-	});
+	// Prefetch the full client data for the form and coaches data
+	await Promise.all([
+		queryClient.prefetchQuery({
+			queryKey: ["clients", "detail", id],
+			queryFn: () => getClient(id),
+		}),
+		queryClient.prefetchQuery({
+			queryKey: ["coaches", "list", "active"],
+			queryFn: () => getActiveCoaches(),
+		}),
+	]);
 
 	// Get the prefetched data to check if client exists
-	const client = queryClient.getQueryData(["clients", "basic", id]);
+	const client = queryClient.getQueryData(["clients", "detail", id]);
 
 	if (!client) {
 		notFound();
 	}
 
 	// Extract client name for header
-	const clientName = client
-		? `${(client as any).first_name} ${(client as any).last_name}`
-		: undefined;
+	const clientName = client ? (client as any).name : undefined;
 
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>

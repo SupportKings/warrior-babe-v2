@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 
-import { rolesMap } from "@/lib/permissions";
-
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -16,13 +14,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 
 import { addUser } from "@/features/team/actions/addUser";
 
@@ -32,24 +23,9 @@ import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-// Get all roles dynamically from the permissions file, excluding 'user'
-const roles = Object.keys(rolesMap)
-	.filter((roleName) => roleName !== "user")
-	.map((roleName) => ({
-		value: roleName,
-		label:
-			roleName.charAt(0).toUpperCase() +
-			roleName.slice(1).replace(/([A-Z])/g, " $1"), // Capitalize and add spaces
-	}));
-
-// Create type for all available roles
-type RoleType = keyof typeof rolesMap;
-
-// Create dynamic schema based on available roles
 const userSchema = z.object({
 	email: z.string().email("Invalid email address"),
 	name: z.string().min(2, "Name must be at least 2 characters"),
-	role: z.enum(Object.keys(rolesMap) as [RoleType, ...RoleType[]]),
 });
 
 export default function AddUserDialog() {
@@ -60,13 +36,11 @@ export default function AddUserDialog() {
 		defaultValues: {
 			email: "",
 			name: "",
-			role: "coach" as RoleType,
 		},
 		onSubmit: async ({ value }) => {
 			const result = await addUser({
 				email: value.email,
 				name: value.name,
-				role: value.role,
 			});
 
 			if (result?.data?.success) {
@@ -74,7 +48,7 @@ export default function AddUserDialog() {
 				setOpen(false);
 				form.reset();
 				// Invalidate and refetch users data
-				queryClient.invalidateQueries({ queryKey: ["users"] });
+				queryClient.invalidateQueries({ queryKey: ["users", false] });
 			} else if (result?.validationErrors?._errors) {
 				// Handle server validation errors
 				const errorMessage =
@@ -160,36 +134,6 @@ export default function AddUserDialog() {
 									onChange={(e) => field.handleChange(e.target.value)}
 									required
 								/>
-								{field.state.meta.errors.map((error) => (
-									<p key={error?.message} className="text-red-500 text-sm">
-										{error?.message}
-									</p>
-								))}
-							</div>
-						)}
-					</form.Field>
-
-					<form.Field name="role">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Role</Label>
-								<Select
-									value={field.state.value}
-									onValueChange={(value) =>
-										field.handleChange(value as RoleType)
-									}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="Select role" />
-									</SelectTrigger>
-									<SelectContent>
-										{roles.map((role) => (
-											<SelectItem key={role.value} value={role.value}>
-												{role.label}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
 								{field.state.meta.errors.map((error) => (
 									<p key={error?.message} className="text-red-500 text-sm">
 										{error?.message}

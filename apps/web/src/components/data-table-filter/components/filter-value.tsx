@@ -23,8 +23,9 @@ import {
 	CommandSeparator,
 } from "@/components/ui/command";
 import {
-	Popover, PopoverContent,
-	PopoverTrigger
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
 } from "@/components/ui/popover";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

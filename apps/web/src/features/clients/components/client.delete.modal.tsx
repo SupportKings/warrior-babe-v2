@@ -57,9 +57,7 @@ export function ClientDeleteModal({
 
 						<Dialog.Description className="mb-6 text-muted-foreground text-sm">
 							Are you sure you want to delete{" "}
-							<span className="font-medium text-foreground">
-								{client.first_name} {client.last_name}
-							</span>
+							<span className="font-medium text-foreground">{client.name}</span>
 							? This action cannot be undone and will remove all associated
 							data.
 						</Dialog.Description>

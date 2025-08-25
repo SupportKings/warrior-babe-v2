@@ -11,38 +11,109 @@ export async function getClient(id: string) {
 			.from("clients")
 			.select(`
 				*,
-				created_by:user!clients_created_by_fkey (
+				client_assignments (
 					id,
-					name,
-					email
-				),
-				product:products (
-					id,
-					name,
-					client_unit,
-					description
-				),
-				client_assignments!client_assignments_client_id_fkey (
-					id,
-					user_id,
+					coach_id,
 					start_date,
+					end_date,
 					assignment_type,
-					coach:user!client_assignments_user_id_fkey (
+					assigned_by,
+					coach:team_members!client_assignments_coach_id_fkey (
+						id,
+						name,
+						user:user!team_members_user_id_fkey (
+							id,
+							name,
+							email
+						)
+					)
+				),
+				client_goals (
+					id,
+					title,
+					description,
+					status,
+					target_value,
+					current_value,
+					due_date,
+					started_at,
+					priority,
+					created_at
+				),
+				client_wins (
+					id,
+					title,
+					description,
+					win_date,
+					recorded_by,
+					created_at,
+					recorded_by_user:user!client_wins_recorded_by_user_id_fk (
 						id,
 						name,
 						email
 					)
 				),
-				client_goals!client_goals_client_id_fkey (
+				client_activity_period (
 					id,
-					goal_type_id,
-					description,
-					status,
+					active,
+					start_date,
+					end_date,
+					coach_id,
 					created_at,
-					goal_type:goal_types (
+					updated_at,
+					coach:team_members!client_activity_period_coach_id_fkey (
 						id,
 						name,
-						description
+						user:user!team_members_user_id_fkey (
+							id,
+							name,
+							email
+						)
+					)
+				),
+				client_nps (
+					id,
+					nps_score,
+					notes,
+					provided_by,
+					recorded_by,
+					recorded_date,
+					created_at,
+					updated_at
+				),
+				client_testimonials (
+					id,
+					content,
+					testimonial_type,
+					testimonial_url,
+					recorded_by,
+					recorded_date,
+					created_at,
+					updated_at
+				),
+				payment_plans (
+					id,
+					name,
+					notes,
+					platform,
+					product_id,
+					subscription_id,
+					term_start_date,
+					term_end_date,
+					total_amount,
+					total_amount_paid,
+					type,
+					created_at,
+					updated_at,
+					payment_slots (
+						id,
+						amount_due,
+						amount_paid,
+						due_date,
+						notes,
+						payment_id,
+						created_at,
+						updated_at
 					)
 				)
 			`)
@@ -91,22 +162,20 @@ export async function getAllClients() {
 			.from("clients")
 			.select(`
 				*,
-				created_by:user!clients_created_by_fkey (
+				client_assignments (
 					id,
-					name,
-					email
-				),
-				product:products (
-					id,
-					name,
-					client_unit,
-					description
-				),
-				client_assignments!client_assignments_client_id_fkey (
-					coach:user!client_assignments_coach_id_fkey (
+					coach_id,
+					assignment_type,
+					start_date,
+					end_date,
+					coach:team_members!client_assignments_coach_id_fkey (
 						id,
 						name,
-						email
+						user:user!team_members_user_id_fkey (
+							id,
+							name,
+							email
+						)
 					)
 				)
 			`)
@@ -136,14 +205,21 @@ export async function getClientsWithFilters(
 		let query = supabase.from("clients").select(
 			`
 				*,
-				product:products (
+				client_assignments (
 					id,
-					name,
-					client_unit,
-					description,
-					is_active,
-					created_at,
-					default_duration_months
+					coach_id,
+					assignment_type,
+					start_date,
+					end_date,
+					coach:team_members!client_assignments_coach_id_fkey (
+						id,
+						name,
+						user:user!team_members_user_id_fkey (
+							id,
+							name,
+							email
+						)
+					)
 				)
 			`,
 			{ count: "exact" },
@@ -158,9 +234,9 @@ export async function getClientsWithFilters(
 
 				// Apply filter based on column type and operator
 				switch (columnId) {
-					case "first_name":
-					case "last_name":
+					case "name":
 					case "email":
+					case "phone":
 						// Text fields - support contains/does not contain
 						if (operator === "contains") {
 							query = query.ilike(columnId, `%${values[0]}%`);
@@ -169,20 +245,8 @@ export async function getClientsWithFilters(
 						}
 						break;
 
-					case "product_id":
-						// Option field - support is/is not/is any of/is none of
-						if (operator === "is") {
-							query = query.eq(columnId, values[0]);
-						} else if (operator === "is not") {
-							query = query.not(columnId, "eq", values[0]);
-						} else if (operator === "is any of") {
-							query = query.in(columnId, values);
-						} else if (operator === "is none of") {
-							query = query.not(columnId, "in", `(${values.join(",")})`);
-						}
-						break;
-
-					case "status":
+					case "overall_status":
+					case "everfit_access":
 						// Status can be treated as both text and option
 						if (operator === "contains") {
 							query = query.ilike(columnId, `%${values[0]}%`);
@@ -199,9 +263,10 @@ export async function getClientsWithFilters(
 						}
 						break;
 
-					case "start_date":
-					case "end_date":
 					case "created_at":
+					case "updated_at":
+					case "onboarding_completed_date":
+					case "offboard_date":
 						// Date fields - support various date operators
 						if (operator === "is") {
 							query = query.eq(columnId, values[0]);
@@ -224,26 +289,14 @@ export async function getClientsWithFilters(
 						}
 						break;
 
-					// Handle numeric fields if needed
-					case "client_unit":
+					// Handle boolean fields
+					case "onboarding_call_completed":
+					case "two_week_check_in_call_completed":
+					case "vip_terms_signed":
 						if (operator === "is") {
-							query = query.eq(columnId, values[0]);
+							query = query.eq(columnId, values[0] === "true");
 						} else if (operator === "is not") {
-							query = query.not(columnId, "eq", values[0]);
-						} else if (operator === "is greater than") {
-							query = query.gt(columnId, values[0]);
-						} else if (operator === "is greater than or equal to") {
-							query = query.gte(columnId, values[0]);
-						} else if (operator === "is less than") {
-							query = query.lt(columnId, values[0]);
-						} else if (operator === "is less than or equal to") {
-							query = query.lte(columnId, values[0]);
-						} else if (operator === "is between" && values.length === 2) {
-							query = query.gte(columnId, values[0]).lte(columnId, values[1]);
-						} else if (operator === "is not between" && values.length === 2) {
-							query = query.or(
-								`${columnId}.lt.${values[0]},${columnId}.gt.${values[1]}`,
-							);
+							query = query.not(columnId, "eq", values[0] === "true");
 						}
 						break;
 				}
@@ -283,7 +336,7 @@ export async function getClientsWithFaceted(
 	page = 0,
 	pageSize = 25,
 	sorting: any[] = [],
-	facetedColumns: string[] = ["product_id"],
+	facetedColumns: string[] = ["overall_status"],
 ) {
 	try {
 		const supabase = await createClient();
@@ -478,9 +531,9 @@ export async function getClientsFaceted(columnId: string, filters: any[] = []) {
 
 					// Apply same operator logic as main query
 					switch (filterColumnId) {
-						case "first_name":
-						case "last_name":
+						case "name":
 						case "email":
+						case "phone":
 							if (operator === "contains") {
 								query = query.ilike(filterColumnId, `%${values[0]}%`);
 							} else if (operator === "does not contain") {
@@ -488,7 +541,8 @@ export async function getClientsFaceted(columnId: string, filters: any[] = []) {
 							}
 							break;
 
-						case "product_id":
+						case "overall_status":
+						case "everfit_access":
 							if (operator === "is") {
 								query = query.eq(filterColumnId, values[0]);
 							} else if (operator === "is not") {
@@ -504,29 +558,10 @@ export async function getClientsFaceted(columnId: string, filters: any[] = []) {
 							}
 							break;
 
-						case "status":
-							if (operator === "contains") {
-								query = query.ilike(filterColumnId, `%${values[0]}%`);
-							} else if (operator === "does not contain") {
-								query = query.not(filterColumnId, "ilike", `%${values[0]}%`);
-							} else if (operator === "is") {
-								query = query.eq(filterColumnId, values[0]);
-							} else if (operator === "is not") {
-								query = query.not(filterColumnId, "eq", values[0]);
-							} else if (operator === "is any of") {
-								query = query.in(filterColumnId, values);
-							} else if (operator === "is none of") {
-								query = query.not(
-									filterColumnId,
-									"in",
-									`(${values.join(",")})`,
-								);
-							}
-							break;
-
-						case "start_date":
-						case "end_date":
 						case "created_at":
+						case "updated_at":
+						case "onboarding_completed_date":
+						case "offboard_date":
 							if (operator === "is") {
 								query = query.eq(filterColumnId, values[0]);
 							} else if (operator === "is not") {
@@ -600,7 +635,7 @@ export async function prefetchClientsWithFacetedServer(
 	page = 0,
 	pageSize = 25,
 	sorting: any[] = [],
-	facetedColumns: string[] = ["product_id"],
+	facetedColumns: string[] = ["overall_status"],
 ) {
 	return await getClientsWithFaceted(
 		filters,
@@ -609,27 +644,4 @@ export async function prefetchClientsWithFacetedServer(
 		sorting,
 		facetedColumns,
 	);
-}
-
-// Get products for filter options
-export async function getActiveProducts() {
-	try {
-		const supabase = await createClient();
-
-		const { data: products, error } = await supabase
-			.from("products")
-			.select("id, name")
-			.eq("is_active", true)
-			.order("name");
-
-		if (error) {
-			console.error("Error fetching products:", error);
-			return [];
-		}
-
-		return products || [];
-	} catch (error) {
-		console.error("Unexpected error in getActiveProducts:", error);
-		return [];
-	}
 }

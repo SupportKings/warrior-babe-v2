@@ -6,10 +6,7 @@ import { actionClient } from "@/lib/safe-action";
 
 import { createClient } from "@/utils/supabase/server";
 
-import {
-	clientUpdateSchema,
-	formatValidationError,
-} from "@/features/clients/types/client";
+import { clientUpdateSchema } from "@/features/clients/types/client";
 
 import { returnValidationErrors } from "next-safe-action";
 
@@ -58,17 +55,7 @@ export const updateClientAction = actionClient
 			);
 
 			// Handle empty strings as null for optional fields
-			const fieldsToNullify = [
-				"phone",
-				"end_date",
-				"renewal_date",
-				"product_id",
-				"platform_link",
-				"onboarding_notes",
-				"churned_at",
-				"paused_at",
-				"offboard_date",
-			];
+			const fieldsToNullify = ["phone", "notes", "offboard_date"];
 
 			fieldsToNullify.forEach((field) => {
 				if (cleanUpdateData[field] === "") {
@@ -111,12 +98,10 @@ export const updateClientAction = actionClient
 					success: "Client updated successfully",
 					client: {
 						id: updatedClient.id,
-						first_name: updatedClient.first_name,
-						last_name: updatedClient.last_name,
+						name: updatedClient.name,
 						email: updatedClient.email,
 						phone: updatedClient.phone,
-						start_date: updatedClient.start_date,
-						status: updatedClient.status,
+						overall_status: updatedClient.overall_status,
 					},
 				},
 			};
