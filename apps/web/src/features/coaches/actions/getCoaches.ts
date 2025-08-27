@@ -72,7 +72,6 @@ export async function getCoachesWithFaceted(
 				id,
 				team_id,
 				name,
-				email,
 				roles,
 				contract_type,
 				created_at
