@@ -16,7 +16,7 @@ import { PlusIcon, TrashIcon } from "lucide-react";
 
 interface ClientAssignment {
 	id?: string;
-	coach_id: number | null;
+	coach_id: string | null;
 	start_date: string;
 	end_date: string | null;
 	assignment_type: string;
@@ -33,7 +33,7 @@ interface ClientAssignment {
 }
 
 interface Coach {
-	id: number;
+	id: string;
 	name: string | null;
 	user: {
 		id: string;
@@ -126,7 +126,7 @@ export function ClientAssignmentsForm({
 									value={assignment.coach_id?.toString() || ""}
 									onValueChange={(value) =>
 										updateAssignment(index, {
-											coach_id: value ? Number(value) : null,
+											coach_id: value ? value : null,
 										})
 									}
 								>

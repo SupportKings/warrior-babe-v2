@@ -20,11 +20,11 @@ interface ClientActivityPeriod {
 	active: boolean;
 	start_date: string;
 	end_date: string;
-	coach_id: number | null;
+	coach_id: string | null;
 }
 
 interface Coach {
-	id: number;
+	id: string;
 	name: string | null;
 	user: {
 		id: string;
@@ -154,7 +154,7 @@ export function ClientActivityPeriodsForm({
 								value={activityPeriod.coach_id?.toString() || ""}
 								onValueChange={(value) =>
 									updateActivityPeriod(index, {
-										coach_id: value ? Number(value) : null,
+										coach_id: value ? value : null,
 									})
 								}
 							>

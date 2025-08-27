@@ -26,7 +26,7 @@ function EditCoachHeader() {
   );
 }
 
-export default async function EditCoachPage({ params }: { params: { id: string } }) {
+export default async function EditCoachPage(params: any) {
   // Fetch the coach data
   const coach = await getCoach(params.id);
 

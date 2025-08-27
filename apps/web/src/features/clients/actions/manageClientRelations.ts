@@ -31,7 +31,7 @@ interface ClientWin {
 
 interface ClientAssignment {
 	id?: string;
-	coach_id: number | null;
+	coach_id: string | null;
 	start_date: string;
 	end_date: string | null;
 	assignment_type: string;
