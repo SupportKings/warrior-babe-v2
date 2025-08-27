@@ -4,12 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a full-stack monorepo application built with modern TypeScript tooling. It's a coaching/client management platform with authentication, team management, ticketing system, and financial tracking.
+Warrior Babe v2 - A full-stack monorepo coaching/client management platform with authentication, team management, payment tracking, and comprehensive client relationship management.
 
 ## Prerequisites
 
-- **Bun** is required (npm/yarn/pnpm are blocked by .npmrc)
+- **Bun** is required (npm/yarn/pnpm are blocked via preinstall script)
 - PostgreSQL database via Supabase
+- Better Auth migrations must be run: `cd apps/web && npx @better-auth/cli migrate`
 
 ## Essential Commands
 
@@ -23,7 +24,7 @@ bun dev:server      # Start only server
 
 ### Code Quality
 ```bash
-bun check           # Run Biome formatter and linter
+bun check           # Run Biome formatter and linter with auto-fix
 bun check-types     # Check TypeScript types across all apps
 ```
 
@@ -32,28 +33,54 @@ bun check-types     # Check TypeScript types across all apps
 bun build           # Build all applications for production
 ```
 
+### Database
+```bash
+bun db:push         # Push schema changes to database (runs from apps/server)
+bun db:studio       # Open Drizzle Studio UI at localhost:4983
+bun db:generate     # Generate Drizzle migrations
+bun db:migrate      # Run Drizzle migrations
+```
+
+### Testing
+No testing framework is currently configured. Tests need to be set up if required.
+
 ## Architecture
 
 ### Tech Stack
-- **Runtime**: Bun
+- **Runtime**: Bun (mandatory - npm/yarn/pnpm blocked)
 - **Monorepo**: Turborepo
 - **Frontend**: Next.js 15 (App Router), React 19, TailwindCSS v4, shadcn/ui
-- **Database**: Supabase (PostgreSQL)
+- **Backend**: Hono server with tRPC
+- **Database**: Supabase (PostgreSQL) with Drizzle ORM
 - **Auth**: Better Auth with email OTP and passkeys
 - **Server Actions**: next-safe-action with Zod validation
 - **Data Fetching**: TanStack Query with prefetching pattern
 - **URL State**: nuqs for sharable state
 - **Hooks**: @uidotdev/usehooks for common utilities
-- **Styling**: TailwindCSS with custom design system
+- **Forms**: TanStack Form with React Hook Form
+- **Validation**: Zod schemas throughout
+- **UI Components**: shadcn/ui built on Radix UI
+- **Email**: React Email templates with Resend provider
+- **Code Quality**: Biome (formatter/linter with custom Grit plugin), TypeScript strict mode
 
 ### Key Directories
-- `apps/web/` - Next.js frontend application
+- `apps/web/` - Next.js frontend application (port 3001)
   - `src/app/` - App Router pages
   - `src/components/` - Shared UI components
   - `src/features/` - Feature modules (ALL feature code goes here)
   - `src/lib/` - Core utilities and configs
   - `src/queries/` - Shared server queries
-- `apps/server/` - Hono API server
+  - `src/utils/` - Utilities (query client, supabase client)
+- `apps/server/` - Hono API server (port 3000)
+  - `src/db/schema/` - Organized Drizzle schemas:
+    - `clients/` - Client-related tables
+    - `coach/` - Coach management tables
+    - `goals/` - Goal categories and types
+    - `payments/` - Payment system tables
+    - `products/` - Product management
+    - `system/` - System configurations
+    - `wins/` - Client achievements
+    - `common.ts` - Shared schema utilities
 - `packages/emails/` - React Email templates
 
 ### Feature Folder Structure
@@ -133,20 +160,29 @@ const [filter, setFilter] = useQueryState("filter", {
 ```
 
 ### Important Files
-- `apps/web/src/lib/safe-action.ts` - Server action client
-- `apps/web/src/lib/auth-client.ts` - Auth client configuration
-- `apps/web/src/lib/supabase/client.ts` - Supabase client
+- `apps/web/src/lib/safe-action.ts` - Server action client with auth middleware
+- `apps/web/src/lib/auth-client.ts` - Better Auth client configuration
+- `apps/web/src/lib/auth.ts` - Server-side auth utilities (getUser, authOptions)
+- `apps/web/src/utils/supabase/client.ts` - Supabase client
 - `apps/web/src/utils/queryClient.ts` - React Query configuration
-- `biome.json` - Code formatting/linting rules
+- `apps/web/src/utils/supabase/database.types.ts` - Generated database types
+- `apps/server/src/db/schema.ts` - Main Drizzle schema exports
+- `apps/server/drizzle.config.ts` - Drizzle configuration
+- `biome.json` - Code formatting/linting rules with custom Grit plugin
+- `turbo.json` - Turborepo pipeline configuration
+- `apps/web/components.json` - shadcn/ui configuration
 
 ## Development Guidelines
 
-### Code Style
+### Code Style (Biome Configuration)
 - Tab indentation (enforced by Biome)
 - Double quotes for strings
-- Use `cn()` utility for className composition
+- Organized imports: React → Next.js → Node → external libs → internal
+- Use `cn()` utility for className composition (supports `clsx`, `cva`)
+- TailwindCSS class sorting enabled for `cn()`, `clsx()`, `cva()` functions
 - Follow existing component patterns in `src/components/`
 - No select components with value = ""
+- Custom Grit plugin for object-assign patterns
 
 ### Type Safety
 - All server actions use Zod schemas for validation
@@ -164,17 +200,24 @@ const [filter, setFilter] = useQueryState("filter", {
 - Required: `DATABASE_URL`, `NEXT_PUBLIC_APP_URL`, Supabase keys
 - Auth secrets: `BETTER_AUTH_SECRET`, email provider credentials
 
-### Authentication
-- Better Auth handles user sessions
-- Session is fetched once at page level
-- Permissions are passed down to components as needed
+### Authentication (Better Auth)
+- **Methods**: Email + Password (sign-up disabled), Email OTP, Passkeys
+- **Email Provider**: Resend for OTP delivery
+- **Session Management**: Cookie-based with 5-minute cache
+- **Middleware**: Supabase RPC integration for user context
+- **Admin Plugin**: Role-based access control enabled
+- Session is fetched once at page level using `getUser()`
+- Auth tables created via: `cd apps/web && npx @better-auth/cli migrate`
 
-### Database
+### Database (Drizzle ORM + Supabase)
+- **Schema Pattern**: UUID primary keys with `defaultRandom()`, timestamps with `created_at`/`updated_at`
+- **Enum Types**: Use proper enum types for status fields (e.g., ClientStatus, PaymentStatus)
+- **Relations**: Properly defined foreign key relationships in schema
 - Use Supabase client for all database operations
 - Types are generated in `database.types.ts`
 - Always use type-safe queries with proper joins
-- For inputs, if database type is string, always use text input, and do not hallucinate on possible options (eg, if Status columns is text, do not try to figure out statuses)
-- If displaying linked record, never display id, but look up the appropriate name
+- For inputs, if database type is string, always use text input, and do not hallucinate on possible options
+- If displaying linked record, never display id, but look up the appropriate name field
 
 ### Reusable Components
 - Always use @universal-data-table for all data tables
