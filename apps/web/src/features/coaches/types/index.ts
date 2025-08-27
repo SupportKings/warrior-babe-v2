@@ -8,6 +8,7 @@ export type CoachRow = Database["public"]["Tables"]["team_members"]["Row"] & {
   user?: {
     id: string;
     email: string;
+    role: string;
   } | null;
   team?: {
     id: string;

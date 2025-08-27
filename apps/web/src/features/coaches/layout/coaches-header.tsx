@@ -15,7 +15,7 @@ export default function CoachesHeader() {
 			<Button asChild>
 				<Link href="/dashboard/coaches/new" className="flex items-center gap-2">
 					<UserPlusIcon className="mr-[6px] h-4 w-4" />
-					Add Coach
+					Add Team Member
 				</Link>
 			</Button>
 		</div>

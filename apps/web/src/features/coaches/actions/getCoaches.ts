@@ -76,7 +76,8 @@ export async function getCoachesWithFaceted(
 				created_at,
 				user:user!team_members_user_id_fkey (
 					id,
-					email
+					email,
+					role
 				),
 				team:coach_teams!team_members_team_id_fkey (
 					id,

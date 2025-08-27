@@ -2,13 +2,28 @@
 
 import { createClient } from "@/utils/supabase/server";
 
-export async function getCoach(id: any) {
+export async function getCoach(id: string) {
 	try {
 		const supabase = await createClient();
 
 		const { data: coach, error } = await supabase
 			.from("team_members")
-			.select("*")
+			.select(`
+				*,
+				user:user!team_members_user_id_fkey (
+					id,
+					email,
+					name,
+					role
+				),
+				team:coach_teams!team_members_team_id_fkey (
+					id,
+					premier_coach:team_members!coach_teams_premier_coach_id_fkey (
+						id,
+						name
+					)
+				)
+			`)
 			.eq("id", id)
 			.single();
 

@@ -163,7 +163,7 @@ export function AppSidebar({
 						url: "/dashboard/coaches",
 					},
 					{
-						title: "Premiere Coaches",
+						title: "Premier Coaches",
 						url: "/dashboard/coaches/premiere-coaches",
 					},
 				],

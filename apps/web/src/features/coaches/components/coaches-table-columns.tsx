@@ -7,21 +7,15 @@ import type { CoachRow } from "../types";
 // Function to get contract type badge styling
 function getContractTypeBadgeClass(contractType: string | null): string {
   if (!contractType) return "bg-muted text-muted-foreground";
-  
+
   const type = contractType.toLowerCase();
-  
+
   if (type === "w2" || type === "w-2") {
     // Full-time employee - primary/default style
     return "bg-primary/10 text-primary";
   } else if (type === "hourly" || type.includes("hour")) {
     // Hourly contractor - secondary style
     return "bg-secondary text-secondary-foreground";
-  } else if (type === "contractor" || type === "1099") {
-    // Independent contractor - accent style
-    return "bg-accent text-accent-foreground";
-  } else if (type === "salary" || type.includes("salary")) {
-    // Salaried - similar to W2 but slightly different
-    return "bg-primary/15 text-primary";
   } else {
     // Default/Unknown - muted style
     return "bg-muted text-muted-foreground";
@@ -74,7 +68,41 @@ export const coachesTableColumns = [
     cell: ({ row }) => {
       const email = row.original.user?.email;
       return (
-        <div className="text-sm text-muted-foreground">{email || "No email"}</div>
+        <div className="text-sm text-muted-foreground">
+          {email || "No email"}
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor((row) => row.user?.role, {
+    id: "roles",
+    header: "Roles",
+    enableColumnFilter: true,
+    enableSorting: true,
+    cell: ({ row }) => {
+      const roles = row.original.user?.role;
+
+      if (!roles) {
+        return <span className="text-sm text-muted-foreground">No roles</span>;
+      }
+
+      // Split roles by comma and trim whitespace
+      const rolesList = roles
+        .split(",")
+        .map((role) => role.trim())
+        .filter(Boolean);
+
+      return (
+        <div className="flex flex-wrap gap-1">
+          {rolesList.map((role, index) => (
+            <span
+              key={index}
+              className="inline-flex items-center rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground capitalize"
+            >
+              {role}
+            </span>
+          ))}
+        </div>
       );
     },
   }),
@@ -85,7 +113,7 @@ export const coachesTableColumns = [
     enableSorting: true,
     cell: ({ row }) => {
       const premierCoachName = row.original.team?.premier_coach?.name;
-      
+
       if (premierCoachName) {
         return <div className="text-sm font-medium">{premierCoachName}</div>;
       }
@@ -104,9 +132,11 @@ export const coachesTableColumns = [
         return <span className="text-muted-foreground">—</span>;
 
       const badgeClass = getContractTypeBadgeClass(contractType);
-      
+
       return (
-        <span className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold ${badgeClass}`}>
+        <span
+          className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold ${badgeClass}`}
+        >
           {contractType}
         </span>
       );
