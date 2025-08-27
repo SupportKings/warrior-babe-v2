@@ -2,8 +2,25 @@
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { createColumnHelper } from "@tanstack/react-table";
-import { format } from "date-fns";
 import type { CoachRow } from "../types";
+
+// Function to get contract type badge styling
+function getContractTypeBadgeClass(contractType: string | null): string {
+  if (!contractType) return "bg-muted text-muted-foreground";
+
+  const type = contractType.toLowerCase();
+
+  if (type === "w2" || type === "w-2") {
+    // Full-time employee - primary/default style
+    return "bg-primary/10 text-primary";
+  } else if (type === "hourly" || type.includes("hour")) {
+    // Hourly contractor - secondary style
+    return "bg-secondary text-secondary-foreground";
+  } else {
+    // Default/Unknown - muted style
+    return "bg-muted text-muted-foreground";
+  }
+}
 
 // Create column helper for TanStack table
 const columnHelper = createColumnHelper<CoachRow>();
@@ -43,31 +60,36 @@ export const coachesTableColumns = [
       return <div className="font-medium">{name || "—"}</div>;
     },
   }),
-  columnHelper.accessor("email", {
+  columnHelper.accessor((row) => row.user?.email, {
     id: "email",
     header: "Email",
     enableColumnFilter: true,
     enableSorting: true,
     cell: ({ row }) => {
-      const email = row.getValue<string>("email");
+      const email = row.original.user?.email;
       return (
-        <div className="text-sm text-muted-foreground">{email || "—"}</div>
+        <div className="text-sm text-muted-foreground">
+          {email || "No email"}
+        </div>
       );
     },
   }),
-  columnHelper.accessor("roles", {
+  columnHelper.accessor((row) => row.user?.role, {
     id: "roles",
     header: "Roles",
     enableColumnFilter: true,
     enableSorting: true,
     cell: ({ row }) => {
-      const roles = row.getValue<string | null>("roles");
-      if (!roles) return <span className="text-muted-foreground">—</span>;
+      const roles = row.original.user?.role;
 
-      // Split roles by comma or semicolon and render as badges
+      if (!roles) {
+        return <span className="text-sm text-muted-foreground">No roles</span>;
+      }
+
+      // Split roles by comma and trim whitespace
       const rolesList = roles
-        .split(/[,;]/)
-        .map((r) => r.trim())
+        .split(",")
+        .map((role) => role.trim())
         .filter(Boolean);
 
       return (
@@ -75,7 +97,7 @@ export const coachesTableColumns = [
           {rolesList.map((role, index) => (
             <span
               key={index}
-              className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-input bg-background hover:bg-accent hover:text-accent-foreground"
+              className="inline-flex items-center rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground capitalize"
             >
               {role}
             </span>
@@ -84,18 +106,16 @@ export const coachesTableColumns = [
       );
     },
   }),
-  columnHelper.accessor("team_id", {
-    id: "team_id",
-    header: "Team",
+  columnHelper.accessor((row) => row.team?.premier_coach?.name, {
+    id: "premier_coach",
+    header: "Assigned Premier Coach",
     enableColumnFilter: true,
     enableSorting: true,
     cell: ({ row }) => {
-      const teamId = row.getValue<string | null>("team_id");
+      const premierCoachName = row.original.team?.premier_coach?.name;
 
-      // Get the team name from the coach_teams relation
-      if (teamId) {
-        // For now just show the team_id, but this should be enhanced to show team name
-        return <div className="text-sm font-medium">Team {teamId}</div>;
+      if (premierCoachName) {
+        return <div className="text-sm font-medium">{premierCoachName}</div>;
       }
 
       return <span className="text-sm text-muted-foreground">Unassigned</span>;
@@ -111,25 +131,14 @@ export const coachesTableColumns = [
       if (!contractType)
         return <span className="text-muted-foreground">—</span>;
 
+      const badgeClass = getContractTypeBadgeClass(contractType);
+
       return (
-        <span className="inline-flex items-center rounded-md bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground">
+        <span
+          className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-semibold ${badgeClass}`}
+        >
           {contractType}
         </span>
-      );
-    },
-  }),
-  columnHelper.accessor("created_at", {
-    id: "created_at",
-    header: "Created",
-    enableColumnFilter: true,
-    enableSorting: true,
-    cell: ({ row }) => {
-      const date = row.getValue<string>("created_at");
-      if (!date) return <span className="text-muted-foreground">—</span>;
-      return (
-        <div className="text-sm text-muted-foreground">
-          {format(new Date(date), "MMM dd, yyyy")}
-        </div>
       );
     },
   }),

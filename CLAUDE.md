@@ -59,7 +59,7 @@ No testing framework is currently configured. Tests need to be set up if require
 - **Hooks**: @uidotdev/usehooks for common utilities
 - **Forms**: TanStack Form with React Hook Form
 - **Validation**: Zod schemas throughout
-- **UI Components**: shadcn/ui built on Radix UI
+- **UI Components**: shadcn/ui built on Radix UI, Base UI components
 - **Email**: React Email templates with Resend provider
 - **Code Quality**: Biome (formatter/linter with custom Grit plugin), TypeScript strict mode
 
@@ -166,7 +166,7 @@ const [filter, setFilter] = useQueryState("filter", {
 - `apps/web/src/utils/supabase/client.ts` - Supabase client
 - `apps/web/src/utils/queryClient.ts` - React Query configuration
 - `apps/web/src/utils/supabase/database.types.ts` - Generated database types
-- `apps/server/src/db/schema.ts` - Main Drizzle schema exports
+- `apps/server/src/db/schema/` - Organized Drizzle schemas by domain
 - `apps/server/drizzle.config.ts` - Drizzle configuration
 - `biome.json` - Code formatting/linting rules with custom Grit plugin
 - `turbo.json` - Turborepo pipeline configuration
@@ -182,7 +182,7 @@ const [filter, setFilter] = useQueryState("filter", {
 - TailwindCSS class sorting enabled for `cn()`, `clsx()`, `cva()` functions
 - Follow existing component patterns in `src/components/`
 - No select components with value = ""
-- Custom Grit plugin for object-assign patterns
+- Custom Grit plugin for object-assign patterns (prefer object spread)
 
 ### Type Safety
 - All server actions use Zod schemas for validation
@@ -213,26 +213,39 @@ const [filter, setFilter] = useQueryState("filter", {
 - **Schema Pattern**: UUID primary keys with `defaultRandom()`, timestamps with `created_at`/`updated_at`
 - **Enum Types**: Use proper enum types for status fields (e.g., ClientStatus, PaymentStatus)
 - **Relations**: Properly defined foreign key relationships in schema
+- **Schema Organization**: Domain-driven structure in `apps/server/src/db/schema/`
 - Use Supabase client for all database operations
 - Types are generated in `database.types.ts`
 - Always use type-safe queries with proper joins
 - For inputs, if database type is string, always use text input, and do not hallucinate on possible options
 - If displaying linked record, never display id, but look up the appropriate name field
 
-### Reusable Components
-- Always use @universal-data-table for all data tables
-- If data has foreign key relations to be displyed in the table, always lookup relevant user-friendly name field instead of displaying ID
+### Universal Data Table Component
+- **Location**: `apps/web/src/components/universal-data-table/`
+- Always use universal-data-table for all data tables
+- If data has foreign key relations to be displayed in the table, always lookup relevant user-friendly name field instead of displaying ID
 - Always use <StatusBadge> for displaying status badges
+- Provides built-in filtering, sorting, pagination
+- Uses TanStack Table under the hood
+- Supports server-side data fetching with React Query
+- Column helpers available in `utils/column-helpers.ts`
 
 ### CRUD Development
 - If asked to implement CRUD for certain feature, based off existing database types, add/edit forms and detail pages should absolutely always include every single possible field and relation outlined in the database, together with queries to fetch data from different tables if needed
 
 ### Detail Page Pattern
-- When developing detail page for particular entity, always include all possible info from the database, including foreign key relations and junction tables.
-- Parent level info should be shown on top (eg, if client has many brands, and we're on brand detail page, we should show client info on top)
+- When developing detail page for particular entity, always include all possible info from the database, including foreign key relations and junction tables
+- Parent level info should be shown on top (e.g., if client has many brands, and we're on brand detail page, we should show client info on top)
 - Children level info (opposite of parent level) should be sections above system info
-- Children level info is always displayed with universal-data-table component with CRUD abilities there and all data from the database, except info about parent.
+- Children level info is always displayed with universal-data-table component with CRUD abilities there and all data from the database, except info about parent
 - If Children level info doesn't contain any pieces of data, display empty state - empty states should always be separate component
 - Universal data table needs to have actions column with ability to delete that record
-- in the section where you place universal data table, there always needs to be button that will trigger modal dialog from Base UI, that will then render component to add relevant records to the junction tables
+- In the section where you place universal data table, there always needs to be button that will trigger modal dialog from Base UI, that will then render component to add relevant records to the junction tables
 - Break the page down into separate components, so each section is it's own component
+
+### Component Patterns
+- Use Base UI components for modal dialogs and advanced interactions
+- Follow existing patterns in `apps/web/src/features/coaches/` for reference
+- Always create separate components for empty states
+- Use server components for data fetching, client components for interactions
+- Implement optimistic updates with React Query mutations

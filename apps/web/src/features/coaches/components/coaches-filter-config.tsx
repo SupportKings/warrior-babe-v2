@@ -1,6 +1,5 @@
 import { createUniversalColumnHelper } from "@/components/universal-data-table/utils/column-helpers";
 import {
-	CalendarIcon,
 	MailIcon,
 	TagIcon,
 	UserIcon,
@@ -37,10 +36,5 @@ export const coachesFilterConfig = [
 		.option("contract_type")
 		.displayName("Contract Type")
 		.icon(FileTextIcon)
-		.build(),
-	universalColumnHelper
-		.date("created_at")
-		.displayName("Created Date")
-		.icon(CalendarIcon)
 		.build(),
 ];

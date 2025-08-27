@@ -5,12 +5,12 @@ import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
 
 export const authUsers = pgTable("user", {
 	id: text("id").primaryKey(),
-	name: text("name"),
+	name: text("name").notNull(),
 	email: text("email").notNull().unique(),
-	emailVerified: boolean("emailVerified"),
+	emailVerified: boolean("emailVerified").notNull(),
 	image: text("image"),
 	bio: text("bio"),
-	role: text("role").notNull(),
+	role: text("role"), // Nullable, stores comma-separated roles
 	banned: boolean("banned"),
 	calendar_link: text("calendar_link"),
 	banReason: text("banReason"),
