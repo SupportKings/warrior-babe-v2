@@ -31,7 +31,6 @@ import { createUniversalColumnHelper } from "@/components/universal-data-table/u
 import {
 	CalendarIcon,
 	MailIcon,
-	TagIcon,
 	UserIcon,
 	UsersIcon,
 	FileTextIcon,
@@ -67,7 +66,7 @@ export function CoachesTableContent({
 		currentPage,
 		25,
 		sorting,
-		["contract_type", "roles"] // columns to get faceted data for
+		["contract_type"] // columns to get faceted data for
 	);
 console.log(coachesWithFaceted)
 	// Extract data from combined result
@@ -79,27 +78,17 @@ console.log(coachesWithFaceted)
 		: { data: [], count: 0 };
 
 	const contractTypeFaceted = coachesWithFaceted?.facetedData?.contract_type;
-	const rolesFaceted = coachesWithFaceted?.facetedData?.roles;
 
 	// Create universal column helper
 	const universalColumnHelper = createUniversalColumnHelper<CoachRow>();
 
 	// Extract unique values for filters from the data
-	const uniqueRoles = new Set<string>();
 	const uniqueTeams = new Set<string>();
 	const uniqueContractTypes = new Set<string>();
 
 	// Process coaches data to extract unique values
 	coachesData?.data?.forEach((coach: any) => {
-		// Extract roles
-		if (coach.roles) {
-			coach.roles.split(/[,;]/).forEach((role: string) => {
-				const trimmedRole = role.trim();
-				if (trimmedRole) uniqueRoles.add(trimmedRole);
-			});
-		}
-		
-		// Extract team IDs (this could be enhanced to show team names)
+		// Extract team IDs with friendly names
 		if (coach.team_id) {
 			uniqueTeams.add(coach.team_id);
 		}
@@ -124,24 +113,13 @@ console.log(coachesWithFaceted)
 			.build(),
 		{
 			...universalColumnHelper
-				.option("roles")
-				.displayName("Roles")
-				.icon(TagIcon)
-				.build(),
-			options: Array.from(uniqueRoles).map(role => ({
-				value: role,
-				label: role,
-			})),
-		},
-		{
-			...universalColumnHelper
 				.option("team_id")
 				.displayName("Team")
 				.icon(UsersIcon)
 				.build(),
 			options: Array.from(uniqueTeams).map(teamId => ({
 				value: teamId,
-				label: `Team ${teamId}`, // This could be enhanced with actual team names
+				label: `Team ${teamId.slice(-4)}`, // Show last 4 chars as friendly name
 			})),
 		},
 		{
@@ -197,7 +175,6 @@ console.log(coachesWithFaceted)
 			onFiltersChange: setFilters,
 			faceted: { 
 				contract_type: contractTypeFaceted,
-				roles: rolesFaceted,
 			},
 			enableSelection: true,
 			pageSize: 25,

@@ -3,8 +3,19 @@ import type { Database } from "@/utils/supabase/database.types";
 // Base coach row type from database
 export type CoachRow = Database["public"]["Tables"]["team_members"]["Row"] & {
   team_id: string | null;
-  email: string;
-  roles: string;
+  email?: string | null;
+  team_name?: string | null;
+  user?: {
+    id: string;
+    email: string;
+  } | null;
+  team?: {
+    id: string;
+    premier_coach?: {
+      id: string;
+      name: string | null;
+    } | null;
+  } | null;
 };
 
 // Type for coach with team information

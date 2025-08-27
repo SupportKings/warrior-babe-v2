@@ -61,7 +61,7 @@ export async function getCoachesWithFaceted(
   page = 0,
   pageSize = 25,
   sorting: any[] = [],
-  facetedColumns: string[] = ["contract_type", "roles"]
+  facetedColumns: string[] = ["contract_type"]
 ) {
   try {
     const supabase = await createClient();
@@ -72,9 +72,19 @@ export async function getCoachesWithFaceted(
 				id,
 				team_id,
 				name,
-				roles,
 				contract_type,
-				created_at
+				created_at,
+				user:user!team_members_user_id_fkey (
+					id,
+					email
+				),
+				team:coach_teams!team_members_team_id_fkey (
+					id,
+					premier_coach:team_members!coach_teams_premier_coach_id_fkey (
+						id,
+						name
+					)
+				)
 			`,
       { count: "exact" }
     );
@@ -99,23 +109,6 @@ export async function getCoachesWithFaceted(
             break;
 
           case "contract_type":
-          case "roles":
-            // Status/enum fields - can be treated as both text and option
-            if (operator === "contains") {
-              query = query.ilike(columnId, `%${values[0]}%`);
-            } else if (operator === "does not contain") {
-              query = query.not(columnId, "ilike", `%${values[0]}%`);
-            } else if (operator === "is") {
-              query = query.eq(columnId, values[0]);
-            } else if (operator === "is not") {
-              query = query.not(columnId, "eq", values[0]);
-            } else if (operator === "is any of") {
-              query = query.in(columnId, values);
-            } else if (operator === "is none of") {
-              query = query.not(columnId, "in", `(${values.join(",")})`);
-            }
-            break;
-
           case "created_at":
             // Date fields - support various date operators
             if (operator === "is") {
@@ -204,37 +197,6 @@ export async function getCoachesWithFaceted(
                   break;
 
                 case "contract_type":
-                case "roles":
-                  if (operator === "contains") {
-                    facetQuery = facetQuery.ilike(
-                      filterColumnId,
-                      `%${values[0]}%`
-                    );
-                  } else if (operator === "does not contain") {
-                    facetQuery = facetQuery.not(
-                      filterColumnId,
-                      "ilike",
-                      `%${values[0]}%`
-                    );
-                  } else if (operator === "is") {
-                    facetQuery = facetQuery.eq(filterColumnId, values[0]);
-                  } else if (operator === "is not") {
-                    facetQuery = facetQuery.not(
-                      filterColumnId,
-                      "eq",
-                      values[0]
-                    );
-                  } else if (operator === "is any of") {
-                    facetQuery = facetQuery.in(filterColumnId, values);
-                  } else if (operator === "is none of") {
-                    facetQuery = facetQuery.not(
-                      filterColumnId,
-                      "in",
-                      `(${values.join(",")})`
-                    );
-                  }
-                  break;
-
                 case "created_at":
                   if (operator === "is") {
                     facetQuery = facetQuery.eq(filterColumnId, values[0]);
@@ -315,7 +277,7 @@ export async function prefetchCoachesWithFacetedServer(
   page = 0,
   pageSize = 25,
   sorting: any[] = [],
-  facetedColumns: string[] = ["contract_type", "roles"],
+  facetedColumns: string[] = ["contract_type"],
 ) {
   return await getCoachesWithFaceted(
     filters,
