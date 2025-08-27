@@ -12,5 +12,5 @@ export const teamMembers = pgTable("team_members", {
   team_id: text("team_id"), // References coach_teams.id but we avoid circular dependency
   contract_type: contractTypeEnum("contract_type"),
   onboarding_date: date("onboarding_date"),
-  ...timestamps,
+  createdAt: timestamps.createdAt,
 });

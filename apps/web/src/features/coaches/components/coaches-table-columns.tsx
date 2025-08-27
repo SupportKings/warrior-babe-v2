@@ -99,7 +99,7 @@ export const coachesTableColumns = [
               key={index}
               className="inline-flex items-center rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground capitalize"
             >
-              {role}
+              {role.split("_").join(" ")}
             </span>
           ))}
         </div>
