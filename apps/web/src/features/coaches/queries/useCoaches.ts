@@ -5,6 +5,7 @@ import {
 	getAllCoaches,
 	getCoachesWithFaceted,
 } from "@/features/coaches/actions/getCoaches";
+import { getCoach } from "@/features/coaches/actions/get-coach";
 
 import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import type { ColumnFiltersState, SortingState } from "@tanstack/react-table";
@@ -14,6 +15,7 @@ export const coachQueries = {
 	all: ["coaches"] as const,
 	lists: () => [...coachQueries.all, "list"] as const,
 	active: () => [...coachQueries.lists(), "active"] as const,
+	detail: (id: string) => [...coachQueries.all, "detail", id] as const,
 	tableWithFaceted: (
 		filters: ColumnFiltersState,
 		page: number,
@@ -54,6 +56,15 @@ export function useActiveCoaches() {
 		queryKey: coachQueries.active(),
 		queryFn: getActiveCoaches,
 		staleTime: 5 * 60 * 1000, // 5 minutes
+	});
+}
+
+export function useCoach(id: string) {
+	return useQuery({
+		queryKey: coachQueries.detail(id),
+		queryFn: () => getCoach(id),
+		staleTime: 5 * 60 * 1000, // 5 minutes
+		enabled: !!id,
 	});
 }
 

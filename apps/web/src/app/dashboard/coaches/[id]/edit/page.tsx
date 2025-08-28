@@ -25,10 +25,14 @@ function EditCoachHeader() {
     </div>
   );
 }
-
-export default async function EditCoachPage(params: any) {
-  // Fetch the coach data
-  const coach = await getCoach(params.id);
+interface EditCoachPageProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
+export default async function EditCoachPage({ params }: EditCoachPageProps) {
+  const { id } = await params;
+  const coach = await getCoach(id);
 
   if (!coach) {
     notFound();
