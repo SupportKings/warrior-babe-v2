@@ -24,6 +24,19 @@ interface DeleteCoachPaymentModalProps {
   coachId: string;
 }
 
+/**
+ * Confirmation modal that deletes a coach payment.
+ *
+ * Renders an AlertDialog which, when confirmed, calls `deleteCoachPayment(paymentId, coachId)`.
+ * On success it shows a success toast, closes the modal via `onOpenChange(false)`, and refreshes
+ * the Next.js router; on failure it shows an error toast. While the deletion is in progress the
+ * dialog actions are disabled and the primary action shows a loading label.
+ *
+ * @param open - Whether the modal is visible.
+ * @param onOpenChange - Callback invoked to change the modal open state.
+ * @param paymentId - ID of the payment to delete.
+ * @param coachId - ID of the coach associated with the payment.
+ */
 export function DeleteCoachPaymentModal({
   open,
   onOpenChange,

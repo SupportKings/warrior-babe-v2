@@ -39,6 +39,15 @@ interface CoachesTableContentProps {
 	setFilters: any;
 }
 
+/**
+ * Renders a server-side, faceted, filterable coaches data table with row actions and deletion flow.
+ *
+ * Fetches coaches (with faceted values for contract type and premier coach), drives pagination and sorting,
+ * builds dynamic filter options from retrieved data, and exposes view/edit/delete actions for each row.
+ *
+ * @param filters - Current filter state applied to the table.
+ * @param setFilters - Callback to update the table's filter state.
+ */
 export function CoachesTableContent({
 	filters,
 	setFilters,

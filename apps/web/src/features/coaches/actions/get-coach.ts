@@ -2,7 +2,16 @@
 
 import { createClient } from "@/utils/supabase/server";
 
-// Get basic coach information with user and team details
+/**
+ * Retrieve a coach's basic record from team_members, including related user and team data.
+ *
+ * Returns the team_members row for the given id with nested:
+ * - `user` (id, email, image, name, role)
+ * - `team` (id) and its `premier_coach` (id, name)
+ *
+ * @param id - The team_members id of the coach to fetch
+ * @returns The coach object with nested `user` and `team` fields, or `null` if not found or on error
+ */
 export async function getCoachBasicInfo(id: string) {
   try {
     const supabase = await createClient();
@@ -43,7 +52,16 @@ export async function getCoachBasicInfo(id: string) {
   }
 }
 
-// Get coach's client assignments with client details and payment plans
+/**
+ * Fetches a coach's client assignments including client details and their payment plans.
+ *
+ * Returns each assignment with a nested `client` object; when present, the client's
+ * `payment_plans` are sorted by `term_start_date` ascending.
+ *
+ * @param coachId - The coach's identifier used to filter assignments.
+ * @returns An array of client assignment records (each may include `client` and
+ *          a sorted `payment_plans` array). Returns an empty array on error.
+ */
 export async function getCoachClientAssignments(coachId: string) {
   try {
     const supabase = await createClient();
@@ -108,7 +126,19 @@ export async function getCoachClientAssignments(coachId: string) {
   }
 }
 
-// Get coach's payment history with client counts
+/**
+ * Retrieve a coach's payment records and augment each with client counts.
+ *
+ * Fetches payments for the given coach (ordered newest first) and counts the coach's total clients and active clients (clients with `overall_status === "live"`). Returns an array of payment summaries; on any error the function returns an empty array.
+ *
+ * @param coachId - The coach's identifier used to filter payments and assignments
+ * @returns An array of payment summary objects with the shape:
+ *   - id: payment id
+ *   - date: payment date (falls back to `created_at` when `date` is missing)
+ *   - total_clients: total number of client assignments for the coach
+ *   - total_active_clients: number of assigned clients whose `overall_status` is `"live"`
+ *   - status: payment status (defaults to `"Not Paid"` when missing)
+ */
 export async function getCoachPayments(coachId: string) {
   try {
     const supabase = await createClient();
@@ -183,7 +213,15 @@ export async function getCoachPayments(coachId: string) {
   }
 }
 
-// Legacy function - combines all data (kept for backward compatibility)
+/**
+ * Fetches and aggregates a coach's basic info, client assignments, and payments into a single legacy-shaped object.
+ *
+ * Uses the newer helper functions to fetch basic coach data, client assignments, and payments in parallel and
+ * returns a merged object containing the coach record plus `client_assignments` and `coach_payments`.
+ *
+ * @param id - The coach's identifier.
+ * @returns The aggregated coach object with `client_assignments` and `coach_payments`, or `null` if the coach is not found or an error occurs.
+ */
 export async function getCoach(id: string) {
   try {
     const [coach, clientAssignments, coachPayments] = await Promise.all([

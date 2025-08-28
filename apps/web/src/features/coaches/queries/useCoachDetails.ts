@@ -13,7 +13,14 @@ export const coachDetailsKeys = {
 	payments: (id: string) => [...coachDetailsKeys.all, "payments", id] as const,
 };
 
-// Hook for fetching coach basic info
+/**
+ * React Query hook to fetch a coach's basic profile information.
+ *
+ * Runs only when `coachId` is truthy and caches results for 5 minutes.
+ *
+ * @param coachId - Identifier of the coach to fetch
+ * @returns React Query result object (data, status, error, etc.)
+ */
 export function useCoachBasicInfo(coachId: string) {
 	return useQuery({
 		queryKey: coachDetailsKeys.basicInfo(coachId),
@@ -23,7 +30,14 @@ export function useCoachBasicInfo(coachId: string) {
 	});
 }
 
-// Hook for fetching coach client assignments
+/**
+ * React Query hook to fetch a coach's client assignments.
+ *
+ * Runs `getCoachClientAssignments(coachId)` and returns the query result. The query is enabled only when `coachId` is truthy and uses a 5-minute stale time.
+ *
+ * @param coachId - Coach identifier; query will not run if falsy.
+ * @returns The React Query result object for the client assignments query.
+ */
 export function useCoachClientAssignments(coachId: string) {
 	return useQuery({
 		queryKey: coachDetailsKeys.clientAssignments(coachId),
@@ -33,7 +47,14 @@ export function useCoachClientAssignments(coachId: string) {
 	});
 }
 
-// Hook for fetching coach payments
+/**
+ * React Query hook to fetch payments for a specific coach.
+ *
+ * Fetches coach payments via `getCoachPayments` and caches the result for 5 minutes.
+ *
+ * @param coachId - The coach's unique identifier; the query is disabled when falsy.
+ * @returns The React Query result for the payments query (data, status, error, etc.).
+ */
 export function useCoachPayments(coachId: string) {
 	return useQuery({
 		queryKey: coachDetailsKeys.payments(coachId),

@@ -31,7 +31,14 @@ const updateCoachPaymentSchema = z.object({
 export type CreateCoachPaymentInput = z.infer<typeof createCoachPaymentSchema>;
 export type UpdateCoachPaymentInput = z.infer<typeof updateCoachPaymentSchema>;
 
-// Create a new coach payment
+/**
+ * Create a new coach payment record and revalidate the coach's details page.
+ *
+ * Validates `input` against the create schema, inserts a payment row, and triggers page revalidation for the related coach.
+ *
+ * @param input - Payment payload containing `coach_id`, `client_activity_period_id`, `amount`, `status` (`"Paid"` | `"Not Paid"`), and `date` (ISO string). Must conform to the module's validation schema.
+ * @returns An object with `success: true` and `data` (the inserted payment row) and `message` on success, or `success: false` and `message` on validation or persistence failure.
+ */
 export async function createCoachPayment(input: CreateCoachPaymentInput) {
   try {
     const validatedInput = createCoachPaymentSchema.parse(input);
@@ -83,7 +90,19 @@ export async function createCoachPayment(input: CreateCoachPaymentInput) {
   }
 }
 
-// Update an existing coach payment
+/**
+ * Update an existing coach payment record.
+ *
+ * Validates the provided input, applies only the supplied fields to the payment row
+ * (plus an updated_at timestamp), updates the `coach_payments` table, and triggers
+ * ISR revalidation for the related coach page when the coach_id can be resolved.
+ *
+ * @param input - Partial update payload including the payment `id` and any of:
+ *   `client_activity_period_id`, `amount`, `status`, `date`. Fields not present are left unchanged.
+ * @returns An object describing the operation result:
+ *   - On success: `{ success: true, data: <updated payment row>, message: "Payment updated successfully" }`.
+ *   - On validation or runtime failure: `{ success: false, message: <error message> }`.
+ */
 export async function updateCoachPayment(input: UpdateCoachPaymentInput) {
   try {
     const validatedInput = updateCoachPaymentSchema.parse(input);
@@ -154,7 +173,13 @@ export async function updateCoachPayment(input: UpdateCoachPaymentInput) {
   }
 }
 
-// Delete a coach payment
+/**
+ * Delete a coach payment by ID and revalidate the coach's dashboard page.
+ *
+ * @param paymentId - The UUID of the coach payment to delete.
+ * @param coachId - The UUID of the coach whose dashboard should be revalidated after deletion.
+ * @returns An object indicating success or failure. On success: `{ success: true, message: "Payment deleted successfully" }`. On failure: `{ success: false, message: string }`.
+ */
 export async function deleteCoachPayment(paymentId: string, coachId: string) {
   try {
     const supabase = await createClient();
@@ -189,7 +214,15 @@ export async function deleteCoachPayment(paymentId: string, coachId: string) {
   }
 }
 
-// Get a single coach payment for editing
+/**
+ * Retrieve a single coach payment, including its client activity period and client info.
+ *
+ * Fetches the coach_payments row for the given payment ID and includes the related
+ * client_activity_period (id, start_date, end_date, active) and that period's client (id, name).
+ *
+ * @param paymentId - The payment UUID to fetch
+ * @returns The payment record with nested `client_activity_period` and `client` data, or `null` if not found or on error
+ */
 export async function getCoachPayment(paymentId: string) {
   try {
     const supabase = await createClient();
@@ -226,7 +259,21 @@ export async function getCoachPayment(paymentId: string) {
   }
 }
 
-// Get client activity periods for a coach (for selection in create/edit forms)
+/**
+ * Retrieve and format client activity periods associated with a coach for use in selection controls.
+ *
+ * Attempts a direct query for activity periods that reference the given coach; if that fails it falls back
+ * to resolving client IDs from client assignments and fetching activity periods for those clients.
+ *
+ * @param coachId - The coach's ID (UUID string) to fetch activity periods for.
+ * @returns An array of formatted activity period objects:
+ *  - id: activity period id
+ *  - label: human-readable label like `"Client Name - MMM dd, yyyy to MMM dd, yyyy (Active)"`
+ *  - clientName: client's name (or `"Unknown Client"`)
+ *  - startDate: original start_date value (string) or null/undefined
+ *  - endDate: original end_date value (string) or null/undefined
+ *  - active: boolean indicating whether the period is active
+ */
 export async function getCoachClientActivityPeriods(coachId: string) {
   try {
     const supabase = await createClient();

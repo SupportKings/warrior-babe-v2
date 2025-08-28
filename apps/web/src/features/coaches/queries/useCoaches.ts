@@ -70,6 +70,14 @@ export function useCoaches() {
 	});
 }
 
+/**
+ * Fetches the list of active coaches and caches the result.
+ *
+ * Uses React Query with the `coachQueries.active()` key and `getActiveCoaches` as the fetcher.
+ * The cached data is considered fresh for 5 minutes.
+ *
+ * @returns The React Query result for the active coaches query.
+ */
 export function useActiveCoaches() {
 	return useQuery({
 		queryKey: coachQueries.active(),
@@ -78,6 +86,14 @@ export function useActiveCoaches() {
 	});
 }
 
+/**
+ * Fetches a single coach by ID using React Query.
+ *
+ * The query is only active when `id` is truthy and is cached as stale for 5 minutes.
+ *
+ * @param id - The coach's unique identifier. If falsy, the query will be disabled.
+ * @returns The React Query result for the coach fetch (status, data, error, etc.).
+ */
 export function useCoach(id: string) {
 	return useQuery({
 		queryKey: coachQueries.detail(id),
@@ -87,7 +103,13 @@ export function useCoach(id: string) {
 	});
 }
 
-// Prefetch helpers
+/**
+ * Prefetches the full coaches list into the React Query cache using the `lists` key.
+ *
+ * The prefetched data is considered fresh for 5 minutes (staleTime = 5 minutes).
+ *
+ * @returns A promise that resolves when the prefetch completes.
+ */
 export function prefetchCoaches(
 	queryClient: ReturnType<typeof useQueryClient>,
 ) {

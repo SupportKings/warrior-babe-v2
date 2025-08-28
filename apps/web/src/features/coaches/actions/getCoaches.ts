@@ -1,6 +1,17 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+/**
+ * Fetches all coaches (team members) with basic profile and related user info.
+ *
+ * Retrieves records from the "team_members" table ordered by name and includes
+ * the following fields for each coach: `id`, `name`, `contract_type`,
+ * `onboarding_date`, and the related `user` object containing `id`, `name`, and
+ * `email`.
+ *
+ * @returns An array of coach records with nested `user` data; returns an empty
+ * array if no coaches are found.
+ */
 export async function getAllCoaches() {
   const supabase = await createClient();
 
@@ -29,6 +40,16 @@ export async function getAllCoaches() {
   return coaches || [];
 }
 
+/**
+ * Fetches all team members who have associated user accounts (active coaches).
+ *
+ * Returns team_members rows that have a non-null `user_id`, selecting:
+ * - id, name, contract_type, onboarding_date
+ * - nested user fields: id, name, email
+ *
+ * @returns An array of coach records (empty array if none). Each item includes the selected `team_members` fields and a `user` object when present.
+ * @throws Error if the database query fails.
+ */
 export async function getActiveCoaches() {
   const supabase = await createClient();
 
@@ -59,7 +80,35 @@ export async function getActiveCoaches() {
   return coaches || [];
 }
 
-// Single consolidated function for coaches with faceted data
+/**
+ * Fetches coaches with support for filtering, sorting, pagination, and faceted counts.
+ *
+ * Builds a main query against the team_members table (including related user and team/premier coach data),
+ * applies the provided filters and sorting, returns a paginated list of coaches plus exact total count,
+ * and computes faceted counts for each requested column.
+ *
+ * Filters:
+ * - Expects an array of filter objects with { columnId, operator?, values[] }.
+ * - Supported columns: `name`, `email` (text: `contains` / `does not contain`),
+ *   `premier_coach_id` (filters via team.premier_coach_id using `is`/`is not`, single or multiple values),
+ *   and `contract_type` / `created_at` (date-like operators: `is`, `is not`, `is before`, `is on or before`,
+ *   `is after`, `is on or after`, `is between`, `is not between`).
+ *
+ * Faceting:
+ * - facetedColumns lists column ids to compute counts for (default `["contract_type"]`).
+ * - When `premier_coach_id` is faceted or present in filters, queries include team and premier coach data
+ *   and facet keys for `premier_coach_id` are the premier coach IDs as strings.
+ *
+ * @param filters - Array of filter objects (see Filters section above). Defaults to [].
+ * @param page - Zero-based page index for pagination. Defaults to 0.
+ * @param pageSize - Number of items per page. Defaults to 25.
+ * @param sorting - Array of sorting rules; first rule is applied if present. Defaults to [].
+ * @param facetedColumns - List of column ids to generate facet counts for. Defaults to ["contract_type"].
+ * @returns An object with:
+ *  - `coaches`: Array of coach records (includes related user and team/premier coach where selected),
+ *  - `totalCount`: exact total number of matching records,
+ *  - `facetedData`: Record mapping column id -> Map<string, number> of facet value -> count.
+ */
 export async function getCoachesWithFaceted(
   filters: any[] = [],
   page = 0,
@@ -340,7 +389,18 @@ export async function getCoachesWithFaceted(
   }
 }
 
-// Server-side prefetch for combined coaches+faceted data
+/**
+ * Server-side wrapper that prefetches coaches with faceted counts.
+ *
+ * Calls getCoachesWithFaceted with the provided filters, pagination, sorting, and facet column list and returns the same result shape.
+ *
+ * @param filters - Array of filter objects applied to the query (e.g., text, date, and value filters).
+ * @param page - Zero-based page index for pagination.
+ * @param pageSize - Number of items per page.
+ * @param sorting - Array describing sorting rules; if empty, defaults are applied by the underlying query.
+ * @param facetedColumns - List of column identifiers to compute facet counts for (defaults to ["contract_type"]).
+ * @returns An object with `{ coaches, totalCount, facetedData }` returned by getCoachesWithFaceted.
+ */
 export async function prefetchCoachesWithFacetedServer(
   filters: any[] = [],
   page = 0,

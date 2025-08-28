@@ -24,6 +24,16 @@ interface CoachPaymentsTableProps {
   coachId: string;
 }
 
+/**
+ * Renders a payments table and CRUD modals for a specific coach.
+ *
+ * Displays a card titled "Coach Payments" with an Add button, a server-side paginated data table (pageSize = 10) when payments exist, and an empty state that prompts adding the first payment. Manages local UI state to open:
+ * - a "create" add payment modal,
+ * - an "edit" modal for the selected payment, and
+ * - a delete confirmation modal for the selected payment.
+ *
+ * This is a client-side React component that expects a list of coach payment records and the coach's id.
+ */
 export function CoachPaymentsTable({ payments, coachId }: CoachPaymentsTableProps) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

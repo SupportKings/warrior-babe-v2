@@ -13,6 +13,16 @@ interface CoachGeneralInfoProps {
   coach: any; // You can define a proper type for coach
 }
 
+/**
+ * Renders a card with a coach's general information (avatar, name, contact, contract, onboarding date, premier coach, and roles).
+ *
+ * The component shows the user's avatar image when available or initials (defaults to "TM" if no name).
+ * Onboarding date is formatted as "MMM dd, yyyy" and falls back to "Not set" for null or "Invalid date" for parse errors.
+ * Roles are derived from `coach.user?.role` by splitting on commas, trimming entries, and rendering each as a badge (underscores are replaced with spaces).
+ *
+ * @param coach - Coach object containing fields used by the UI (e.g. `name`, `user.image`, `user.email`, `user.role`, `contract_type`, `onboarding_date`, `team?.premier_coach?.name`).
+ * @returns A JSX element representing the coach general info card.
+ */
 export function CoachGeneralInfo({ coach }: CoachGeneralInfoProps) {
   const roles = coach.user?.role || null;
   

@@ -50,6 +50,18 @@ interface ClientAssignmentsFormProps {
 	availableCoaches?: Coach[];
 }
 
+/**
+ * Renders a form for viewing and editing a client's coach assignments.
+ *
+ * Allows adding, updating, and removing assignments. Each assignment includes coach selection,
+ * assignment type, start date, and optional end date. All changes are emitted via `onChange`
+ * as a new assignments array.
+ *
+ * @param assignments - Current list of client assignments.
+ * @param onChange - Callback invoked with the updated assignments array whenever it changes.
+ * @param availableCoaches - Optional list of coaches used to populate the coach selector.
+ * @returns The client assignments form UI as a React element.
+ */
 export function ClientAssignmentsForm({
 	assignments,
 	onChange,

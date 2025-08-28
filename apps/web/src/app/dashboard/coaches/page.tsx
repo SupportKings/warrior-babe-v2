@@ -21,6 +21,17 @@ export default function CoachesPage() {
 	);
 }
 
+/**
+ * Server-side async React component that prefetches coaches data (including facets) and returns a hydrated page.
+ *
+ * Prefetches a combined coaches query (list/tableWithFaceted) into a new React Query client using
+ * prefetchCoachesWithFacetedServer, including faceted columns ["contract_type", "premier_coach_id"], then
+ * hydrates that cache into the client via HydrationBoundary. Renders the page layout with CoachesHeader and CoachesContent.
+ *
+ * The prefetched query uses a 2-minute stale time and fetches the first page (offset 0, limit 25) with default filters/sorting.
+ *
+ * @returns A React element wrapped in a HydrationBoundary containing MainLayout, CoachesHeader, and CoachesContent.
+ */
 async function CoachesPageAsync() {
 	const queryClient = new QueryClient();
 

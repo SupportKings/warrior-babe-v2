@@ -38,6 +38,25 @@ interface ManageAssignmentModalProps {
 	children?: ReactNode;
 }
 
+/**
+ * Modal component to add or edit a client's assignment (assign a coach).
+ *
+ * Renders a dialog with a form for selecting a coach, specifying an assignment type,
+ * and optional start/end dates. In "edit" mode the form is prefilled from the
+ * provided `assignment`; in "add" mode the form is reset to sensible defaults.
+ *
+ * Client-side validation requires a coach and a non-empty assignment type; failures
+ * are surfaced via toast notifications. On submit the component calls the appropriate
+ * API (add or update), shows success/failure toasts, invalidates the client detail
+ * query to refresh data, and closes the dialog on success.
+ *
+ * @param clientId - ID of the client for whom the assignment is being managed.
+ * @param mode - "add" to create a new assignment, "edit" to update an existing one.
+ * @param assignment - Existing assignment data used to populate the form in edit mode.
+ * @param children - Optional custom trigger element for opening the modal; a default
+ *                   button is rendered when omitted.
+ * @returns JSX element rendering the manage-assignment modal.
+ */
 export function ManageAssignmentModal({
 	clientId,
 	mode,

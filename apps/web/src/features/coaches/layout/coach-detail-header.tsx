@@ -14,6 +14,16 @@ interface CoachDetailHeaderProps {
 	coachId: string;
 }
 
+/**
+ * Renders a sticky header for a coach detail page with navigation controls and an edit action.
+ *
+ * Shows a sidebar trigger, back button, and a title that displays "<name> - Details" when the
+ * coach's basic info is available (falls back to "Team Member Details" otherwise). Includes an
+ * "Edit Team Member" button that links to `/dashboard/coaches/{coachId}/edit`.
+ *
+ * @param coachId - The coach's unique identifier used to fetch basic info and construct the edit URL.
+ * @returns The header JSX element.
+ */
 export default function CoachDetailHeader({
 	coachId,
 }: CoachDetailHeaderProps) {

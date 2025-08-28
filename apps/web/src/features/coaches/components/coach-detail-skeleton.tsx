@@ -5,6 +5,15 @@ interface CoachDetailSkeletonProps {
 	coachId: string;
 }
 
+/**
+ * Renders a skeleton (loading) UI for the coach detail screen.
+ *
+ * The component displays a placeholder card with an avatar and multiple labeled value rows to
+ * indicate loading state while coach details are fetched. Layout is responsive (1/2/3 columns).
+ *
+ * @param coachId - Coach identifier; accepted for prop consistency but not used by this skeleton component.
+ * @returns A React element representing the skeleton UI for a coach detail view.
+ */
 export default function CoachDetailSkeleton({
 	coachId,
 }: CoachDetailSkeletonProps) {

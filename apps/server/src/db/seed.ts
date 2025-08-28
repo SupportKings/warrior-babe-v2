@@ -71,6 +71,19 @@ const teamMemberFactory = (count: number, userData: any[], teamIds: string[]) =>
   });
 };
 
+/**
+ * Seeds the database with mock Users, Coach Teams, and Team Members and links coach teams to members.
+ *
+ * Performs a linear seeding flow:
+ * 1. Generates and inserts `USER_COUNT` users (adds `createdAt`/`updatedAt`).
+ * 2. Generates and inserts `COACH_TEAM_COUNT` coach teams (initially without coach references).
+ * 3. Generates and inserts `TEAM_MEMBER_COUNT` team members (converts onboarding dates to ISO strings).
+ * 4. Updates each coach team to set `premier_coach_id` and `coach_id` from created team members.
+ *
+ * Configuration constants at the top of the function control the counts seeded. On error the function logs the error and exits the process.
+ *
+ * @returns A promise that resolves when seeding completes (or never returns if the process exits on error).
+ */
 async function seed() {
   console.log("🌱 Starting simplified database seeding...");
 

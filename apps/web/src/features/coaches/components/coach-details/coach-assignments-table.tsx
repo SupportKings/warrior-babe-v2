@@ -23,6 +23,15 @@ interface CoachAssignmentsTableProps {
   assignments: ClientAssignment[];
 }
 
+/**
+ * Renders a card containing a data table of client assignments for a team member, or a placeholder when none exist.
+ *
+ * The component configures a UniversalDataTable using the provided `assignments` and displays it inside a Card.
+ * If `assignments` is empty or undefined, a centered "No Client Assignments" placeholder is shown instead.
+ *
+ * @param assignments - Array of client assignment records to display. Passing `undefined` or an empty array will render the placeholder.
+ * @returns A JSX element containing the assignments card and either the data table or the empty-state UI.
+ */
 export function CoachAssignmentsTable({ assignments }: CoachAssignmentsTableProps) {
   const tableConfig = useUniversalTable<ClientAssignment>({
     data: assignments || [],

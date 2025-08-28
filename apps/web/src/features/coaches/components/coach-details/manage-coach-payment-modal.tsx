@@ -60,6 +60,23 @@ const PAYMENT_STATUSES = [
   { value: "Not Paid", label: "Not Paid" },
 ];
 
+/**
+ * Modal UI for creating or editing a coach's payment record.
+ *
+ * Renders a dialog with fields to select a client activity period, enter an amount,
+ * choose payment status, and pick a payment date. When opened the component
+ * fetches available activity periods and, in edit mode, preloads the existing
+ * payment data. Submitting the form will call the appropriate API action to
+ * create or update a payment, show success/error toasts, close the modal on
+ * success, and refresh the page.
+ *
+ * @param open - Controls dialog visibility.
+ * @param onOpenChange - Callback invoked with the new open state when the dialog is toggled.
+ * @param coachId - Identifier of the coach the payment belongs to.
+ * @param paymentId - Optional payment identifier; when present and mode is "edit", the payment is loaded for editing.
+ * @param mode - "create" to create a new payment, "edit" to update an existing payment.
+ * @returns JSX element rendering the modal.
+ */
 export function ManageCoachPaymentModal({
   open,
   onOpenChange,
