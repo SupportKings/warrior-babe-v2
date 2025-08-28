@@ -110,9 +110,9 @@ export function ManageCoachPaymentModal({
     if (!paymentId) return;
 
     try {
-      const payment = await getCoachPayment(paymentId);
+      const payment: any = await getCoachPayment(paymentId);
       if (payment) {
-        const paymentDate = payment.date ? new Date(payment.date) : new Date();
+        const paymentDate = payment?.date ? new Date(payment.date) : new Date();
         setDate(paymentDate);
         setFormData({
           client_activity_period_id: payment.client_activity_period_id || "",

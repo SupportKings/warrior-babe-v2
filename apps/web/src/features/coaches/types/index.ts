@@ -5,6 +5,7 @@ export type CoachRow = Database["public"]["Tables"]["team_members"]["Row"] & {
 	team_id: string | null;
 	email?: string | null;
 	team_name?: string | null;
+	premier_coach_id?: string | null;
 	user?: {
 		id: string;
 		email: string;

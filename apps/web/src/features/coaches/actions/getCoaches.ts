@@ -100,7 +100,7 @@ export async function getCoachesWithFaceted(
         const values = filter.values;
         const operator = filter.operator || "is";
         const columnId = filter.columnId;
-
+        console.log("columnID", columnId, "values:", values, "operator:", operator);
         // Apply filter based on column type and operator
         switch (columnId) {
           case "name":
@@ -113,40 +113,27 @@ export async function getCoachesWithFaceted(
             }
             break;
 
-          case "team_name":
-            // Filter by premier coach name using a different approach
+          case "premier_coach_id":
+            // Filter by premier coach ID - need to filter where the team's premier_coach_id matches
+            console.log("APPLYING PREMIER COACH FILTER:", values, operator);
             if (operator === "is") {
               if (values.length === 1) {
-                // Use filter on the joined relation
-                query = query.filter(
-                  "team.premier_coach.name",
-                  "eq",
-                  values[0]
-                );
+                console.log("Filtering by single premier coach ID:", values[0]);
+                // Filter team members whose team has this premier coach
+                query = query.filter("team.premier_coach_id", "eq", values[0]);
               } else if (values.length > 1) {
-                // Use IN for multiple values
-                query = query.filter(
-                  "team.premier_coach.name",
-                  "in",
-                  `(${values.map((v) => `"${v}"`).join(",")})`
-                );
+                console.log("Filtering by multiple premier coach IDs:", values);
+                // For multiple values, use IN
+                query = query.filter("team.premier_coach_id", "in", `(${values.join(",")})`);
               }
             } else if (operator === "is not") {
               if (values.length === 1) {
-                query = query.filter(
-                  "team.premier_coach.name",
-                  "neq",
-                  values[0]
-                );
+                query = query.filter("team.premier_coach_id", "neq", values[0]);
               } else if (values.length > 1) {
-                // Use NOT IN for multiple values
-                query = query.not(
-                  "team.premier_coach.name",
-                  "in",
-                  `(${values.map((v) => `"${v}"`).join(",")})`
-                );
+                query = query.not("team.premier_coach_id", "in", `(${values.join(",")})`);
               }
             }
+            console.log("Query after premier coach filter applied");
             break;
 
           case "contract_type":
@@ -208,14 +195,15 @@ export async function getCoachesWithFaceted(
       facetedColumns.map(async (columnId) => {
         // Check if we need team data for filtering
         const needsTeamData =
-          columnId === "team_name" ||
-          filters.some((f) => f.columnId === "team_name");
+          columnId === "premier_coach_id" ||
+          filters.some((f) => f.columnId === "premier_coach_id");
 
-        // For team_name, we need to fetch the premier coach names instead
+        // For premier_coach_id, we need to fetch the premier coach data through team relationship
         let facetQuery = supabase.from("team_members").select(
           needsTeamData
             ? `team_id, team:coach_teams!team_members_team_id_fkey (
                 id,
+                premier_coach_id,
                 premier_coach:team_members!coach_teams_premier_coach_id_fkey (
                   id,
                   name
@@ -252,35 +240,19 @@ export async function getCoachesWithFaceted(
                   }
                   break;
 
-                case "team_name":
-                  // For team_name facet filtering, filter by premier coach names
+                case "premier_coach_id":
+                  // For premier_coach_id facet filtering, filter by premier coach ID
                   if (operator === "is") {
                     if (values.length === 1) {
-                      facetQuery = facetQuery.filter(
-                        "team.premier_coach.name",
-                        "eq",
-                        values[0]
-                      );
+                      facetQuery = facetQuery.filter("team.premier_coach_id", "eq", values[0]);
                     } else if (values.length > 1) {
-                      facetQuery = facetQuery.filter(
-                        "team.premier_coach.name",
-                        "in",
-                        `(${values.map((v) => `"${v}"`).join(",")})`
-                      );
+                      facetQuery = facetQuery.filter("team.premier_coach_id", "in", `(${values.join(",")})`);
                     }
                   } else if (operator === "is not") {
                     if (values.length === 1) {
-                      facetQuery = facetQuery.filter(
-                        "team.premier_coach.name",
-                        "neq",
-                        values[0]
-                      );
+                      facetQuery = facetQuery.filter("team.premier_coach_id", "neq", values[0]);
                     } else if (values.length > 1) {
-                      facetQuery = facetQuery.not(
-                        "team.premier_coach.name",
-                        "in",
-                        `(${values.map((v) => `"${v}"`).join(",")})`
-                      );
+                      facetQuery = facetQuery.not("team.premier_coach_id", "in", `(${values.join(",")})`);
                     }
                   }
                   break;
@@ -334,11 +306,11 @@ export async function getCoachesWithFaceted(
         // Convert to Map format
         const facetMap = new Map<string, number>();
         facetData?.forEach((item: any) => {
-          if (columnId === "team_name") {
-            // For team_name, use the premier coach name as the facet key
-            const premierCoachName = item.team?.premier_coach?.name;
-            if (premierCoachName) {
-              const key = String(premierCoachName);
+          if (columnId === "premier_coach_id") {
+            // For premier_coach_id, use the premier coach ID as the facet key but we'll map names in the client
+            const premierCoachId = item.team?.premier_coach_id;
+            if (premierCoachId) {
+              const key = String(premierCoachId);
               facetMap.set(key, (facetMap.get(key) || 0) + 1);
             }
           } else {
@@ -353,7 +325,6 @@ export async function getCoachesWithFaceted(
         facetedData[columnId] = facetMap;
       })
     );
-    console.log(coaches);
     return {
       coaches: coaches || [],
       totalCount: count || 0,

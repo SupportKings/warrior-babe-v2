@@ -251,6 +251,8 @@ export async function getCoachClientActivityPeriods(coachId: string) {
       .eq("coach_id", coachId as any) // Try with string first, as it might be UUID
       .order("start_date", { ascending: false });
 
+    let finalActivityPeriods = activityPeriods || [];
+    
     if (error) {
       console.error("Error fetching client activity periods:", error);
 
@@ -306,12 +308,11 @@ export async function getCoachClientActivityPeriods(coachId: string) {
         return [];
       }
 
-      activityPeriods = fallbackPeriods;
+      // Use fallback periods if main query failed
+      finalActivityPeriods = fallbackPeriods || [];
     }
-
-    // Format the data for easier display in select dropdown
     const formattedPeriods =
-      activityPeriods?.map((period) => ({
+      finalActivityPeriods?.map((period) => ({
         id: period.id,
         label: `${period.client?.name || "Unknown Client"} - ${
           period.start_date

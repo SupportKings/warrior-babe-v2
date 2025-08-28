@@ -21,11 +21,9 @@ interface ClientActivityPeriod {
 	start_date: string;
 	end_date: string;
 	coach_id: string | null;
-	coach_id: string | null;
 }
 
 interface Coach {
-	id: string;
 	id: string;
 	name: string | null;
 	contract_type: "W2" | "Hourly" | null;

@@ -64,12 +64,8 @@ export function CoachesTableContent({
     currentPage,
     25,
     sorting,
-    ["contract_type", "team_name"] // columns to get faceted data for
+    ["contract_type", "premier_coach_id"] // columns to get faceted data for
   );
-  
-  console.log("Client filters:", filters);
-  console.log("Client coachesWithFaceted:", coachesWithFaceted);
-  console.log("Client coaches data:", coachesWithFaceted?.coaches?.length);
   // Extract data from combined result
   const coachesData = coachesWithFaceted
     ? {
@@ -79,20 +75,20 @@ export function CoachesTableContent({
     : { data: [], count: 0 };
 
   const contractTypeFaceted = coachesWithFaceted?.facetedData?.contract_type;
-  const teamNameFaceted = coachesWithFaceted?.facetedData?.team_name;
+  const premierCoachFaceted = coachesWithFaceted?.facetedData?.premier_coach_id;
 
 	// Create universal column helper
 	const universalColumnHelper = createUniversalColumnHelper<CoachRow>();
 
-  // Extract unique values for filters from the data
-  const uniquePremierCoaches = new Set<string>();
+  // Extract unique values for filters from the data  
+  const uniquePremierCoaches = new Map<string, string>(); // Map of ID -> Name
   const uniqueContractTypes = new Set<string>();
 
   // Process coaches data to extract unique values
   coachesData?.data?.forEach((coach: any) => {
-    // Extract premier coach names
-    if (coach.team?.premier_coach?.name) {
-      uniquePremierCoaches.add(coach.team.premier_coach.name);
+    // Extract premier coach IDs and names
+    if (coach.team?.premier_coach?.id && coach.team?.premier_coach?.name) {
+      uniquePremierCoaches.set(coach.team.premier_coach.id, coach.team.premier_coach.name);
     }
 
 		// Extract contract types
@@ -115,13 +111,13 @@ export function CoachesTableContent({
       .build(),
     {
       ...universalColumnHelper
-        .option("team_name")
+        .option("premier_coach_id")
         .displayName("Team")
         .icon(UsersIcon)
         .build(),
-      options: Array.from(uniquePremierCoaches).map((premierCoachName) => ({
-        value: premierCoachName,
-        label: premierCoachName,
+      options: Array.from(uniquePremierCoaches.entries()).map(([id, name]) => ({
+        value: id,
+        label: name, // Show premier coach name but use ID as value
       })),
     },
     {
@@ -177,7 +173,7 @@ export function CoachesTableContent({
       onFiltersChange: setFilters,
       faceted: {
         contract_type: contractTypeFaceted,
-        team_name: teamNameFaceted,
+        premier_coach_id: premierCoachFaceted,
       },
       enableSelection: true,
       pageSize: 25,

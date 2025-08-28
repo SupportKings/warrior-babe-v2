@@ -168,11 +168,11 @@ export async function getCoachPayments(coachId: string) {
             (assignment) => assignment.client?.overall_status === "live"
           ).length || 0;
         return {
-          id: payment.id,
-          date: payment.date || payment.created_at,
+          id: (payment as any).id,
+          date: (payment as any).date || (payment as any).created_at,
           total_clients: totalClients,
           total_active_clients: totalActiveClients,
-          status: payment.status || "Not Paid",
+          status: (payment as any).status || "Not Paid",
         };
       }) || [];
 
