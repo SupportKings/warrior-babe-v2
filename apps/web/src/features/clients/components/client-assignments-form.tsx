@@ -128,7 +128,7 @@ export function ClientAssignmentsForm({
 									value={assignment.coach_id?.toString() || ""}
 									onValueChange={(value) =>
 										updateAssignment(index, {
-											coach_id: value || null,
+											coach_id: value ? value : null,
 										})
 									}
 								>

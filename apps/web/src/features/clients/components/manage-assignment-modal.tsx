@@ -156,7 +156,7 @@ export function ManageAssignmentModal({
 					<div>
 						<Label htmlFor="coach_id">Coach *</Label>
 						<Select
-							value={formData.coach_id ? formData.coach_id : "none"}
+							value={formData.coach_id || "none"}
 							onValueChange={(value) =>
 								setFormData({
 									...formData,

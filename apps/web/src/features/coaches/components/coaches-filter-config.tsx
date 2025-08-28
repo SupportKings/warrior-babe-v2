@@ -20,7 +20,12 @@ export const coachesFilterConfig = [
 		.icon(MailIcon)
 		.build(),
 	universalColumnHelper
-		.option("team_id")
+		.option("user")
+		.displayName("User Role")
+		.icon(TagIcon)
+		.build(),
+	universalColumnHelper
+		.option("premier_coach_id")
 		.displayName("Team")
 		.icon(UsersIcon)
 		.build(),

@@ -53,43 +53,43 @@ export function CoachesTableContent({
 		setCurrentPage(0);
 	}, [filters]);
 
-	// Fetch coaches data with faceted data in single optimized call
-	const {
-		data: coachesWithFaceted,
-		isLoading,
-		isError,
-		error,
-	} = useCoachesWithFaceted(
-		filters,
-		currentPage,
-		25,
-		sorting,
-		["contract_type"], // columns to get faceted data for
-	);
-	console.log(coachesWithFaceted);
-	// Extract data from combined result
-	const coachesData = coachesWithFaceted
-		? {
-				data: coachesWithFaceted.coaches,
-				count: coachesWithFaceted.totalCount,
-			}
-		: { data: [], count: 0 };
+  // Fetch coaches data with faceted data in single optimized call
+  const {
+    data: coachesWithFaceted,
+    isLoading,
+    isError,
+    error,
+  } = useCoachesWithFaceted(
+    filters,
+    currentPage,
+    25,
+    sorting,
+    ["contract_type", "premier_coach_id"] // columns to get faceted data for
+  );
+  // Extract data from combined result
+  const coachesData = coachesWithFaceted
+    ? {
+        data: coachesWithFaceted.coaches,
+        count: coachesWithFaceted.totalCount,
+      }
+    : { data: [], count: 0 };
 
-	const contractTypeFaceted = coachesWithFaceted?.facetedData?.contract_type;
+  const contractTypeFaceted = coachesWithFaceted?.facetedData?.contract_type;
+  const premierCoachFaceted = coachesWithFaceted?.facetedData?.premier_coach_id;
 
 	// Create universal column helper
 	const universalColumnHelper = createUniversalColumnHelper<CoachRow>();
 
-	// Extract unique values for filters from the data
-	const uniqueTeams = new Set<string>();
-	const uniqueContractTypes = new Set<string>();
+  // Extract unique values for filters from the data  
+  const uniquePremierCoaches = new Map<string, string>(); // Map of ID -> Name
+  const uniqueContractTypes = new Set<string>();
 
-	// Process coaches data to extract unique values
-	coachesData?.data?.forEach((coach: any) => {
-		// Extract team IDs with friendly names
-		if (coach.team_id) {
-			uniqueTeams.add(coach.team_id);
-		}
+  // Process coaches data to extract unique values
+  coachesData?.data?.forEach((coach: any) => {
+    // Extract premier coach IDs and names
+    if (coach.team?.premier_coach?.id && coach.team?.premier_coach?.name) {
+      uniquePremierCoaches.set(coach.team.premier_coach.id, coach.team.premier_coach.name);
+    }
 
 		// Extract contract types
 		if (coach.contract_type) {
@@ -97,46 +97,46 @@ export function CoachesTableContent({
 		}
 	});
 
-	// Create dynamic filter config with options
-	const dynamicFilterConfig = [
-		universalColumnHelper
-			.text("name")
-			.displayName("Name")
-			.icon(UserIcon)
-			.build(),
-		universalColumnHelper
-			.text("email")
-			.displayName("Email")
-			.icon(MailIcon)
-			.build(),
-		{
-			...universalColumnHelper
-				.option("team_id")
-				.displayName("Team")
-				.icon(UsersIcon)
-				.build(),
-			options: Array.from(uniqueTeams).map((teamId) => ({
-				value: teamId,
-				label: `Team ${teamId.slice(-4)}`, // Show last 4 chars as friendly name
-			})),
-		},
-		{
-			...universalColumnHelper
-				.option("contract_type")
-				.displayName("Contract Type")
-				.icon(FileTextIcon)
-				.build(),
-			options: Array.from(uniqueContractTypes).map((type) => ({
-				value: type,
-				label: type,
-			})),
-		},
-		universalColumnHelper
-			.date("created_at")
-			.displayName("Created Date")
-			.icon(CalendarIcon)
-			.build(),
-	];
+  // Create dynamic filter config with options
+  const dynamicFilterConfig = [
+    universalColumnHelper
+      .text("name")
+      .displayName("Name")
+      .icon(UserIcon)
+      .build(),
+    universalColumnHelper
+      .text("email")
+      .displayName("Email")
+      .icon(MailIcon)
+      .build(),
+    {
+      ...universalColumnHelper
+        .option("premier_coach_id")
+        .displayName("Team")
+        .icon(UsersIcon)
+        .build(),
+      options: Array.from(uniquePremierCoaches.entries()).map(([id, name]) => ({
+        value: id,
+        label: name, // Show premier coach name but use ID as value
+      })),
+    },
+    {
+      ...universalColumnHelper
+        .option("contract_type")
+        .displayName("Contract Type")
+        .icon(FileTextIcon)
+        .build(),
+      options: Array.from(uniqueContractTypes).map((type) => ({
+        value: type,
+        label: type,
+      })),
+    },
+    universalColumnHelper
+      .date("created_at")
+      .displayName("Created Date")
+      .icon(CalendarIcon)
+      .build(),
+  ];
 
 	const rowActions = [
 		{
@@ -163,29 +163,30 @@ export function CoachesTableContent({
 		},
 	];
 
-	const { table, filterColumns, filterState, actions, strategy, totalCount } =
-		useUniversalTable<CoachRow>({
-			data: (coachesData?.data as any) || [],
-			totalCount: coachesData?.count || 0,
-			columns: coachesTableColumns,
-			columnsConfig: dynamicFilterConfig,
-			filters,
-			onFiltersChange: setFilters,
-			faceted: {
-				contract_type: contractTypeFaceted,
-			},
-			enableSelection: true,
-			pageSize: 25,
-			serverSide: true,
-			rowActions,
-			isLoading,
-			isError,
-			error,
-			onPaginationChange: (pageIndex) => {
-				setCurrentPage(pageIndex);
-			},
-			onSortingChange: setSorting,
-		});
+  const { table, filterColumns, filterState, actions, strategy, totalCount } =
+    useUniversalTable<CoachRow>({
+      data: (coachesData?.data as any) || [],
+      totalCount: coachesData?.count || 0,
+      columns: coachesTableColumns,
+      columnsConfig: dynamicFilterConfig,
+      filters,
+      onFiltersChange: setFilters,
+      faceted: {
+        contract_type: contractTypeFaceted,
+        premier_coach_id: premierCoachFaceted,
+      },
+      enableSelection: true,
+      pageSize: 25,
+      serverSide: true,
+      rowActions,
+      isLoading,
+      isError,
+      error,
+      onPaginationChange: (pageIndex) => {
+        setCurrentPage(pageIndex);
+      },
+      onSortingChange: setSorting,
+    });
 
 	if (isError) {
 		return (

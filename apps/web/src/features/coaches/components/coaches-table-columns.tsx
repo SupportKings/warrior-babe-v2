@@ -4,24 +4,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 import { createColumnHelper } from "@tanstack/react-table";
 import type { CoachRow } from "../types";
+import { getContractTypeBadgeClass } from "../utils";
 
-// Function to get contract type badge styling
-function getContractTypeBadgeClass(contractType: string | null): string {
-	if (!contractType) return "bg-muted text-muted-foreground";
-
-	const type = contractType.toLowerCase();
-
-	if (type === "w2" || type === "w-2") {
-		// Full-time employee - primary/default style
-		return "bg-primary/10 text-primary";
-	}
-	if (type === "hourly" || type.includes("hour")) {
-		// Hourly contractor - secondary style
-		return "bg-secondary text-secondary-foreground";
-	}
-	// Default/Unknown - muted style
-	return "bg-muted text-muted-foreground";
-}
 
 // Create column helper for TanStack table
 const columnHelper = createColumnHelper<CoachRow>();
@@ -87,33 +71,32 @@ export const coachesTableColumns = [
 				return <span className="text-muted-foreground text-sm">No roles</span>;
 			}
 
-			// Split roles by comma and trim whitespace
-			const rolesList = roles
-				.split(",")
-				.map((role) => role.trim())
-				.filter(Boolean);
+      const rolesList = roles
+        .split(",")
+        .map((role) => role.trim())
+        .filter(Boolean);
 
-			return (
-				<div className="flex flex-wrap gap-1">
-					{rolesList.map((role, index) => (
-						<span
-							key={index}
-							className="inline-flex items-center rounded-md bg-secondary px-2 py-0.5 font-medium text-secondary-foreground text-xs capitalize"
-						>
-							{role}
-						</span>
-					))}
-				</div>
-			);
-		},
-	}),
-	columnHelper.accessor((row) => row.team?.premier_coach?.name, {
-		id: "premier_coach",
-		header: "Assigned Premier Coach",
-		enableColumnFilter: true,
-		enableSorting: true,
-		cell: ({ row }) => {
-			const premierCoachName = row.original.team?.premier_coach?.name;
+      return (
+        <div className="flex flex-wrap gap-1">
+          {rolesList.map((role, index) => (
+            <span
+              key={index}
+              className="inline-flex items-center rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground capitalize"
+            >
+              {role.split("_").join(" ")}
+            </span>
+          ))}
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor((row) => row.team?.premier_coach?.name, {
+    id: "premier_coach",
+    header: "Assigned Premier Coach",
+    enableColumnFilter: true,
+    enableSorting: true,
+    cell: ({ row }) => {
+      const premierCoachName = row.original.team?.premier_coach?.name;
 
 			if (premierCoachName) {
 				return <div className="font-medium text-sm">{premierCoachName}</div>;
