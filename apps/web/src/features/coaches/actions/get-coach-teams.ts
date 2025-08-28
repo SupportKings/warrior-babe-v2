@@ -17,17 +17,17 @@ export async function getAllPotentialTeamLeaders(): Promise<PremierCoach[]> {
 		const { data: coachTeams, error } = await supabase
 			.from("coach_teams")
 			.select(
-				`
-        id,
-        premier_coach_id,
-        premier_coach:team_members!coach_teams_premier_coach_id_fkey (
-          id,
-          name,
-          user:user!team_members_user_id_fkey (
-            email
-          )
-        )
-      `,
+			`
+				id,
+				premier_coach_id,
+				premier_coach:team_members!coach_teams_premier_coach_id_fkey (
+					id,
+					name,
+					user:user!team_members_user_id_fkey (
+						email
+					)
+				)
+      		`,
 			)
 			.not("premier_coach_id", "is", null);
 
@@ -40,9 +40,9 @@ export async function getAllPotentialTeamLeaders(): Promise<PremierCoach[]> {
 		const uniqueTeamsMap = new Map<string, PremierCoach>();
 
 		coachTeams?.forEach((team: any) => {
-			if (team.premier_coach && team.id) {
+			if (team.premier_coach) {
 				// Use the coach_teams ID as the key and value ID
-				uniqueTeamsMap.set(team.id, {
+				uniqueTeamsMap.set(team.premier_coach_id, {
 					id: team.id, // coach_teams ID - this is what we'll store in team_members.team_id
 					premier_coach_id: team.premier_coach_id, // team_members ID of the premier coach
 					name: team.premier_coach.name || "Unknown",

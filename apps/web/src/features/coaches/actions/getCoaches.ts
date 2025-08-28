@@ -59,106 +59,154 @@ export async function getActiveCoaches() {
   return coaches || [];
 }
 
-// Single consolidated function for coaches with faceted data
-export async function getCoachesWithFaceted(
+// Function for fetching coaches with filters
+export async function getCoaches(
   filters: any[] = [],
   page = 0,
   pageSize = 25,
-  sorting: any[] = [],
-  facetedColumns: string[] = ["contract_type"]
+  sorting: any[] = []
 ) {
   try {
     const supabase = await createClient();
 
-    // Build main query with proper table structure
+    // Build query with LEFT JOINs
     let query = supabase.from("team_members").select(
       `
-				id,
-				team_id,
-				name,
-				contract_type,
-				created_at,
-				user:user!team_members_user_id_fkey (
-					id,
-					email,
-					role
-				),
-				team:coach_teams!team_members_team_id_fkey (
-					id,
-					premier_coach:team_members!coach_teams_premier_coach_id_fkey (
-						id,
-						name
-					)
-				)
-			`,
+        id,
+        team_id,
+        name,
+        contract_type,
+        created_at,
+        user:user!team_members_user_id_fkey ( id, email, role ),
+        team:coach_teams!team_members_team_id_fkey (
+          id,
+          premier_coach_id,
+          premier_coach:team_members!coach_teams_premier_coach_id_fkey ( id, name )
+        )
+      `,
       { count: "exact" }
     );
 
-    // Apply filters with proper operator support
+    // ----- filters -----
     filters.forEach((filter) => {
-      if (filter.values && filter.values.length > 0) {
-        const values = filter.values;
-        const operator = filter.operator || "is";
-        const columnId = filter.columnId;
-        // Apply filter based on column type and operator
-        switch (columnId) {
-          case "name":
-          case "email":
-            // Text fields - support contains/does not contain
-            if (operator === "contains") {
-              query = query.ilike(columnId, `%${values[0]}%`);
-            } else if (operator === "does not contain") {
-              query = query.not(columnId, "ilike", `%${values[0]}%`);
-            }
-            break;
+      if (!filter?.values?.length) return;
 
-          case "premier_coach_id":
-            // Filter by premier coach ID - need to filter where the team's premier_coach_id matches
-            if (operator === "is") {
-              if (values.length === 1) {
-                // Filter team members whose team has this premier coach
-                query = query.filter("team.premier_coach_id", "eq", values[0]);
-              } else if (values.length > 1) {
-                // For multiple values, use IN
-                query = query.filter("team.premier_coach_id", "in", `(${values.join(",")})`);
-              }
-            } else if (operator === "is not") {
-              if (values.length === 1) {
-                query = query.filter("team.premier_coach_id", "neq", values[0]);
-              } else if (values.length > 1) {
-                query = query.not("team.premier_coach_id", "in", `(${values.join(",")})`);
-              }
-            }
-            break;
+      const values = filter.values;
+      const operator = filter.operator || "is";
+      const columnId = filter.columnId;
 
-          case "contract_type":
-          case "created_at":
-            // Date fields - support various date operators
-            if (operator === "is") {
-              query = query.eq(columnId, values[0]);
-            } else if (operator === "is not") {
-              query = query.not(columnId, "eq", values[0]);
-            } else if (operator === "is before") {
-              query = query.lt(columnId, values[0]);
-            } else if (operator === "is on or before") {
-              query = query.lte(columnId, values[0]);
-            } else if (operator === "is after") {
-              query = query.gt(columnId, values[0]);
-            } else if (operator === "is on or after") {
-              query = query.gte(columnId, values[0]);
-            } else if (operator === "is between" && values.length === 2) {
-              query = query.gte(columnId, values[0]).lte(columnId, values[1]);
-            } else if (operator === "is not between" && values.length === 2) {
-              query = query.or(
-                `${columnId}.lt.${values[0]},${columnId}.gt.${values[1]}`
-              );
+      switch (columnId) {
+        case "name":
+          if (operator === "contains") query = query.ilike("name", `%${values[0]}%`);
+          else if (operator === "does not contain") query = query.not("name", "ilike", `%${values[0]}%`);
+          break;
+
+        case "email":
+          // Filter by email through the user relationship
+          // First ensure we have a user (exclude nulls)
+          query = query.not("user", "is", null);
+          
+          if (operator === "contains") {
+            query = query.ilike("user.email", `%${values[0]}%`);
+          } else if (operator === "does not contain") {
+            query = query.not("user.email", "ilike", `%${values[0]}%`);
+          }
+          break;
+
+        case "premier_coach_id": {
+          // Filter by premier_coach_id through the team relationship
+          // First ensure we have a team (exclude nulls) for all operators
+          query = query.not("team", "is", null);
+          
+          if (operator === "is") {
+            // Single value exact match
+            query = query.eq('team.premier_coach_id', values[0]);
+          } else if (operator === "is not") {
+            // Single value not equal
+            query = query.neq('team.premier_coach_id', values[0]);
+          } else if (operator === "is any of") {
+            // Multiple values - use IN operator for related table
+            if (values.length > 1) {
+              query = query.in('team.premier_coach_id', values);
+            } else {
+              query = query.eq('team.premier_coach_id', values[0]);
             }
-            break;
+          } else if (operator === "is none of") {
+            // Multiple values - use NOT IN for related table
+            if (values.length > 1) {
+              query = query.not('team.premier_coach_id', 'in', values);
+            } else {
+              query = query.neq('team.premier_coach_id', values[0]);
+            }
+          }
+          break;
+        }
+
+        case "contract_type":
+          if (operator === "is") {
+            // Single value exact match
+            query = query.eq("contract_type", values[0]);
+          } else if (operator === "is not") {
+            // Single value not equal
+            query = query.neq("contract_type", values[0]);
+          } else if (operator === "is any of") {
+            // Multiple values - match any
+            if (values.length > 1) {
+              query = query.in("contract_type", values);
+            } else {
+              query = query.eq("contract_type", values[0]);
+            }
+          } else if (operator === "is none of") {
+            // Multiple values - match none
+            if (values.length > 1) {
+              query = query.not("contract_type", "in", values);
+            } else {
+              query = query.neq("contract_type", values[0]);
+            }
+          }
+          break;
+
+        case "created_at": {
+          // Date filtering - convert dates to ISO format for PostgreSQL
+          // Remove timezone info or convert to UTC
+          const formatDate = (dateStr: string) => {
+            // If the date string contains timezone info like "gmt+0200", remove it
+            // and ensure we have a proper ISO date string
+            try {
+              // Parse the date and convert to ISO string (UTC)
+              const date = new Date(dateStr);
+              return date.toISOString();
+            } catch {
+              // If parsing fails, return the original value
+              return dateStr;
+            }
+          };
+          
+          const formattedValues = values.map(formatDate);
+          
+          if (operator === "is") {
+            query = query.eq("created_at", formattedValues[0]);
+          } else if (operator === "is not") {
+            query = query.neq("created_at", formattedValues[0]);
+          } else if (operator === "is before") {
+            query = query.lt("created_at", formattedValues[0]);
+          } else if (operator === "is on or before") {
+            query = query.lte("created_at", formattedValues[0]);
+          } else if (operator === "is after") {
+            query = query.gt("created_at", formattedValues[0]);
+          } else if (operator === "is on or after") {
+            query = query.gte("created_at", formattedValues[0]);
+          } else if (operator === "is between" && formattedValues.length >= 2) {
+            query = query.gte("created_at", formattedValues[0]).lte("created_at", formattedValues[1]);
+          } else if (operator === "is not between" && formattedValues.length >= 2) {
+            query = query.or(`created_at.lt.${formattedValues[0]},created_at.gt.${formattedValues[1]}`);
+          }
+          break;
         }
       }
     });
 
-    // Apply sorting
+    // ----- sorting -----
     if (sorting.length > 0) {
       const sort = sorting[0];
       query = query.order(sort.id, { ascending: !sort.desc });
@@ -166,7 +214,7 @@ export async function getCoachesWithFaceted(
       query = query.order("name", { ascending: true });
     }
 
-    // Apply pagination
+    // ----- pagination -----
     const from = page * pageSize;
     const to = from + pageSize - 1;
     query = query.range(from, to);
@@ -175,179 +223,22 @@ export async function getCoachesWithFaceted(
 
     if (error) {
       console.error("Error fetching coaches with filters:", error);
-      return {
-        coaches: [],
-        totalCount: 0,
-        facetedData: {},
-      };
+      console.error("Query details:", { filters, page, pageSize, sorting });
+      return { coaches: [], totalCount: 0 };
     }
 
-    // Get faceted data for each requested column
-    const facetedData: Record<string, Map<string, number>> = {};
-
-    // Fetch faceted counts for each column in parallel
-    await Promise.all(
-      facetedColumns.map(async (columnId) => {
-        // Check if we need team data for filtering
-        const needsTeamData =
-          columnId === "premier_coach_id" ||
-          filters.some((f) => f.columnId === "premier_coach_id");
-
-        // For premier_coach_id, we need to fetch the premier coach data through team relationship
-        let facetQuery = supabase.from("team_members").select(
-          needsTeamData
-            ? `team_id, team:coach_teams!team_members_team_id_fkey (
-                id,
-                premier_coach_id,
-                premier_coach:team_members!coach_teams_premier_coach_id_fkey (
-                  id,
-                  name
-                )
-              )`
-            : columnId,
-          { count: "exact" }
-        );
-
-        // Apply existing filters (excluding the column we're faceting)
-        filters
-          .filter((filter) => filter.columnId !== columnId)
-          .forEach((filter) => {
-            if (filter.values && filter.values.length > 0) {
-              const values = filter.values;
-              const operator = filter.operator || "is";
-              const filterColumnId = filter.columnId;
-
-              // Apply same operator logic as main query
-              switch (filterColumnId) {
-                case "name":
-                case "email":
-                  if (operator === "contains") {
-                    facetQuery = facetQuery.ilike(
-                      filterColumnId,
-                      `%${values[0]}%`
-                    );
-                  } else if (operator === "does not contain") {
-                    facetQuery = facetQuery.not(
-                      filterColumnId,
-                      "ilike",
-                      `%${values[0]}%`
-                    );
-                  }
-                  break;
-
-                case "premier_coach_id":
-                  // For premier_coach_id facet filtering, filter by premier coach ID
-                  if (operator === "is") {
-                    if (values.length === 1) {
-                      facetQuery = facetQuery.filter("team.premier_coach_id", "eq", values[0]);
-                    } else if (values.length > 1) {
-                      facetQuery = facetQuery.filter("team.premier_coach_id", "in", `(${values.join(",")})`);
-                    }
-                  } else if (operator === "is not") {
-                    if (values.length === 1) {
-                      facetQuery = facetQuery.filter("team.premier_coach_id", "neq", values[0]);
-                    } else if (values.length > 1) {
-                      facetQuery = facetQuery.not("team.premier_coach_id", "in", `(${values.join(",")})`);
-                    }
-                  }
-                  break;
-
-                case "contract_type":
-                case "created_at":
-                  if (operator === "is") {
-                    facetQuery = facetQuery.eq(filterColumnId, values[0]);
-                  } else if (operator === "is not") {
-                    facetQuery = facetQuery.not(
-                      filterColumnId,
-                      "eq",
-                      values[0]
-                    );
-                  } else if (operator === "is before") {
-                    facetQuery = facetQuery.lt(filterColumnId, values[0]);
-                  } else if (operator === "is on or before") {
-                    facetQuery = facetQuery.lte(filterColumnId, values[0]);
-                  } else if (operator === "is after") {
-                    facetQuery = facetQuery.gt(filterColumnId, values[0]);
-                  } else if (operator === "is on or after") {
-                    facetQuery = facetQuery.gte(filterColumnId, values[0]);
-                  } else if (operator === "is between" && values.length === 2) {
-                    facetQuery = facetQuery
-                      .gte(filterColumnId, values[0])
-                      .lte(filterColumnId, values[1]);
-                  } else if (
-                    operator === "is not between" &&
-                    values.length === 2
-                  ) {
-                    facetQuery = facetQuery.or(
-                      `${filterColumnId}.lt.${values[0]},${filterColumnId}.gt.${values[1]}`
-                    );
-                  }
-                  break;
-              }
-            }
-          });
-
-        const { data: facetData, error: facetError } = await facetQuery;
-
-        if (facetError) {
-          console.error(
-            `Error fetching faceted data for ${columnId}:`,
-            facetError
-          );
-          facetedData[columnId] = new Map();
-          return;
-        }
-
-        // Convert to Map format
-        const facetMap = new Map<string, number>();
-        facetData?.forEach((item: any) => {
-          if (columnId === "premier_coach_id") {
-            // For premier_coach_id, use the premier coach ID as the facet key but we'll map names in the client
-            const premierCoachId = item.team?.premier_coach_id;
-            if (premierCoachId) {
-              const key = String(premierCoachId);
-              facetMap.set(key, (facetMap.get(key) || 0) + 1);
-            }
-          } else {
-            const value = item[columnId];
-            if (value) {
-              const key = String(value);
-              facetMap.set(key, (facetMap.get(key) || 0) + 1);
-            }
-          }
-        });
-
-        facetedData[columnId] = facetMap;
-      })
-    );
-    return {
-      coaches: coaches || [],
-      totalCount: count || 0,
-      facetedData,
-    };
+    return { coaches: coaches || [], totalCount: count || 0 };
   } catch (error) {
-    console.error("Unexpected error in getCoachesWithFaceted:", error);
-    return {
-      coaches: [],
-      totalCount: 0,
-      facetedData: {},
-    };
+    console.error("Unexpected error in getCoaches:", error);
+    return { coaches: [], totalCount: 0 };
   }
 }
-
-// Server-side prefetch for combined coaches+faceted data
-export async function prefetchCoachesWithFacetedServer(
+// Server-side prefetch for coaches
+export async function prefetchCoachesServer(
   filters: any[] = [],
   page = 0,
   pageSize = 25,
-  sorting: any[] = [],
-  facetedColumns: string[] = ["contract_type"]
+  sorting: any[] = []
 ) {
-  return await getCoachesWithFaceted(
-    filters,
-    page,
-    pageSize,
-    sorting,
-    facetedColumns
-  );
+  return await getCoaches(filters, page, pageSize, sorting);
 }

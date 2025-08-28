@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteCoach } from "../actions/delete-coach";
-import { useCoachesWithFaceted } from "../queries/useCoaches";
+import { useCoachesTable, useTeamLeaders } from "../queries/useCoaches";
 import type { CoachRow } from "../types";
 import { CoachDeleteModal } from "./coach-delete-modal";
 import { coachesFilterConfig } from "./coaches-filter-config";
@@ -53,49 +53,39 @@ export function CoachesTableContent({
 		setCurrentPage(0);
 	}, [filters]);
 
-  // Fetch coaches data with faceted data in single optimized call
+  // Fetch coaches data
   const {
-    data: coachesWithFaceted,
+    data: coachesResponse,
     isLoading,
     isError,
     error,
-  } = useCoachesWithFaceted(
+  } = useCoachesTable(
     filters,
     currentPage,
     25,
-    sorting,
-    ["contract_type", "premier_coach_id"] // columns to get faceted data for
+    sorting
   );
-  // Extract data from combined result
-  const coachesData = coachesWithFaceted
+  
+  // Fetch team leaders for filter options
+  const { data: teamLeaders } = useTeamLeaders();
+  // Extract data from response
+  const coachesData = coachesResponse
     ? {
-        data: coachesWithFaceted.coaches,
-        count: coachesWithFaceted.totalCount,
+        data: coachesResponse.coaches,
+        count: coachesResponse.totalCount,
       }
     : { data: [], count: 0 };
-
-  const contractTypeFaceted = coachesWithFaceted?.facetedData?.contract_type;
-  const premierCoachFaceted = coachesWithFaceted?.facetedData?.premier_coach_id;
 
 	// Create universal column helper
 	const universalColumnHelper = createUniversalColumnHelper<CoachRow>();
 
-  // Extract unique values for filters from the data  
-  const uniquePremierCoaches = new Map<string, string>(); // Map of ID -> Name
+  // Extract unique contract types from the data
   const uniqueContractTypes = new Set<string>();
-
-  // Process coaches data to extract unique values
   coachesData?.data?.forEach((coach: any) => {
-    // Extract premier coach IDs and names
-    if (coach.team?.premier_coach?.id && coach.team?.premier_coach?.name) {
-      uniquePremierCoaches.set(coach.team.premier_coach.id, coach.team.premier_coach.name);
+    if (coach.contract_type) {
+      uniqueContractTypes.add(coach.contract_type);
     }
-
-		// Extract contract types
-		if (coach.contract_type) {
-			uniqueContractTypes.add(coach.contract_type);
-		}
-	});
+  });
 
   // Create dynamic filter config with options
   const dynamicFilterConfig = [
@@ -112,13 +102,13 @@ export function CoachesTableContent({
     {
       ...universalColumnHelper
         .option("premier_coach_id")
-        .displayName("Team")
+        .displayName("Premier Coach")
         .icon(UsersIcon)
         .build(),
-      options: Array.from(uniquePremierCoaches.entries()).map(([id, name]) => ({
-        value: id,
-        label: name, // Show premier coach name but use ID as value
-      })),
+      options: teamLeaders?.map((leader) => ({
+        value: leader.premier_coach_id, // Use the team_members ID of the premier coach
+        label: leader.name, // Show premier coach name
+      })) || [],
     },
     {
       ...universalColumnHelper
@@ -171,10 +161,6 @@ export function CoachesTableContent({
       columnsConfig: dynamicFilterConfig,
       filters,
       onFiltersChange: setFilters,
-      faceted: {
-        contract_type: contractTypeFaceted,
-        premier_coach_id: premierCoachFaceted,
-      },
       enableSelection: true,
       pageSize: 25,
       serverSide: true,

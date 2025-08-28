@@ -3,9 +3,10 @@
 import {
 	getActiveCoaches,
 	getAllCoaches,
-	getCoachesWithFaceted,
+	getCoaches,
 } from "@/features/coaches/actions/getCoaches";
 import { getCoach } from "@/features/coaches/actions/get-coach";
+import { getAllPotentialTeamLeaders } from "@/features/coaches/actions/get-coach-teams";
 
 import {
 	type QueryClient,
@@ -20,44 +21,39 @@ export const coachQueries = {
 	lists: () => [...coachQueries.all, "list"] as const,
 	active: () => [...coachQueries.lists(), "active"] as const,
 	detail: (id: string) => [...coachQueries.all, "detail", id] as const,
-	tableWithFaceted: (
+	teamLeaders: () => [...coachQueries.all, "teamLeaders"] as const,
+	table: (
 		filters: ColumnFiltersState,
 		page: number,
 		pageSize: number,
 		sorting: SortingState,
-		facetedColumns: string[],
 	) =>
 		[
 			...coachQueries.lists(),
-			"tableWithFaceted",
+			"table",
 			filters,
 			page,
 			pageSize,
 			sorting,
-			facetedColumns,
 		] as const,
-	faceted: (columnId: string, filters: ColumnFiltersState) =>
-		[...coachQueries.lists(), "faceted", columnId, filters] as const,
 };
 
-// Hook for coaches with faceted filtering
-export function useCoachesWithFaceted(
+// Hook for coaches with filtering
+export function useCoachesTable(
 	filters: ColumnFiltersState = [],
 	page = 0,
 	pageSize = 25,
 	sorting: SortingState = [],
-	facetedColumns: string[] = ["contract_type"],
 ) {
 	return useQuery({
-		queryKey: coachQueries.tableWithFaceted(
+		queryKey: coachQueries.table(
 			filters,
 			page,
 			pageSize,
 			sorting,
-			facetedColumns,
 		),
 		queryFn: () =>
-			getCoachesWithFaceted(filters, page, pageSize, sorting, facetedColumns),
+			getCoaches(filters, page, pageSize, sorting),
 		staleTime: 2 * 60 * 1000,
 	});
 }
@@ -84,6 +80,14 @@ export function useCoach(id: string) {
 		queryFn: () => getCoach(id),
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		enabled: !!id,
+	});
+}
+
+export function useTeamLeaders() {
+	return useQuery({
+		queryKey: coachQueries.teamLeaders(),
+		queryFn: getAllPotentialTeamLeaders,
+		staleTime: 5 * 60 * 1000, // 5 minutes
 	});
 }
 

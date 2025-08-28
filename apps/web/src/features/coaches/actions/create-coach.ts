@@ -82,21 +82,21 @@ export async function createCoach(input: CreateCoachInput) {
 				created_at: new Date().toISOString(),
 			})
 			.select(`
-        *,
-        user:user!team_members_user_id_fkey (
-          id,
-          email,
-          name,
-          role
-        ),
-        team:coach_teams!team_members_team_id_fkey (
-          id,
-          premier_coach:team_members!coach_teams_premier_coach_id_fkey (
-            id,
-            name
-          )
-        )
-      `)
+				*,
+				user:user!team_members_user_id_fkey (
+					id,
+					email,
+					name,
+					role
+					),
+				team:coach_teams!team_members_team_id_fkey (
+					id,
+					premier_coach:team_members!coach_teams_premier_coach_id_fkey (
+						id,
+						name
+					)
+				)
+			`)
 			.single();
 
 		if (teamMemberError) {
