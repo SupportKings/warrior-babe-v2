@@ -453,9 +453,7 @@ const OptionItem = memo(function OptionItem({
 					) : (
 						<Icon className="size-4 text-primary" />
 					))}
-				<span>
-					{label}
-				</span>
+				<span>{label}</span>
 			</div>
 		</CommandItem>
 	);

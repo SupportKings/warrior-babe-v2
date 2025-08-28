@@ -122,9 +122,7 @@ const clientActivityPeriodTableColumns = [
 		cell: ({ row }) => {
 			const coach = row.original.coach;
 			return (
-				<div className="text-sm">
-					{coach?.name || "No coach assigned"}
-				</div>
+				<div className="text-sm">{coach?.name || "No coach assigned"}</div>
 			);
 		},
 	}),
@@ -207,8 +205,10 @@ function ClientActivityPeriodsTableContent({
 		: { data: [], count: 0 };
 
 	// Extract faceted data for options with counts
-	const clientFaceted = clientActivityPeriodsWithFaceted?.facetedData?.client || [];
-	const coachFaceted = clientActivityPeriodsWithFaceted?.facetedData?.coach || [];
+	const clientFaceted =
+		clientActivityPeriodsWithFaceted?.facetedData?.client || [];
+	const coachFaceted =
+		clientActivityPeriodsWithFaceted?.facetedData?.coach || [];
 
 	// Create dynamic filter config with options from faceted data
 	const dynamicFilterConfig = [

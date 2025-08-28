@@ -208,18 +208,10 @@ export async function getClientActivityPeriodsWithFilters(
 		// Apply sorting
 		query = applySorting(query, sorting);
 
-		// Get total count for pagination - need to join tables for filtering
+		// Get total count for pagination - no joins needed as filters use direct columns
 		let countQuery = supabase
 			.from("client_activity_period")
-			.select(`
-				*,
-				client:clients!client_activity_period_client_id_clients_id_fk (id),
-				coach:team_members!client_activity_period_coach_id_fkey (
-					id,
-					name,
-					user:user!team_members_user_id_fkey (id, name)
-				)
-			`, { count: "exact", head: true });
+			.select("id", { count: "exact", head: true });
 
 		// Apply the same filters to count query
 		filters.forEach((filter) => {
@@ -317,7 +309,7 @@ export async function getClientActivityPeriodsFaceted(
 
 		// Build base query with filters (excluding the column we're getting faceted data for)
 		const filteredFilters = filters.filter((f) => f.columnId !== columnId);
-		
+
 		// Start with base query that includes all necessary joins
 		let query = supabase.from("client_activity_period").select(`
 			*,
@@ -409,27 +401,34 @@ export async function getClientActivityPeriodsFaceted(
 
 		// Transform data to faceted format based on column type
 		let facetedData: { value: any; label?: string; count: number }[] = [];
-		
+
 		switch (columnId) {
 			case "client":
-				facetedData = data?.map((item: any) => ({
-					value: item.client?.id,
-					label: item.client?.name,
-					count: 1,
-				})).filter((item: any) => item.value) || [];
+				facetedData =
+					data
+						?.map((item: any) => ({
+							value: item.client?.id,
+							label: item.client?.name,
+							count: 1,
+						}))
+						.filter((item: any) => item.value) || [];
 				break;
 			case "coach":
-				facetedData = data?.map((item: any) => ({
-					value: item.coach?.id,
-					label: item.coach?.name || `Coach ${item.coach?.id}`,
-					count: 1,
-				})).filter((item: any) => item.value) || [];
+				facetedData =
+					data
+						?.map((item: any) => ({
+							value: item.coach?.id,
+							label: item.coach?.name || `Coach ${item.coach?.id}`,
+							count: 1,
+						}))
+						.filter((item: any) => item.value) || [];
 				break;
 			case "active":
-				facetedData = data?.map((item: any) => ({
-					value: item[columnId],
-					count: 1,
-				})) || [];
+				facetedData =
+					data?.map((item: any) => ({
+						value: item[columnId],
+						count: 1,
+					})) || [];
 				break;
 			default:
 				facetedData = [];
@@ -439,12 +438,12 @@ export async function getClientActivityPeriodsFaceted(
 		const groupedData = facetedData.reduce((acc: any[], item: any) => {
 			const existing = acc.find((a) => a.value === item.value);
 			if (existing) {
-				existing.count += 1;  // Increment count properly
+				existing.count += 1; // Increment count properly
 			} else {
 				acc.push({
 					value: item.value,
 					label: item.label,
-					count: 1
+					count: 1,
 				});
 			}
 			return acc;
