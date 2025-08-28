@@ -208,19 +208,10 @@ export async function getClientActivityPeriodsWithFilters(
 		// Apply sorting
 		query = applySorting(query, sorting);
 
-		// Get total count for pagination - need to join tables for filtering
-		let countQuery = supabase.from("client_activity_period").select(
-			`
-				*,
-				client:clients!client_activity_period_client_id_clients_id_fk (id),
-				coach:team_members!client_activity_period_coach_id_fkey (
-					id,
-					name,
-					user:user!team_members_user_id_fkey (id, name)
-				)
-			`,
-			{ count: "exact", head: true },
-		);
+		// Get total count for pagination - no joins needed as filters use direct columns
+		let countQuery = supabase
+			.from("client_activity_period")
+			.select("id", { count: "exact", head: true });
 
 		// Apply the same filters to count query
 		filters.forEach((filter) => {
