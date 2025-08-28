@@ -246,7 +246,7 @@ export async function getCoachTeamsWithFaceted(
 			facetedColumns.map(async (columnId) => {
 				let facetQuery = supabase
 					.from("coach_teams")
-					.select(columnId, { count: "exact" });
+					.select(`${columnId}, count:${columnId}.count()`, { head: false });
 
 				// Apply existing filters (excluding the column we're faceting)
 				filters
@@ -323,13 +323,14 @@ export async function getCoachTeamsWithFaceted(
 					return;
 				}
 
-				// Convert to Map format
+				// Convert server-aggregated data to Map format
 				const facetMap = new Map<string, number>();
 				facetData?.forEach((item: any) => {
 					const value = item[columnId];
-					if (value) {
+					const count = item.count;
+					if (value && count) {
 						const key = String(value);
-						facetMap.set(key, (facetMap.get(key) || 0) + 1);
+						facetMap.set(key, count);
 					}
 				});
 
@@ -356,7 +357,7 @@ export async function getCoachTeamsFaceted(columnId: string, filters: any[] = []
 	try {
 		const supabase = await createClient();
 
-		let query = supabase.from("coach_teams").select(columnId, { count: "exact" });
+		let query = supabase.from("coach_teams").select(`${columnId}, count:${columnId}.count()`, { head: false });
 
 		// Apply existing filters (excluding the column we're faceting)
 		filters
@@ -422,13 +423,14 @@ export async function getCoachTeamsFaceted(columnId: string, filters: any[] = []
 			return new Map<string, number>();
 		}
 
-		// Convert to Map format
+		// Convert server-aggregated data to Map format
 		const facetedMap = new Map<string, number>();
 		data?.forEach((item: any) => {
 			const value = item[columnId];
-			if (value) {
+			const count = item.count;
+			if (value && count) {
 				const key = String(value);
-				facetedMap.set(key, (facetedMap.get(key) || 0) + 1);
+				facetedMap.set(key, count);
 			}
 		});
 

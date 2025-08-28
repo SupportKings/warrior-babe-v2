@@ -99,7 +99,7 @@ const coachTeamTableColumns = [
 					table.getIsAllPageRowsSelected() ||
 					(table.getIsSomePageRowsSelected() && "indeterminate")
 				}
-				onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
+				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 				aria-label="Select all"
 			/>
 		),
