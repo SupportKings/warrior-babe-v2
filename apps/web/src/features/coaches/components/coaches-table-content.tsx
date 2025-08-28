@@ -61,7 +61,7 @@ export function CoachesTableContent({
     currentPage,
     25,
     sorting,
-    ["contract_type"] // columns to get faceted data for
+    ["contract_type", "team_name"] // columns to get faceted data for
   );
   console.log(coachesWithFaceted);
   // Extract data from combined result
@@ -73,19 +73,20 @@ export function CoachesTableContent({
     : { data: [], count: 0 };
 
   const contractTypeFaceted = coachesWithFaceted?.facetedData?.contract_type;
+  const teamNameFaceted = coachesWithFaceted?.facetedData?.team_name;
 
   // Create universal column helper
   const universalColumnHelper = createUniversalColumnHelper<CoachRow>();
 
   // Extract unique values for filters from the data
-  const uniqueTeams = new Set<string>();
+  const uniquePremierCoaches = new Set<string>();
   const uniqueContractTypes = new Set<string>();
 
   // Process coaches data to extract unique values
   coachesData?.data?.forEach((coach: any) => {
-    // Extract team IDs with friendly names
-    if (coach.team_id) {
-      uniqueTeams.add(coach.team_id);
+    // Extract premier coach names
+    if (coach.team?.premier_coach?.name) {
+      uniquePremierCoaches.add(coach.team.premier_coach.name);
     }
 
     // Extract contract types
@@ -108,13 +109,13 @@ export function CoachesTableContent({
       .build(),
     {
       ...universalColumnHelper
-        .option("team_id")
+        .option("team_name")
         .displayName("Team")
         .icon(UsersIcon)
         .build(),
-      options: Array.from(uniqueTeams).map((teamId) => ({
-        value: teamId,
-        label: `Team ${teamId.slice(-4)}`, // Show last 4 chars as friendly name
+      options: Array.from(uniquePremierCoaches).map((premierCoachName) => ({
+        value: premierCoachName,
+        label: premierCoachName,
       })),
     },
     {
@@ -170,6 +171,7 @@ export function CoachesTableContent({
       onFiltersChange: setFilters,
       faceted: {
         contract_type: contractTypeFaceted,
+        team_name: teamNameFaceted,
       },
       enableSelection: true,
       pageSize: 25,

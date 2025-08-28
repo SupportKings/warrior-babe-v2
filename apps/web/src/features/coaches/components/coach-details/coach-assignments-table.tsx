@@ -32,8 +32,8 @@ export function CoachAssignmentsTable({ assignments }: CoachAssignmentsTableProp
     filters: [],
     onFiltersChange: () => {},
     enableSelection: false,
-    pageSize: 10,
-    serverSide: false,
+    pageSize: assignments?.length > 10 ? 10 : assignments?.length || 1,
+    serverSide: true,
   });
 
   return (

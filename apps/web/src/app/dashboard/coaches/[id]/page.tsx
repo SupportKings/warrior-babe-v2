@@ -4,7 +4,7 @@ import { notFound, redirect } from "next/navigation";
 
 import MainLayout from "@/components/layout/main-layout";
 
-import { getCoach } from "@/features/coaches/actions/get-coach";
+import { coachDetailsQueries } from "@/features/coaches/queries/useCoachDetails";
 import CoachDetailSkeleton from "@/features/coaches/components/coach-detail-skeleton";
 import CoachDetailView from "@/features/coaches/components/coach-detail-view";
 import CoachDetailHeader from "@/features/coaches/layout/coach-detail-header";
@@ -46,11 +46,12 @@ async function CoachDetailPageAsync({ params }: CoachDetailPageProps) {
 		redirect("/");
 	}
 
-	// Prefetch the coach data
-	await queryClient.prefetchQuery({
-		queryKey: ["coaches", "detail", id],
-		queryFn: () => getCoach(id),
-	});
+	// Prefetch all coach data in parallel
+	await Promise.all([
+		queryClient.prefetchQuery(coachDetailsQueries.basicInfo(id)),
+		queryClient.prefetchQuery(coachDetailsQueries.clientAssignments(id)),
+		queryClient.prefetchQuery(coachDetailsQueries.payments(id)),
+	]);
 
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>

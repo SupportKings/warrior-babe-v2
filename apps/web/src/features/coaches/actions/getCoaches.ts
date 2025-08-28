@@ -109,6 +109,26 @@ export async function getCoachesWithFaceted(
             }
             break;
 
+          case "team_name":
+            // Filter by premier coach name
+            if (operator === "is") {
+              // Filter by premier coach names (values array contains names)
+              if (values.length === 1) {
+                query = query.eq("team.premier_coach.name", values[0]);
+              } else if (values.length > 1) {
+                // Use OR condition for multiple values
+                query = query.in("team.premier_coach.name", values);
+              }
+            } else if (operator === "is not") {
+              if (values.length === 1) {
+                query = query.not("team.premier_coach.name", "eq", values[0]);
+              } else if (values.length > 1) {
+                // Use NOT IN for multiple values  
+                query = query.not("team.premier_coach.name", "in", `(${values.map(v => `'${v}'`).join(',')})`);
+              }
+            }
+            break;
+
           case "contract_type":
           case "created_at":
             // Date fields - support various date operators
@@ -166,9 +186,21 @@ export async function getCoachesWithFaceted(
     // Fetch faceted counts for each column in parallel
     await Promise.all(
       facetedColumns.map(async (columnId) => {
+        // Check if we need team data for filtering
+        const needsTeamData = columnId === "team_name" || filters.some(f => f.columnId === "team_name");
+        
+        // For team_name, we need to fetch the premier coach names instead
         let facetQuery = supabase
           .from("team_members")
-          .select(columnId, { count: "exact" });
+          .select(needsTeamData
+            ? `team_id, team:coach_teams!team_members_team_id_fkey (
+                id,
+                premier_coach:team_members!coach_teams_premier_coach_id_fkey (
+                  id,
+                  name
+                )
+              )` 
+            : columnId, { count: "exact" });
 
         // Apply existing filters (excluding the column we're faceting)
         filters
@@ -194,6 +226,23 @@ export async function getCoachesWithFaceted(
                       "ilike",
                       `%${values[0]}%`
                     );
+                  }
+                  break;
+
+                case "team_name":
+                  // For team_name facet filtering, filter by premier coach names
+                  if (operator === "is") {
+                    if (values.length === 1) {
+                      facetQuery = facetQuery.eq("team.premier_coach.name", values[0]);
+                    } else if (values.length > 1) {
+                      facetQuery = facetQuery.in("team.premier_coach.name", values);
+                    }
+                  } else if (operator === "is not") {
+                    if (values.length === 1) {
+                      facetQuery = facetQuery.not("team.premier_coach.name", "eq", values[0]);
+                    } else if (values.length > 1) {
+                      facetQuery = facetQuery.not("team.premier_coach.name", "in", `(${values.map(v => `'${v}'`).join(',')})`);
+                    }
                   }
                   break;
 
@@ -246,10 +295,19 @@ export async function getCoachesWithFaceted(
         // Convert to Map format
         const facetMap = new Map<string, number>();
         facetData?.forEach((item: any) => {
-          const value = item[columnId];
-          if (value) {
-            const key = String(value);
-            facetMap.set(key, (facetMap.get(key) || 0) + 1);
+          if (columnId === "team_name") {
+            // For team_name, use the premier coach name as the facet key
+            const premierCoachName = item.team?.premier_coach?.name;
+            if (premierCoachName) {
+              const key = String(premierCoachName);
+              facetMap.set(key, (facetMap.get(key) || 0) + 1);
+            }
+          } else {
+            const value = item[columnId];
+            if (value) {
+              const key = String(value);
+              facetMap.set(key, (facetMap.get(key) || 0) + 1);
+            }
           }
         });
 

@@ -1,6 +1,10 @@
 "use client";
 
-import { useCoach } from "@/features/coaches/queries/useCoaches";
+import { 
+  useCoachBasicInfo, 
+  useCoachClientAssignments, 
+  useCoachPayments 
+} from "@/features/coaches/queries/useCoachDetails";
 import { 
   CoachGeneralInfo, 
   CoachAssignmentsTable, 
@@ -12,17 +16,17 @@ interface CoachDetailViewProps {
 }
 
 export default function CoachDetailView({ coachId }: CoachDetailViewProps) {
-  const { data: coach, isLoading } = useCoach(coachId);
+  const { data: coach, isLoading: isLoadingCoach } = useCoachBasicInfo(coachId);
+  const { data: clientAssignments, isLoading: isLoadingAssignments } = useCoachClientAssignments(coachId);
+  const { data: coachPayments, isLoading: isLoadingPayments } = useCoachPayments(coachId);
 
-  if (isLoading) {
+  if (isLoadingCoach) {
     return <div>Loading...</div>;
   }
 
   if (!coach) {
     return <div>Coach not found</div>;
   }
-
-  console.log(coach);
 
   return (
     <div className="space-y-6 p-6">
@@ -31,12 +35,12 @@ export default function CoachDetailView({ coachId }: CoachDetailViewProps) {
 
       {/* Client Assignments */}
       <CoachAssignmentsTable 
-        assignments={coach.client_assignments || []} 
+        assignments={clientAssignments || []} 
       />
 
       {/* Coach Payments */}
       <CoachPaymentsTable 
-        payments={coach.coach_payments as any || []} 
+        payments={coachPayments || []} 
         coachId={coachId}
       />
     </div>

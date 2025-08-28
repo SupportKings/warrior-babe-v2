@@ -1,21 +1,22 @@
 "use client";
 
 import { useState } from "react";
-
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { UniversalDataTable } from "@/components/universal-data-table/universal-data-table";
 import { useUniversalTable } from "@/components/universal-data-table/hooks/use-universal-table";
 
-import { Briefcase, Plus } from "lucide-react";
+import { DollarSign, Plus } from "lucide-react";
 import { coachPaymentColumns } from "./columns/coach-payments-columns";
+import { ManageCoachPaymentModal } from "./manage-coach-payment-modal";
+import { DeleteCoachPaymentModal } from "./delete-coach-payment-modal";
 
 type CoachPayment = {
   id: string;
-  amount: number;
+  date: string;
+  total_clients: number;
+  total_active_clients: number;
   status: string;
-  created_at: string;
-  updated_at: string;
 };
 
 interface CoachPaymentsTableProps {
@@ -24,24 +25,24 @@ interface CoachPaymentsTableProps {
 }
 
 export function CoachPaymentsTable({ payments, coachId }: CoachPaymentsTableProps) {
-  const handleAddPayment = () => {
-    // TODO: Implement add payment
-    console.log("Add payment for coach:", coachId);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedPaymentId, setSelectedPaymentId] = useState<string | null>(null);
+
+  const handleEdit = (paymentId: string) => {
+    setSelectedPaymentId(paymentId);
+    setIsEditModalOpen(true);
   };
 
-  const handleEditPayment = (paymentId: string) => {
-    // TODO: Implement edit payment
-    console.log("Edit payment:", paymentId);
+  const handleDelete = (paymentId: string) => {
+    setSelectedPaymentId(paymentId);
+    setIsDeleteModalOpen(true);
   };
 
-  const handleDeletePayment = (paymentId: string) => {
-    // TODO: Implement delete payment
-    console.log("Delete payment:", paymentId);
-  };
-
-  const columns = coachPaymentColumns({ 
-    onEdit: handleEditPayment, 
-    onDelete: handleDeletePayment 
+  const columns = coachPaymentColumns({
+    onEdit: handleEdit,
+    onDelete: handleDelete,
   });
 
   const tableConfig = useUniversalTable<CoachPayment>({
@@ -53,42 +54,73 @@ export function CoachPaymentsTable({ payments, coachId }: CoachPaymentsTableProp
     onFiltersChange: () => {},
     enableSelection: false,
     pageSize: 10,
-    serverSide: false,
+    serverSide: true,
   });
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Briefcase className="h-5 w-5" />
-            Payments
-          </CardTitle>
-          <Button onClick={handleAddPayment} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Payment
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {payments && payments.length > 0 ? (
-          <UniversalDataTable
-            table={tableConfig.table}
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <Briefcase className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="font-semibold text-lg">No Payments</h3>
-            <p className="text-muted-foreground mb-4">
-              No payments have been recorded for this team member yet.
-            </p>
-            <Button onClick={handleAddPayment} variant="outline">
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5" />
+              Coach Payments
+            </CardTitle>
+            <Button onClick={() => setIsAddModalOpen(true)} size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              Add First Payment
+              Add Payment
             </Button>
           </div>
-        )}
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent>
+          {payments && payments.length > 0 ? (
+            <UniversalDataTable
+              table={tableConfig.table}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <DollarSign className="h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="font-semibold text-lg">No Payments</h3>
+              <p className="text-muted-foreground mb-4">
+                No payments have been recorded for this team member yet.
+              </p>
+              <Button onClick={() => setIsAddModalOpen(true)} variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Add First Payment
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Add Payment Modal */}
+      <ManageCoachPaymentModal
+        open={isAddModalOpen}
+        onOpenChange={setIsAddModalOpen}
+        coachId={coachId}
+        mode="create"
+      />
+
+      {/* Edit Payment Modal */}
+      {selectedPaymentId && (
+        <ManageCoachPaymentModal
+          open={isEditModalOpen}
+          onOpenChange={setIsEditModalOpen}
+          coachId={coachId}
+          paymentId={selectedPaymentId}
+          mode="edit"
+        />
+      )}
+
+      {/* Delete Payment Modal */}
+      {selectedPaymentId && (
+        <DeleteCoachPaymentModal
+          open={isDeleteModalOpen}
+          onOpenChange={setIsDeleteModalOpen}
+          paymentId={selectedPaymentId}
+          coachId={coachId}
+        />
+      )}
+    </>
   );
 }

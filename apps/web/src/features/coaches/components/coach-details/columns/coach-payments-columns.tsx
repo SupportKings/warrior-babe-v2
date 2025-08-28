@@ -1,48 +1,58 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { Button } from "@/components/ui/button";
+import { getPaymentStatusColor, formatPaymentStatus } from "@/features/coaches/utils/payment-status-colors";
 import { Edit, Trash2 } from "lucide-react";
 
 type CoachPayment = {
   id: string;
-  amount: number;
+  date: string;
+  total_clients: number;
+  total_active_clients: number;
   status: string;
-  created_at: string;
-  updated_at: string;
 };
 
 interface ColumnOptions {
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  onEdit: (paymentId: string) => void;
+  onDelete: (paymentId: string) => void;
 }
 
 const columnHelper = createColumnHelper<CoachPayment>();
 
-export const coachPaymentColumns = ({ onEdit, onDelete }: ColumnOptions) => [
-  columnHelper.accessor("status", {
-    header: "Status",
-    cell: (info) => (
-      <span>
-        {info.getValue()}
-      </span>
-    ),
-  }),
-  columnHelper.accessor("amount", {
-    header: "Amount",
-    cell: (info) => {
-      const amount = info.getValue();
-      return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-    },
-  }),
-  columnHelper.accessor("created_at", {
-    header: "Created",
+export const coachPaymentColumns = (options: ColumnOptions) => [
+  columnHelper.accessor("date", {
+    header: "Date",
     cell: (info) => {
       const date = info.getValue();
-      return format(new Date(date), "MMM dd, yyyy");
+      return date ? format(new Date(date), "MMM dd, yyyy") : "N/A";
+    },
+  }),
+  columnHelper.accessor("total_clients", {
+    header: "Total Clients",
+    cell: (info) => {
+      const count = info.getValue();
+      return <span className="font-medium">{count || 0}</span>;
+    },
+  }),
+  columnHelper.accessor("total_active_clients", {
+    header: "Total Active Clients",
+    cell: (info) => {
+      const count = info.getValue();
+      return <span className="font-medium">{count || 0}</span>;
+    },
+  }),
+  columnHelper.accessor("status", {
+    header: "Status",
+    cell: (info) => {
+      const status = info.getValue();
+      return status ? (
+        <StatusBadge colorScheme={getPaymentStatusColor(status)}>
+          {formatPaymentStatus(status)}
+        </StatusBadge>
+      ) : (
+        <span className="text-muted-foreground">N/A</span>
+      );
     },
   }),
   columnHelper.display({
@@ -52,17 +62,17 @@ export const coachPaymentColumns = ({ onEdit, onDelete }: ColumnOptions) => [
       <div className="flex items-center gap-2">
         <Button
           variant="ghost"
-          size="sm"
-          onClick={() => onEdit(row.original.id)}
+          size="icon"
+          onClick={() => options.onEdit(row.original.id)}
         >
           <Edit className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"
-          size="sm"
-          onClick={() => onDelete(row.original.id)}
+          size="icon"
+          onClick={() => options.onDelete(row.original.id)}
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-4 w-4 text-destructive" />
         </Button>
       </div>
     ),

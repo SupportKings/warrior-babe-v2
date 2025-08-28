@@ -28,7 +28,7 @@ export const coachesFilterConfig = [
 		.icon(TagIcon)
 		.build(),
 	universalColumnHelper
-		.option("team_id")
+		.option("team_name")
 		.displayName("Team")
 		.icon(UsersIcon)
 		.build(),

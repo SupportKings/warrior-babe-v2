@@ -29,7 +29,7 @@ async function CoachesPageAsync() {
 	const defaultSorting: any[] = [];
 
 	// Create query keys directly (matching client-side keys)
-	const facetedColumns = ["contract_type"];
+	const facetedColumns = ["contract_type", "team_name"];
 	const combinedDataKey = [
 		"coaches",
 		"list",
