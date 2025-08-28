@@ -63,7 +63,10 @@ export function CoachesTableContent({
     sorting,
     ["contract_type", "team_name"] // columns to get faceted data for
   );
-  console.log(coachesWithFaceted);
+  
+  console.log("Client filters:", filters);
+  console.log("Client coachesWithFaceted:", coachesWithFaceted);
+  console.log("Client coaches data:", coachesWithFaceted?.coaches?.length);
   // Extract data from combined result
   const coachesData = coachesWithFaceted
     ? {

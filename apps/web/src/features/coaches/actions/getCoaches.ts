@@ -92,6 +92,7 @@ export async function getCoachesWithFaceted(
 
     // Apply filters with proper operator support
     filters.forEach((filter) => {
+      console.log("Processing filter:", filter);
       if (filter.values && filter.values.length > 0) {
         const values = filter.values;
         const operator = filter.operator || "is";
@@ -110,21 +111,21 @@ export async function getCoachesWithFaceted(
             break;
 
           case "team_name":
-            // Filter by premier coach name
+            // Filter by premier coach name using a different approach
             if (operator === "is") {
-              // Filter by premier coach names (values array contains names)
               if (values.length === 1) {
-                query = query.eq("team.premier_coach.name", values[0]);
+                // Use filter on the joined relation
+                query = query.filter("team.premier_coach.name", "eq", values[0]);
               } else if (values.length > 1) {
-                // Use OR condition for multiple values
-                query = query.in("team.premier_coach.name", values);
+                // Use IN for multiple values
+                query = query.filter("team.premier_coach.name", "in", `(${values.map(v => `"${v}"`).join(',')})`);
               }
             } else if (operator === "is not") {
               if (values.length === 1) {
-                query = query.not("team.premier_coach.name", "eq", values[0]);
+                query = query.filter("team.premier_coach.name", "neq", values[0]);
               } else if (values.length > 1) {
                 // Use NOT IN for multiple values  
-                query = query.not("team.premier_coach.name", "in", `(${values.map(v => `'${v}'`).join(',')})`);
+                query = query.not("team.premier_coach.name", "in", `(${values.map(v => `"${v}"`).join(',')})`);
               }
             }
             break;
@@ -180,6 +181,11 @@ export async function getCoachesWithFaceted(
       };
     }
 
+    // Debug logging
+    console.log("Filters applied:", filters);
+    console.log("Coaches returned:", coaches?.length);
+    console.log("Sample coach:", coaches?.[0]);
+
     // Get faceted data for each requested column
     const facetedData: Record<string, Map<string, number>> = {};
 
@@ -233,15 +239,15 @@ export async function getCoachesWithFaceted(
                   // For team_name facet filtering, filter by premier coach names
                   if (operator === "is") {
                     if (values.length === 1) {
-                      facetQuery = facetQuery.eq("team.premier_coach.name", values[0]);
+                      facetQuery = facetQuery.filter("team.premier_coach.name", "eq", values[0]);
                     } else if (values.length > 1) {
-                      facetQuery = facetQuery.in("team.premier_coach.name", values);
+                      facetQuery = facetQuery.filter("team.premier_coach.name", "in", `(${values.map(v => `"${v}"`).join(',')})`);
                     }
                   } else if (operator === "is not") {
                     if (values.length === 1) {
-                      facetQuery = facetQuery.not("team.premier_coach.name", "eq", values[0]);
+                      facetQuery = facetQuery.filter("team.premier_coach.name", "neq", values[0]);
                     } else if (values.length > 1) {
-                      facetQuery = facetQuery.not("team.premier_coach.name", "in", `(${values.map(v => `'${v}'`).join(',')})`);
+                      facetQuery = facetQuery.not("team.premier_coach.name", "in", `(${values.map(v => `"${v}"`).join(',')})`);
                     }
                   }
                   break;
