@@ -1,7 +1,9 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+
+import { createClient } from "@/utils/supabase/server";
+
 import { z } from "zod";
 
 // Validation schema for coach update
@@ -20,7 +22,7 @@ export type UpdateCoachInput = z.infer<typeof updateCoachSchema>;
 export async function updateCoach(input: UpdateCoachInput) {
 	try {
 		const supabase = await createClient();
-		
+
 		// First, get the team member to find the user_id
 		const { data: teamMember, error: fetchError } = await supabase
 			.from("team_members")
@@ -30,7 +32,9 @@ export async function updateCoach(input: UpdateCoachInput) {
 
 		if (fetchError || !teamMember) {
 			console.error("Error fetching team member:", fetchError);
-			throw new Error(`Team member not found: ${fetchError?.message || "Unknown error"}`);
+			throw new Error(
+				`Team member not found: ${fetchError?.message || "Unknown error"}`,
+			);
 		}
 
 		const userId = teamMember.user_id;
@@ -89,9 +93,10 @@ export async function updateCoach(input: UpdateCoachInput) {
 			.update({
 				name: input.name,
 				team_id: input.team_id ?? null,
-				contract_type: input.contract_type === "W2" || input.contract_type === "Hourly"
-					? input.contract_type
-					: null,
+				contract_type:
+					input.contract_type === "W2" || input.contract_type === "Hourly"
+						? input.contract_type
+						: null,
 				onboarding_date: input.onboarding_date ?? null,
 			})
 			.eq("id", input.id)
@@ -115,7 +120,9 @@ export async function updateCoach(input: UpdateCoachInput) {
 
 		if (teamMemberError) {
 			console.error("Error updating team member:", teamMemberError);
-			throw new Error(`Failed to update team member: ${teamMemberError.message}`);
+			throw new Error(
+				`Failed to update team member: ${teamMemberError.message}`,
+			);
 		}
 
 		// Revalidate the coaches pages
@@ -130,10 +137,11 @@ export async function updateCoach(input: UpdateCoachInput) {
 		};
 	} catch (error) {
 		console.error("Unexpected error in updateCoach:", error);
-		
+
 		return {
 			success: false,
-			message: error instanceof Error ? error.message : "An unexpected error occurred",
+			message:
+				error instanceof Error ? error.message : "An unexpected error occurred",
 		};
 	}
 }

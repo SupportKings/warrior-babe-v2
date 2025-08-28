@@ -1,12 +1,13 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+
+import { createClient } from "@/utils/supabase/server";
 
 export async function deleteCoach(coachId: string) {
 	try {
 		const supabase = await createClient();
-		
+
 		// First, get the team member to find the user_id
 		const { data: teamMember, error: fetchError } = await supabase
 			.from("team_members")
@@ -16,7 +17,9 @@ export async function deleteCoach(coachId: string) {
 
 		if (fetchError || !teamMember) {
 			console.error("Error fetching team member:", fetchError);
-			throw new Error(`Team member not found: ${fetchError?.message || "Unknown error"}`);
+			throw new Error(
+				`Team member not found: ${fetchError?.message || "Unknown error"}`,
+			);
 		}
 
 		const userId = teamMember.user_id;
@@ -30,7 +33,9 @@ export async function deleteCoach(coachId: string) {
 
 		if (teamMemberDeleteError) {
 			console.error("Error deleting team member:", teamMemberDeleteError);
-			throw new Error(`Failed to delete team member: ${teamMemberDeleteError.message}`);
+			throw new Error(
+				`Failed to delete team member: ${teamMemberDeleteError.message}`,
+			);
 		}
 
 		// If there's a user_id, check if this user is referenced elsewhere before deleting
@@ -57,7 +62,9 @@ export async function deleteCoach(coachId: string) {
 					// Not critical if user deletion fails, team member is already deleted
 				}
 			} else {
-				console.log("User is still referenced by other team members, keeping user record");
+				console.log(
+					"User is still referenced by other team members, keeping user record",
+				);
 			}
 		}
 
@@ -71,10 +78,11 @@ export async function deleteCoach(coachId: string) {
 		};
 	} catch (error) {
 		console.error("Unexpected error in deleteCoach:", error);
-		
+
 		return {
 			success: false,
-			message: error instanceof Error ? error.message : "An unexpected error occurred",
+			message:
+				error instanceof Error ? error.message : "An unexpected error occurred",
 		};
 	}
 }

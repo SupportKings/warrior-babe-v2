@@ -56,7 +56,7 @@ export function ManageActivityPeriodModal({
 		active: true,
 		start_date: format(new Date(), "yyyy-MM-dd"),
 		end_date: "",
-		coach_id: null as number | null,
+		coach_id: null as string | null,
 	});
 
 	// Populate form data when editing
@@ -159,11 +159,11 @@ export function ManageActivityPeriodModal({
 					<div>
 						<Label htmlFor="coach_id">Coach</Label>
 						<Select
-							value={formData.coach_id ? formData.coach_id.toString() : "none"}
+							value={formData.coach_id ? formData.coach_id : "none"}
 							onValueChange={(value) =>
 								setFormData({
 									...formData,
-									coach_id: value === "none" ? null : Number.parseInt(value),
+									coach_id: value === "none" ? null : value,
 								})
 							}
 						>

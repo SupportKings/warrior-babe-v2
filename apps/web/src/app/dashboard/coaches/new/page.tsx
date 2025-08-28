@@ -3,6 +3,7 @@ import Link from "next/link";
 import MainLayout from "@/components/layout/main-layout";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+
 import { CoachForm } from "@/features/coaches/components/coach-form";
 
 import { ArrowLeftIcon } from "lucide-react";
@@ -26,7 +27,9 @@ function AddTeamMemberHeader() {
 
 export default async function AddTeamMemberPage() {
 	return (
-		<MainLayout headers={[<AddTeamMemberHeader key="add-team-member-header" />]}>
+		<MainLayout
+			headers={[<AddTeamMemberHeader key="add-team-member-header" />]}
+		>
 			<div className="p-6">
 				<CoachForm />
 			</div>

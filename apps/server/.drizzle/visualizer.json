@@ -1,1 +1,25 @@
-[{"id":"win_tags","position":{"x":50,"y":50}},{"id":"client_wins","position":{"x":930,"y":5940}},{"id":"roles","position":{"x":50,"y":410}},{"id":"financial_settings","position":{"x":930,"y":7940}},{"id":"audit_log","position":{"x":50,"y":850}},{"id":"products","position":{"x":50,"y":1130}},{"id":"payments","position":{"x":1810,"y":1430}},{"id":"payment_slots","position":{"x":1370,"y":1530}},{"id":"payment_plans","position":{"x":930,"y":4040}},{"id":"payment_plan_templates","position":{"x":50,"y":1610}},{"id":"payment_plan_template_items","position":{"x":540,"y":1560}},{"id":"coach_payments","position":{"x":930,"y":7460}},{"id":"goal_types","position":{"x":490,"y":1990}},{"id":"goal_categories","position":{"x":50,"y":2130}},{"id":"coach_teams","position":{"x":930,"y":6940}},{"id":"coach_capacity","position":{"x":930,"y":6500}},{"id":"clients","position":{"x":490,"y":4660}},{"id":"client_testimonials","position":{"x":930,"y":5340}},{"id":"client_nps","position":{"x":930,"y":4760}},{"id":"client_goals","position":{"x":900,"y":2460}},{"id":"client_assignments","position":{"x":930,"y":3360}},{"id":"client_activity_period","position":{"x":1370,"y":2050}},{"id":"overall_metrics","position":{"x":50,"y":2530}}]
+[
+	{ "id": "win_tags", "position": { "x": 50, "y": 50 } },
+	{ "id": "client_wins", "position": { "x": 930, "y": 5940 } },
+	{ "id": "roles", "position": { "x": 50, "y": 410 } },
+	{ "id": "financial_settings", "position": { "x": 930, "y": 7940 } },
+	{ "id": "audit_log", "position": { "x": 50, "y": 850 } },
+	{ "id": "products", "position": { "x": 50, "y": 1130 } },
+	{ "id": "payments", "position": { "x": 1810, "y": 1430 } },
+	{ "id": "payment_slots", "position": { "x": 1370, "y": 1530 } },
+	{ "id": "payment_plans", "position": { "x": 930, "y": 4040 } },
+	{ "id": "payment_plan_templates", "position": { "x": 50, "y": 1610 } },
+	{ "id": "payment_plan_template_items", "position": { "x": 540, "y": 1560 } },
+	{ "id": "coach_payments", "position": { "x": 930, "y": 7460 } },
+	{ "id": "goal_types", "position": { "x": 490, "y": 1990 } },
+	{ "id": "goal_categories", "position": { "x": 50, "y": 2130 } },
+	{ "id": "coach_teams", "position": { "x": 930, "y": 6940 } },
+	{ "id": "coach_capacity", "position": { "x": 930, "y": 6500 } },
+	{ "id": "clients", "position": { "x": 490, "y": 4660 } },
+	{ "id": "client_testimonials", "position": { "x": 930, "y": 5340 } },
+	{ "id": "client_nps", "position": { "x": 930, "y": 4760 } },
+	{ "id": "client_goals", "position": { "x": 900, "y": 2460 } },
+	{ "id": "client_assignments", "position": { "x": 930, "y": 3360 } },
+	{ "id": "client_activity_period", "position": { "x": 1370, "y": 2050 } },
+	{ "id": "overall_metrics", "position": { "x": 50, "y": 2530 } }
+]

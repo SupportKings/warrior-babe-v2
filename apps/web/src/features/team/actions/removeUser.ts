@@ -5,7 +5,6 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { actionClient } from "@/lib/safe-action";
 
-
 import { returnValidationErrors } from "next-safe-action";
 import { z } from "zod";
 
@@ -17,7 +16,6 @@ export const removeUser = actionClient
 	.inputSchema(inputSchema)
 	.action(async ({ parsedInput: { userId } }) => {
 		try {
-
 			// Now ban the user through the auth system
 			const bannedUser = await auth.api.banUser({
 				body: {
