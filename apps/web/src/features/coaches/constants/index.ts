@@ -3,4 +3,4 @@ export const CONTRACT_TYPES = [
 	{ value: "Hourly", label: "Hourly" },
 ] as const;
 
-export type ContractType = typeof CONTRACT_TYPES[number]["value"];
+export type ContractType = (typeof CONTRACT_TYPES)[number]["value"];

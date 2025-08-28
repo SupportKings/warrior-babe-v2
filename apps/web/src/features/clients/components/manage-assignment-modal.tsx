@@ -52,6 +52,7 @@ export function ManageAssignmentModal({
 
 	const [formData, setFormData] = useState({
 		coach_id: null as string | null,
+		coach_id: null as string | null,
 		start_date: format(new Date(), "yyyy-MM-dd"),
 		end_date: "",
 		assignment_type: "",
@@ -160,6 +161,7 @@ export function ManageAssignmentModal({
 							onValueChange={(value) =>
 								setFormData({
 									...formData,
+									coach_id: value === "none" ? null : value,
 									coach_id: value === "none" ? null : value,
 								})
 							}

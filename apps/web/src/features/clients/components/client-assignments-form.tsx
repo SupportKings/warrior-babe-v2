@@ -17,6 +17,7 @@ import { PlusIcon, TrashIcon } from "lucide-react";
 interface ClientAssignment {
 	id?: string;
 	coach_id: string | null;
+	coach_id: string | null;
 	start_date: string;
 	end_date: string | null;
 	assignment_type: string;
@@ -34,7 +35,10 @@ interface ClientAssignment {
 
 interface Coach {
 	id: string;
+	id: string;
 	name: string | null;
+	contract_type: "W2" | "Hourly" | null;
+	onboarding_date: string | null;
 	user: {
 		id: string;
 		name: string;

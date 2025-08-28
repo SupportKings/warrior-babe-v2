@@ -2,11 +2,12 @@
 
 import { createClient } from "@/utils/supabase/server";
 export async function getAllCoaches() {
-	const supabase = await createClient();
+  const supabase = await createClient();
 
-	const { data: coaches, error } = await supabase
-		.from("team_members")
-		.select(`
+  const { data: coaches, error } = await supabase
+    .from("team_members")
+    .select(
+      `
 			id,
 			name,
 			contract_type,
@@ -16,24 +17,26 @@ export async function getAllCoaches() {
 				name,
 				email
 			)
-		`)
-		.order("name", { ascending: true });
+		`
+    )
+    .order("name", { ascending: true });
 
-	if (error) {
-		console.error("Error fetching coaches:", error);
-		throw new Error(`Failed to fetch coaches: ${error.message}`);
-	}
+  if (error) {
+    console.error("Error fetching coaches:", error);
+    throw new Error(`Failed to fetch coaches: ${error.message}`);
+  }
 
-	return coaches || [];
+  return coaches || [];
 }
 
 export async function getActiveCoaches() {
-	const supabase = await createClient();
+  const supabase = await createClient();
 
-	// Get all team members with user accounts as potential coaches
-	const { data: coaches, error } = await supabase
-		.from("team_members")
-		.select(`
+  // Get all team members with user accounts as potential coaches
+  const { data: coaches, error } = await supabase
+    .from("team_members")
+    .select(
+      `
 			id,
 			name,
 			contract_type,
@@ -43,16 +46,17 @@ export async function getActiveCoaches() {
 				name,
 				email
 			)
-		`)
-		.not("user_id", "is", null) // Only include team members with user accounts
-		.order("name", { ascending: true });
+		`
+    )
+    .not("user_id", "is", null) // Only include team members with user accounts
+    .order("name", { ascending: true });
 
-	if (error) {
-		console.error("Error fetching coaches:", error);
-		throw new Error(`Failed to fetch coaches: ${error.message}`);
-	}
+  if (error) {
+    console.error("Error fetching coaches:", error);
+    throw new Error(`Failed to fetch coaches: ${error.message}`);
+  }
 
-	return coaches || [];
+  return coaches || [];
 }
 
 // Single consolidated function for coaches with faceted data
@@ -92,7 +96,6 @@ export async function getCoachesWithFaceted(
 
     // Apply filters with proper operator support
     filters.forEach((filter) => {
-      console.log("Processing filter:", filter);
       if (filter.values && filter.values.length > 0) {
         const values = filter.values;
         const operator = filter.operator || "is";
@@ -115,17 +118,33 @@ export async function getCoachesWithFaceted(
             if (operator === "is") {
               if (values.length === 1) {
                 // Use filter on the joined relation
-                query = query.filter("team.premier_coach.name", "eq", values[0]);
+                query = query.filter(
+                  "team.premier_coach.name",
+                  "eq",
+                  values[0]
+                );
               } else if (values.length > 1) {
                 // Use IN for multiple values
-                query = query.filter("team.premier_coach.name", "in", `(${values.map(v => `"${v}"`).join(',')})`);
+                query = query.filter(
+                  "team.premier_coach.name",
+                  "in",
+                  `(${values.map((v) => `"${v}"`).join(",")})`
+                );
               }
             } else if (operator === "is not") {
               if (values.length === 1) {
-                query = query.filter("team.premier_coach.name", "neq", values[0]);
+                query = query.filter(
+                  "team.premier_coach.name",
+                  "neq",
+                  values[0]
+                );
               } else if (values.length > 1) {
-                // Use NOT IN for multiple values  
-                query = query.not("team.premier_coach.name", "in", `(${values.map(v => `"${v}"`).join(',')})`);
+                // Use NOT IN for multiple values
+                query = query.not(
+                  "team.premier_coach.name",
+                  "in",
+                  `(${values.map((v) => `"${v}"`).join(",")})`
+                );
               }
             }
             break;
@@ -181,11 +200,6 @@ export async function getCoachesWithFaceted(
       };
     }
 
-    // Debug logging
-    console.log("Filters applied:", filters);
-    console.log("Coaches returned:", coaches?.length);
-    console.log("Sample coach:", coaches?.[0]);
-
     // Get faceted data for each requested column
     const facetedData: Record<string, Map<string, number>> = {};
 
@@ -193,20 +207,23 @@ export async function getCoachesWithFaceted(
     await Promise.all(
       facetedColumns.map(async (columnId) => {
         // Check if we need team data for filtering
-        const needsTeamData = columnId === "team_name" || filters.some(f => f.columnId === "team_name");
-        
+        const needsTeamData =
+          columnId === "team_name" ||
+          filters.some((f) => f.columnId === "team_name");
+
         // For team_name, we need to fetch the premier coach names instead
-        let facetQuery = supabase
-          .from("team_members")
-          .select(needsTeamData
+        let facetQuery = supabase.from("team_members").select(
+          needsTeamData
             ? `team_id, team:coach_teams!team_members_team_id_fkey (
                 id,
                 premier_coach:team_members!coach_teams_premier_coach_id_fkey (
                   id,
                   name
                 )
-              )` 
-            : columnId, { count: "exact" });
+              )`
+            : columnId,
+          { count: "exact" }
+        );
 
         // Apply existing filters (excluding the column we're faceting)
         filters
@@ -239,15 +256,31 @@ export async function getCoachesWithFaceted(
                   // For team_name facet filtering, filter by premier coach names
                   if (operator === "is") {
                     if (values.length === 1) {
-                      facetQuery = facetQuery.filter("team.premier_coach.name", "eq", values[0]);
+                      facetQuery = facetQuery.filter(
+                        "team.premier_coach.name",
+                        "eq",
+                        values[0]
+                      );
                     } else if (values.length > 1) {
-                      facetQuery = facetQuery.filter("team.premier_coach.name", "in", `(${values.map(v => `"${v}"`).join(',')})`);
+                      facetQuery = facetQuery.filter(
+                        "team.premier_coach.name",
+                        "in",
+                        `(${values.map((v) => `"${v}"`).join(",")})`
+                      );
                     }
                   } else if (operator === "is not") {
                     if (values.length === 1) {
-                      facetQuery = facetQuery.filter("team.premier_coach.name", "neq", values[0]);
+                      facetQuery = facetQuery.filter(
+                        "team.premier_coach.name",
+                        "neq",
+                        values[0]
+                      );
                     } else if (values.length > 1) {
-                      facetQuery = facetQuery.not("team.premier_coach.name", "in", `(${values.map(v => `"${v}"`).join(',')})`);
+                      facetQuery = facetQuery.not(
+                        "team.premier_coach.name",
+                        "in",
+                        `(${values.map((v) => `"${v}"`).join(",")})`
+                      );
                     }
                   }
                   break;
@@ -342,13 +375,13 @@ export async function prefetchCoachesWithFacetedServer(
   page = 0,
   pageSize = 25,
   sorting: any[] = [],
-  facetedColumns: string[] = ["contract_type"],
+  facetedColumns: string[] = ["contract_type"]
 ) {
   return await getCoachesWithFaceted(
     filters,
     page,
     pageSize,
     sorting,
-    facetedColumns,
+    facetedColumns
   );
 }

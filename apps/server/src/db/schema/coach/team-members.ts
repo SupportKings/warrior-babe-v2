@@ -1,6 +1,7 @@
-import { pgTable, text, date, pgEnum } from "drizzle-orm/pg-core";
-import { id, timestamps } from "../common";
 import { authUsers } from "@/db/shadow/auth";
+
+import { date, pgEnum, pgTable, text } from "drizzle-orm/pg-core";
+import { id, timestamps } from "../common";
 
 // Contract type enum matching database.types.ts
 export const contractTypeEnum = pgEnum("contract_type_enum", ["W2", "Hourly"]);

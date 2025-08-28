@@ -42,7 +42,7 @@ interface ClientActivityPeriod {
 	active: boolean;
 	start_date: string;
 	end_date: string;
-	coach_id: number | null;
+	coach_id: string | null;
 }
 
 interface ClientNPS {
@@ -229,7 +229,7 @@ export async function saveClientAssignments(
 			await supabase
 				.from("client_assignments")
 				.update({
-					coach_id: assignment.coach_id,
+					user_id: assignment.coach_id,
 					start_date: assignment.start_date,
 					end_date: assignment.end_date,
 					assignment_type: assignment.assignment_type,
@@ -239,7 +239,7 @@ export async function saveClientAssignments(
 			// Create new
 			await supabase.from("client_assignments").insert({
 				client_id: clientId,
-				coach_id: assignment.coach_id,
+				user_id: assignment.coach_id,
 				start_date: assignment.start_date,
 				end_date: assignment.end_date,
 				assignment_type: assignment.assignment_type,

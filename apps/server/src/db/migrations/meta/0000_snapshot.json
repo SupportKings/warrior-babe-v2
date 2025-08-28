@@ -1,2042 +1,1895 @@
 {
-  "id": "a8574016-08f4-4b22-abe2-121b537db1ab",
-  "prevId": "00000000-0000-0000-0000-000000000000",
-  "version": "7",
-  "dialect": "postgresql",
-  "tables": {
-    "public.client_activity_period": {
-      "name": "client_activity_period",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "client_id": {
-          "name": "client_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "coach_id": {
-          "name": "coach_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "start_date": {
-          "name": "start_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_date": {
-          "name": "end_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "active": {
-          "name": "active",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "client_activity_period_client_id_clients_id_fk": {
-          "name": "client_activity_period_client_id_clients_id_fk",
-          "tableFrom": "client_activity_period",
-          "tableTo": "clients",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "client_activity_period_coach_id_user_id_fk": {
-          "name": "client_activity_period_coach_id_user_id_fk",
-          "tableFrom": "client_activity_period",
-          "tableTo": "user",
-          "columnsFrom": [
-            "coach_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.client_assignments": {
-      "name": "client_assignments",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "client_id": {
-          "name": "client_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "assignment_type": {
-          "name": "assignment_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "start_date": {
-          "name": "start_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_date": {
-          "name": "end_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "assigned_by": {
-          "name": "assigned_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "client_assignments_client_id_clients_id_fk": {
-          "name": "client_assignments_client_id_clients_id_fk",
-          "tableFrom": "client_assignments",
-          "tableTo": "clients",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "client_assignments_user_id_user_id_fk": {
-          "name": "client_assignments_user_id_user_id_fk",
-          "tableFrom": "client_assignments",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "client_assignments_assigned_by_user_id_fk": {
-          "name": "client_assignments_assigned_by_user_id_fk",
-          "tableFrom": "client_assignments",
-          "tableTo": "user",
-          "columnsFrom": [
-            "assigned_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.client_goals": {
-      "name": "client_goals",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "client_id": {
-          "name": "client_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "goal_type_id": {
-          "name": "goal_type_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "notes": {
-          "name": "notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "target_value": {
-          "name": "target_value",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "current_value": {
-          "name": "current_value",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'pending'"
-        },
-        "priority": {
-          "name": "priority",
-          "type": "priority",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'medium'"
-        },
-        "started_at": {
-          "name": "started_at",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "due_date": {
-          "name": "due_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "completed_at": {
-          "name": "completed_at",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_by": {
-          "name": "updated_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "client_goals_client_id_clients_id_fk": {
-          "name": "client_goals_client_id_clients_id_fk",
-          "tableFrom": "client_goals",
-          "tableTo": "clients",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "client_goals_goal_type_id_goal_types_id_fk": {
-          "name": "client_goals_goal_type_id_goal_types_id_fk",
-          "tableFrom": "client_goals",
-          "tableTo": "goal_types",
-          "columnsFrom": [
-            "goal_type_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "client_goals_created_by_user_id_fk": {
-          "name": "client_goals_created_by_user_id_fk",
-          "tableFrom": "client_goals",
-          "tableTo": "user",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "client_goals_updated_by_user_id_fk": {
-          "name": "client_goals_updated_by_user_id_fk",
-          "tableFrom": "client_goals",
-          "tableTo": "user",
-          "columnsFrom": [
-            "updated_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.client_nps": {
-      "name": "client_nps",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "nps_score": {
-          "name": "nps_score",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "recorded_date": {
-          "name": "recorded_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "recorded_by": {
-          "name": "recorded_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "notes": {
-          "name": "notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "provided_by": {
-          "name": "provided_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "client_nps_recorded_by_user_id_fk": {
-          "name": "client_nps_recorded_by_user_id_fk",
-          "tableFrom": "client_nps",
-          "tableTo": "user",
-          "columnsFrom": [
-            "recorded_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "client_nps_provided_by_clients_id_fk": {
-          "name": "client_nps_provided_by_clients_id_fk",
-          "tableFrom": "client_nps",
-          "tableTo": "clients",
-          "columnsFrom": [
-            "provided_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.client_testimonials": {
-      "name": "client_testimonials",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "client_id": {
-          "name": "client_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "testimonial_type": {
-          "name": "testimonial_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "testimonial_url": {
-          "name": "testimonial_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "content": {
-          "name": "content",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "recorded_date": {
-          "name": "recorded_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "recorded_by": {
-          "name": "recorded_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "client_testimonials_client_id_clients_id_fk": {
-          "name": "client_testimonials_client_id_clients_id_fk",
-          "tableFrom": "client_testimonials",
-          "tableTo": "clients",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "client_testimonials_recorded_by_user_id_fk": {
-          "name": "client_testimonials_recorded_by_user_id_fk",
-          "tableFrom": "client_testimonials",
-          "tableTo": "user",
-          "columnsFrom": [
-            "recorded_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.clients": {
-      "name": "clients",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "phone": {
-          "name": "phone",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "vip_terms_signed": {
-          "name": "vip_terms_signed",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "everfit_access": {
-          "name": "everfit_access",
-          "type": "everfit_access",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'new'"
-        },
-        "onboarding_call_completed": {
-          "name": "onboarding_call_completed",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "two_week_check_in_call_completed": {
-          "name": "two_week_check_in_call_completed",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "onboarding_notes": {
-          "name": "onboarding_notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "overall_status": {
-          "name": "overall_status",
-          "type": "client_overall_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'new'"
-        },
-        "onboarding_completed_date": {
-          "name": "onboarding_completed_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "offboard_date": {
-          "name": "offboard_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "team_ids": {
-          "name": "team_ids",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.coach_capacity": {
-      "name": "coach_capacity",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "coach_id": {
-          "name": "coach_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "max_total_clients": {
-          "name": "max_total_clients",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "max_client_units": {
-          "name": "max_client_units",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "coach_capacity_coach_id_user_id_fk": {
-          "name": "coach_capacity_coach_id_user_id_fk",
-          "tableFrom": "coach_capacity",
-          "tableTo": "user",
-          "columnsFrom": [
-            "coach_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.coach_teams": {
-      "name": "coach_teams",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "premier_coach_id": {
-          "name": "premier_coach_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "coach_id": {
-          "name": "coach_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "start_date": {
-          "name": "start_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "end_date": {
-          "name": "end_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "coach_teams_premier_coach_id_user_id_fk": {
-          "name": "coach_teams_premier_coach_id_user_id_fk",
-          "tableFrom": "coach_teams",
-          "tableTo": "user",
-          "columnsFrom": [
-            "premier_coach_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "coach_teams_coach_id_user_id_fk": {
-          "name": "coach_teams_coach_id_user_id_fk",
-          "tableFrom": "coach_teams",
-          "tableTo": "user",
-          "columnsFrom": [
-            "coach_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.goal_categories": {
-      "name": "goal_categories",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.goal_types": {
-      "name": "goal_types",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "icon": {
-          "name": "icon",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "category": {
-          "name": "category",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "default_duration_days": {
-          "name": "default_duration_days",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "is_measurable": {
-          "name": "is_measurable",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "unit_of_measures": {
-          "name": "unit_of_measures",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "category_id": {
-          "name": "category_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "goal_types_category_id_goal_categories_id_fk": {
-          "name": "goal_types_category_id_goal_categories_id_fk",
-          "tableFrom": "goal_types",
-          "tableTo": "goal_categories",
-          "columnsFrom": [
-            "category_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.coach_payments": {
-      "name": "coach_payments",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "coach_id": {
-          "name": "coach_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "amount": {
-          "name": "amount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "client_activity_period_id": {
-          "name": "client_activity_period_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "coach_payments_coach_id_user_id_fk": {
-          "name": "coach_payments_coach_id_user_id_fk",
-          "tableFrom": "coach_payments",
-          "tableTo": "user",
-          "columnsFrom": [
-            "coach_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "coach_payments_client_activity_period_id_client_activity_period_id_fk": {
-          "name": "coach_payments_client_activity_period_id_client_activity_period_id_fk",
-          "tableFrom": "coach_payments",
-          "tableTo": "client_activity_period",
-          "columnsFrom": [
-            "client_activity_period_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.payment_plan_template_items": {
-      "name": "payment_plan_template_items",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "payment_plan_template_id": {
-          "name": "payment_plan_template_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "amount_due": {
-          "name": "amount_due",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "months_to_delay": {
-          "name": "months_to_delay",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "payment_plan_template_items_payment_plan_template_id_payment_plan_templates_id_fk": {
-          "name": "payment_plan_template_items_payment_plan_template_id_payment_plan_templates_id_fk",
-          "tableFrom": "payment_plan_template_items",
-          "tableTo": "payment_plan_templates",
-          "columnsFrom": [
-            "payment_plan_template_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.payment_plan_templates": {
-      "name": "payment_plan_templates",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "payment_plan_frequency",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "product_id": {
-          "name": "product_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "default_total_amount_owed": {
-          "name": "default_total_amount_owed",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "payment_plan_templates_product_id_products_id_fk": {
-          "name": "payment_plan_templates_product_id_products_id_fk",
-          "tableFrom": "payment_plan_templates",
-          "tableTo": "products",
-          "columnsFrom": [
-            "product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.payment_plans": {
-      "name": "payment_plans",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "type": {
-          "name": "type",
-          "type": "payment_plan_frequency",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "client_id": {
-          "name": "client_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "term_start_date": {
-          "name": "term_start_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "term_end_date": {
-          "name": "term_end_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "product_id": {
-          "name": "product_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "total_amount": {
-          "name": "total_amount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "total_amount_paid": {
-          "name": "total_amount_paid",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "notes": {
-          "name": "notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "subscription_id": {
-          "name": "subscription_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "platform": {
-          "name": "platform",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "payment_plans_client_id_clients_id_fk": {
-          "name": "payment_plans_client_id_clients_id_fk",
-          "tableFrom": "payment_plans",
-          "tableTo": "clients",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "payment_plans_product_id_products_id_fk": {
-          "name": "payment_plans_product_id_products_id_fk",
-          "tableFrom": "payment_plans",
-          "tableTo": "products",
-          "columnsFrom": [
-            "product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.payment_slots": {
-      "name": "payment_slots",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "plan_id": {
-          "name": "plan_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "payment_id": {
-          "name": "payment_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "due_date": {
-          "name": "due_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "amount_due": {
-          "name": "amount_due",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "notes": {
-          "name": "notes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "amount_paid": {
-          "name": "amount_paid",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "payment_slots_plan_id_payment_plans_id_fk": {
-          "name": "payment_slots_plan_id_payment_plans_id_fk",
-          "tableFrom": "payment_slots",
-          "tableTo": "payment_plans",
-          "columnsFrom": [
-            "plan_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "payment_slots_payment_id_payments_id_fk": {
-          "name": "payment_slots_payment_id_payments_id_fk",
-          "tableFrom": "payment_slots",
-          "tableTo": "payments",
-          "columnsFrom": [
-            "payment_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.payments": {
-      "name": "payments",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "amount": {
-          "name": "amount",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "payment_date": {
-          "name": "payment_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "payment_method": {
-          "name": "payment_method",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "stripe_transaction_id": {
-          "name": "stripe_transaction_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "platform": {
-          "name": "platform",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "declined_at": {
-          "name": "declined_at",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "disputed_status": {
-          "name": "disputed_status",
-          "type": "disputed_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "dispute_fee": {
-          "name": "dispute_fee",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.products": {
-      "name": "products",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "default_duration_months": {
-          "name": "default_duration_months",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "client_unit": {
-          "name": "client_unit",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.audit_log": {
-      "name": "audit_log",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.financial_settings": {
-      "name": "financial_settings",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "setting_name": {
-          "name": "setting_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "setting_value": {
-          "name": "setting_value",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "effective_date": {
-          "name": "effective_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "financial_settings_created_by_user_id_fk": {
-          "name": "financial_settings_created_by_user_id_fk",
-          "tableFrom": "financial_settings",
-          "tableTo": "user",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.roles": {
-      "name": "roles",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "permissions": {
-          "name": "permissions",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "roles_name_unique": {
-          "name": "roles_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.client_win_tags": {
-      "name": "client_win_tags",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "win_id": {
-          "name": "win_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "tag_id": {
-          "name": "tag_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "client_win_tags_win_id_client_wins_id_fk": {
-          "name": "client_win_tags_win_id_client_wins_id_fk",
-          "tableFrom": "client_win_tags",
-          "tableTo": "client_wins",
-          "columnsFrom": [
-            "win_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "client_win_tags_tag_id_win_tags_id_fk": {
-          "name": "client_win_tags_tag_id_win_tags_id_fk",
-          "tableFrom": "client_win_tags",
-          "tableTo": "win_tags",
-          "columnsFrom": [
-            "tag_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.client_wins": {
-      "name": "client_wins",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "client_id": {
-          "name": "client_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "title": {
-          "name": "title",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "win_date": {
-          "name": "win_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "recorded_by": {
-          "name": "recorded_by",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "client_wins_client_id_clients_id_fk": {
-          "name": "client_wins_client_id_clients_id_fk",
-          "tableFrom": "client_wins",
-          "tableTo": "clients",
-          "columnsFrom": [
-            "client_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "client_wins_recorded_by_user_id_fk": {
-          "name": "client_wins_recorded_by_user_id_fk",
-          "tableFrom": "client_wins",
-          "tableTo": "user",
-          "columnsFrom": [
-            "recorded_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.win_tags": {
-      "name": "win_tags",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "color": {
-          "name": "color",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    }
-  },
-  "enums": {
-    "public.priority": {
-      "name": "priority",
-      "schema": "public",
-      "values": [
-        "high",
-        "medium",
-        "low"
-      ]
-    },
-    "public.status": {
-      "name": "status",
-      "schema": "public",
-      "values": [
-        "pending",
-        "in_progress",
-        "completed",
-        "cancelled",
-        "overdue"
-      ]
-    },
-    "public.client_overall_status": {
-      "name": "client_overall_status",
-      "schema": "public",
-      "values": [
-        "new",
-        "live",
-        "paused",
-        "churned"
-      ]
-    },
-    "public.everfit_access": {
-      "name": "everfit_access",
-      "schema": "public",
-      "values": [
-        "new",
-        "requested",
-        "confirmed"
-      ]
-    },
-    "public.payment_plan_frequency": {
-      "name": "payment_plan_frequency",
-      "schema": "public",
-      "values": [
-        "PIF",
-        "2-Pay",
-        "Split Pay",
-        "4-Pay",
-        "CUSTOM"
-      ]
-    },
-    "public.disputed_status": {
-      "name": "disputed_status",
-      "schema": "public",
-      "values": [
-        "Not Disputed",
-        "Disputed",
-        "Evidence Submtited",
-        "Dispute Won",
-        "Dispute Lost"
-      ]
-    }
-  },
-  "schemas": {},
-  "sequences": {},
-  "roles": {},
-  "policies": {},
-  "views": {},
-  "_meta": {
-    "columns": {},
-    "schemas": {},
-    "tables": {}
-  }
+	"id": "a8574016-08f4-4b22-abe2-121b537db1ab",
+	"prevId": "00000000-0000-0000-0000-000000000000",
+	"version": "7",
+	"dialect": "postgresql",
+	"tables": {
+		"public.client_activity_period": {
+			"name": "client_activity_period",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"coach_id": {
+					"name": "coach_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"start_date": {
+					"name": "start_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"end_date": {
+					"name": "end_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"active": {
+					"name": "active",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"client_activity_period_client_id_clients_id_fk": {
+					"name": "client_activity_period_client_id_clients_id_fk",
+					"tableFrom": "client_activity_period",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"client_activity_period_coach_id_user_id_fk": {
+					"name": "client_activity_period_coach_id_user_id_fk",
+					"tableFrom": "client_activity_period",
+					"tableTo": "user",
+					"columnsFrom": ["coach_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.client_assignments": {
+			"name": "client_assignments",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"user_id": {
+					"name": "user_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"assignment_type": {
+					"name": "assignment_type",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"start_date": {
+					"name": "start_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"end_date": {
+					"name": "end_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"assigned_by": {
+					"name": "assigned_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"client_assignments_client_id_clients_id_fk": {
+					"name": "client_assignments_client_id_clients_id_fk",
+					"tableFrom": "client_assignments",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"client_assignments_user_id_user_id_fk": {
+					"name": "client_assignments_user_id_user_id_fk",
+					"tableFrom": "client_assignments",
+					"tableTo": "user",
+					"columnsFrom": ["user_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"client_assignments_assigned_by_user_id_fk": {
+					"name": "client_assignments_assigned_by_user_id_fk",
+					"tableFrom": "client_assignments",
+					"tableTo": "user",
+					"columnsFrom": ["assigned_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.client_goals": {
+			"name": "client_goals",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"goal_type_id": {
+					"name": "goal_type_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"title": {
+					"name": "title",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"notes": {
+					"name": "notes",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"target_value": {
+					"name": "target_value",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"current_value": {
+					"name": "current_value",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"status": {
+					"name": "status",
+					"type": "status",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'pending'"
+				},
+				"priority": {
+					"name": "priority",
+					"type": "priority",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'medium'"
+				},
+				"started_at": {
+					"name": "started_at",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"due_date": {
+					"name": "due_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"completed_at": {
+					"name": "completed_at",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_by": {
+					"name": "created_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"updated_by": {
+					"name": "updated_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"client_goals_client_id_clients_id_fk": {
+					"name": "client_goals_client_id_clients_id_fk",
+					"tableFrom": "client_goals",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"client_goals_goal_type_id_goal_types_id_fk": {
+					"name": "client_goals_goal_type_id_goal_types_id_fk",
+					"tableFrom": "client_goals",
+					"tableTo": "goal_types",
+					"columnsFrom": ["goal_type_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"client_goals_created_by_user_id_fk": {
+					"name": "client_goals_created_by_user_id_fk",
+					"tableFrom": "client_goals",
+					"tableTo": "user",
+					"columnsFrom": ["created_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"client_goals_updated_by_user_id_fk": {
+					"name": "client_goals_updated_by_user_id_fk",
+					"tableFrom": "client_goals",
+					"tableTo": "user",
+					"columnsFrom": ["updated_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.client_nps": {
+			"name": "client_nps",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"nps_score": {
+					"name": "nps_score",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"recorded_date": {
+					"name": "recorded_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"recorded_by": {
+					"name": "recorded_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"notes": {
+					"name": "notes",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"provided_by": {
+					"name": "provided_by",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"client_nps_recorded_by_user_id_fk": {
+					"name": "client_nps_recorded_by_user_id_fk",
+					"tableFrom": "client_nps",
+					"tableTo": "user",
+					"columnsFrom": ["recorded_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"client_nps_provided_by_clients_id_fk": {
+					"name": "client_nps_provided_by_clients_id_fk",
+					"tableFrom": "client_nps",
+					"tableTo": "clients",
+					"columnsFrom": ["provided_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.client_testimonials": {
+			"name": "client_testimonials",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"testimonial_type": {
+					"name": "testimonial_type",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"testimonial_url": {
+					"name": "testimonial_url",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"content": {
+					"name": "content",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"recorded_date": {
+					"name": "recorded_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"recorded_by": {
+					"name": "recorded_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"client_testimonials_client_id_clients_id_fk": {
+					"name": "client_testimonials_client_id_clients_id_fk",
+					"tableFrom": "client_testimonials",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"client_testimonials_recorded_by_user_id_fk": {
+					"name": "client_testimonials_recorded_by_user_id_fk",
+					"tableFrom": "client_testimonials",
+					"tableTo": "user",
+					"columnsFrom": ["recorded_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.clients": {
+			"name": "clients",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"email": {
+					"name": "email",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"phone": {
+					"name": "phone",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"vip_terms_signed": {
+					"name": "vip_terms_signed",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"everfit_access": {
+					"name": "everfit_access",
+					"type": "everfit_access",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "'new'"
+				},
+				"onboarding_call_completed": {
+					"name": "onboarding_call_completed",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"two_week_check_in_call_completed": {
+					"name": "two_week_check_in_call_completed",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": false
+				},
+				"onboarding_notes": {
+					"name": "onboarding_notes",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"overall_status": {
+					"name": "overall_status",
+					"type": "client_overall_status",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": false,
+					"default": "'new'"
+				},
+				"onboarding_completed_date": {
+					"name": "onboarding_completed_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"offboard_date": {
+					"name": "offboard_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"team_ids": {
+					"name": "team_ids",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.coach_capacity": {
+			"name": "coach_capacity",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"coach_id": {
+					"name": "coach_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"max_total_clients": {
+					"name": "max_total_clients",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"max_client_units": {
+					"name": "max_client_units",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"coach_capacity_coach_id_user_id_fk": {
+					"name": "coach_capacity_coach_id_user_id_fk",
+					"tableFrom": "coach_capacity",
+					"tableTo": "user",
+					"columnsFrom": ["coach_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.coach_teams": {
+			"name": "coach_teams",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"premier_coach_id": {
+					"name": "premier_coach_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"coach_id": {
+					"name": "coach_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"start_date": {
+					"name": "start_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"end_date": {
+					"name": "end_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"coach_teams_premier_coach_id_user_id_fk": {
+					"name": "coach_teams_premier_coach_id_user_id_fk",
+					"tableFrom": "coach_teams",
+					"tableTo": "user",
+					"columnsFrom": ["premier_coach_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"coach_teams_coach_id_user_id_fk": {
+					"name": "coach_teams_coach_id_user_id_fk",
+					"tableFrom": "coach_teams",
+					"tableTo": "user",
+					"columnsFrom": ["coach_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.goal_categories": {
+			"name": "goal_categories",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"is_active": {
+					"name": "is_active",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.goal_types": {
+			"name": "goal_types",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"icon": {
+					"name": "icon",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"category": {
+					"name": "category",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"default_duration_days": {
+					"name": "default_duration_days",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"is_measurable": {
+					"name": "is_measurable",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": true
+				},
+				"unit_of_measures": {
+					"name": "unit_of_measures",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"is_active": {
+					"name": "is_active",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": true
+				},
+				"category_id": {
+					"name": "category_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"goal_types_category_id_goal_categories_id_fk": {
+					"name": "goal_types_category_id_goal_categories_id_fk",
+					"tableFrom": "goal_types",
+					"tableTo": "goal_categories",
+					"columnsFrom": ["category_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.coach_payments": {
+			"name": "coach_payments",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"coach_id": {
+					"name": "coach_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"amount": {
+					"name": "amount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"client_activity_period_id": {
+					"name": "client_activity_period_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"coach_payments_coach_id_user_id_fk": {
+					"name": "coach_payments_coach_id_user_id_fk",
+					"tableFrom": "coach_payments",
+					"tableTo": "user",
+					"columnsFrom": ["coach_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"coach_payments_client_activity_period_id_client_activity_period_id_fk": {
+					"name": "coach_payments_client_activity_period_id_client_activity_period_id_fk",
+					"tableFrom": "coach_payments",
+					"tableTo": "client_activity_period",
+					"columnsFrom": ["client_activity_period_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.payment_plan_template_items": {
+			"name": "payment_plan_template_items",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"payment_plan_template_id": {
+					"name": "payment_plan_template_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"amount_due": {
+					"name": "amount_due",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"months_to_delay": {
+					"name": "months_to_delay",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"payment_plan_template_items_payment_plan_template_id_payment_plan_templates_id_fk": {
+					"name": "payment_plan_template_items_payment_plan_template_id_payment_plan_templates_id_fk",
+					"tableFrom": "payment_plan_template_items",
+					"tableTo": "payment_plan_templates",
+					"columnsFrom": ["payment_plan_template_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.payment_plan_templates": {
+			"name": "payment_plan_templates",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"name": {
+					"name": "name",
+					"type": "payment_plan_frequency",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"product_id": {
+					"name": "product_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"default_total_amount_owed": {
+					"name": "default_total_amount_owed",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"payment_plan_templates_product_id_products_id_fk": {
+					"name": "payment_plan_templates_product_id_products_id_fk",
+					"tableFrom": "payment_plan_templates",
+					"tableTo": "products",
+					"columnsFrom": ["product_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.payment_plans": {
+			"name": "payment_plans",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"type": {
+					"name": "type",
+					"type": "payment_plan_frequency",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"term_start_date": {
+					"name": "term_start_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"term_end_date": {
+					"name": "term_end_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"product_id": {
+					"name": "product_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"total_amount": {
+					"name": "total_amount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false,
+					"default": 0
+				},
+				"total_amount_paid": {
+					"name": "total_amount_paid",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false,
+					"default": 0
+				},
+				"notes": {
+					"name": "notes",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"subscription_id": {
+					"name": "subscription_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"platform": {
+					"name": "platform",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"payment_plans_client_id_clients_id_fk": {
+					"name": "payment_plans_client_id_clients_id_fk",
+					"tableFrom": "payment_plans",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"payment_plans_product_id_products_id_fk": {
+					"name": "payment_plans_product_id_products_id_fk",
+					"tableFrom": "payment_plans",
+					"tableTo": "products",
+					"columnsFrom": ["product_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.payment_slots": {
+			"name": "payment_slots",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"plan_id": {
+					"name": "plan_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"payment_id": {
+					"name": "payment_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"due_date": {
+					"name": "due_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"amount_due": {
+					"name": "amount_due",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"notes": {
+					"name": "notes",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"amount_paid": {
+					"name": "amount_paid",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": true,
+					"default": 0
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"payment_slots_plan_id_payment_plans_id_fk": {
+					"name": "payment_slots_plan_id_payment_plans_id_fk",
+					"tableFrom": "payment_slots",
+					"tableTo": "payment_plans",
+					"columnsFrom": ["plan_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"payment_slots_payment_id_payments_id_fk": {
+					"name": "payment_slots_payment_id_payments_id_fk",
+					"tableFrom": "payment_slots",
+					"tableTo": "payments",
+					"columnsFrom": ["payment_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.payments": {
+			"name": "payments",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"amount": {
+					"name": "amount",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false,
+					"default": 0
+				},
+				"payment_date": {
+					"name": "payment_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"payment_method": {
+					"name": "payment_method",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"stripe_transaction_id": {
+					"name": "stripe_transaction_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"status": {
+					"name": "status",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"platform": {
+					"name": "platform",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"declined_at": {
+					"name": "declined_at",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"disputed_status": {
+					"name": "disputed_status",
+					"type": "disputed_status",
+					"typeSchema": "public",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"dispute_fee": {
+					"name": "dispute_fee",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false,
+					"default": 0
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.products": {
+			"name": "products",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"default_duration_months": {
+					"name": "default_duration_months",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false,
+					"default": 0
+				},
+				"is_active": {
+					"name": "is_active",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": true
+				},
+				"client_unit": {
+					"name": "client_unit",
+					"type": "integer",
+					"primaryKey": false,
+					"notNull": false,
+					"default": 0
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.audit_log": {
+			"name": "audit_log",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.financial_settings": {
+			"name": "financial_settings",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"setting_name": {
+					"name": "setting_name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"setting_value": {
+					"name": "setting_value",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"effective_date": {
+					"name": "effective_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_by": {
+					"name": "created_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"financial_settings_created_by_user_id_fk": {
+					"name": "financial_settings_created_by_user_id_fk",
+					"tableFrom": "financial_settings",
+					"tableTo": "user",
+					"columnsFrom": ["created_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.roles": {
+			"name": "roles",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"permissions": {
+					"name": "permissions",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {
+				"roles_name_unique": {
+					"name": "roles_name_unique",
+					"nullsNotDistinct": false,
+					"columns": ["name"]
+				}
+			},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.client_win_tags": {
+			"name": "client_win_tags",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"win_id": {
+					"name": "win_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"tag_id": {
+					"name": "tag_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"client_win_tags_win_id_client_wins_id_fk": {
+					"name": "client_win_tags_win_id_client_wins_id_fk",
+					"tableFrom": "client_win_tags",
+					"tableTo": "client_wins",
+					"columnsFrom": ["win_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"client_win_tags_tag_id_win_tags_id_fk": {
+					"name": "client_win_tags_tag_id_win_tags_id_fk",
+					"tableFrom": "client_win_tags",
+					"tableTo": "win_tags",
+					"columnsFrom": ["tag_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.client_wins": {
+			"name": "client_wins",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"client_id": {
+					"name": "client_id",
+					"type": "uuid",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"title": {
+					"name": "title",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"description": {
+					"name": "description",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"win_date": {
+					"name": "win_date",
+					"type": "date",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"recorded_by": {
+					"name": "recorded_by",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"client_wins_client_id_clients_id_fk": {
+					"name": "client_wins_client_id_clients_id_fk",
+					"tableFrom": "client_wins",
+					"tableTo": "clients",
+					"columnsFrom": ["client_id"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				},
+				"client_wins_recorded_by_user_id_fk": {
+					"name": "client_wins_recorded_by_user_id_fk",
+					"tableFrom": "client_wins",
+					"tableTo": "user",
+					"columnsFrom": ["recorded_by"],
+					"columnsTo": ["id"],
+					"onDelete": "no action",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.win_tags": {
+			"name": "win_tags",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "uuid",
+					"primaryKey": true,
+					"notNull": true,
+					"default": "gen_random_uuid()"
+				},
+				"name": {
+					"name": "name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"color": {
+					"name": "color",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		}
+	},
+	"enums": {
+		"public.priority": {
+			"name": "priority",
+			"schema": "public",
+			"values": ["high", "medium", "low"]
+		},
+		"public.status": {
+			"name": "status",
+			"schema": "public",
+			"values": ["pending", "in_progress", "completed", "cancelled", "overdue"]
+		},
+		"public.client_overall_status": {
+			"name": "client_overall_status",
+			"schema": "public",
+			"values": ["new", "live", "paused", "churned"]
+		},
+		"public.everfit_access": {
+			"name": "everfit_access",
+			"schema": "public",
+			"values": ["new", "requested", "confirmed"]
+		},
+		"public.payment_plan_frequency": {
+			"name": "payment_plan_frequency",
+			"schema": "public",
+			"values": ["PIF", "2-Pay", "Split Pay", "4-Pay", "CUSTOM"]
+		},
+		"public.disputed_status": {
+			"name": "disputed_status",
+			"schema": "public",
+			"values": [
+				"Not Disputed",
+				"Disputed",
+				"Evidence Submtited",
+				"Dispute Won",
+				"Dispute Lost"
+			]
+		}
+	},
+	"schemas": {},
+	"sequences": {},
+	"roles": {},
+	"policies": {},
+	"views": {},
+	"_meta": {
+		"columns": {},
+		"schemas": {},
+		"tables": {}
+	}
 }

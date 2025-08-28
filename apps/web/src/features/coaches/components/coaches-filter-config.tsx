@@ -1,10 +1,11 @@
 import { createUniversalColumnHelper } from "@/components/universal-data-table/utils/column-helpers";
+
 import {
+	FileTextIcon,
 	MailIcon,
 	TagIcon,
 	UserIcon,
 	UsersIcon,
-	FileTextIcon,
 } from "lucide-react";
 import type { CoachRow } from "../types";
 
@@ -12,11 +13,7 @@ import type { CoachRow } from "../types";
 const universalColumnHelper = createUniversalColumnHelper<CoachRow>();
 
 export const coachesFilterConfig = [
-	universalColumnHelper
-		.text("name")
-		.displayName("Name")
-		.icon(UserIcon)
-		.build(),
+	universalColumnHelper.text("name").displayName("Name").icon(UserIcon).build(),
 	universalColumnHelper
 		.text("email")
 		.displayName("Email")
