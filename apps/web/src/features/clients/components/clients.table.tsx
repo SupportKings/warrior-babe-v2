@@ -42,12 +42,12 @@ import { ClientDeleteModal } from "./client.delete.modal";
 type ClientRow = Database["public"]["Tables"]["clients"]["Row"] & {
 	client_assignments?: Array<{
 		id: string;
-		coach_id: number | null;
+		coach_id: string | null;
 		assignment_type: string;
 		start_date: string;
 		end_date: string | null;
 		coach: {
-			id: number;
+			id: string;
 			name: string | null;
 			user: {
 				id: string;

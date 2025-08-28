@@ -51,7 +51,7 @@ export function ManageAssignmentModal({
 	const { data: coaches = [] } = useActiveCoaches();
 
 	const [formData, setFormData] = useState({
-		coach_id: null as number | null,
+		coach_id: null as string | null,
 		start_date: format(new Date(), "yyyy-MM-dd"),
 		end_date: "",
 		assignment_type: "",
@@ -156,11 +156,11 @@ export function ManageAssignmentModal({
 					<div>
 						<Label htmlFor="coach_id">Coach *</Label>
 						<Select
-							value={formData.coach_id ? formData.coach_id.toString() : "none"}
+							value={formData.coach_id ? formData.coach_id : "none"}
 							onValueChange={(value) =>
 								setFormData({
 									...formData,
-									coach_id: value === "none" ? null : Number.parseInt(value),
+									coach_id: value === "none" ? null : value,
 								})
 							}
 						>
