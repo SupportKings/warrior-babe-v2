@@ -40,7 +40,7 @@ export async function createCoachPayment(input: CreateCoachPaymentInput) {
     const { data: payment, error } = await supabase
       .from("coach_payments")
       .insert({
-        coach_id: validatedInput.coach_id as any,
+        coach_id: validatedInput.coach_id,
         client_activity_period_id: validatedInput.client_activity_period_id,
         amount: validatedInput.amount,
         status: validatedInput.status,
@@ -122,17 +122,9 @@ export async function updateCoachPayment(input: UpdateCoachPaymentInput) {
       };
     }
 
-    // Get coach_id to revalidate the correct page
-    const { data: paymentData } = await supabase
-      .from("coach_payments")
-      .select("coach_id")
-      .eq("id", validatedInput.id)
-      .single();
-
-    if (paymentData) {
-      revalidatePath(`/dashboard/coaches/${paymentData.coach_id}`);
+    if (payment?.coach_id) {
+      revalidatePath(`/dashboard/coaches/${payment.coach_id}`);
     }
-
     return {
       success: true,
       data: payment,
@@ -248,11 +240,11 @@ export async function getCoachClientActivityPeriods(coachId: string) {
         )
       `
       )
-      .eq("coach_id", coachId as any) // Try with string first, as it might be UUID
+      .eq("coach_id", coachId) // Try with string first, as it might be UUID
       .order("start_date", { ascending: false });
 
     let finalActivityPeriods = activityPeriods || [];
-    
+
     if (error) {
       console.error("Error fetching client activity periods:", error);
 
@@ -265,7 +257,7 @@ export async function getCoachClientActivityPeriods(coachId: string) {
           client_id
         `
           )
-          .eq("coach_id", coachId as any);
+          .eq("coach_id", coachId);
 
       if (assignmentsError) {
         console.error("Error fetching client assignments:", assignmentsError);
@@ -328,10 +320,6 @@ export async function getCoachClientActivityPeriods(coachId: string) {
         endDate: period.end_date,
         active: period.active,
       })) || [];
-
-    console.log(
-      `Found ${formattedPeriods.length} activity periods for coach ${coachId}`
-    );
 
     return formattedPeriods;
   } catch (error) {

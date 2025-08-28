@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 
+
 // Get basic coach information with user and team details
 export async function getCoachBasicInfo(id: string) {
   try {
@@ -157,7 +158,6 @@ export async function getCoachPayments(coachId: string) {
       );
     }
 
-
     // Process payments with client counts
     const processedPayments =
       coachPayments?.map((payment) => {
@@ -206,4 +206,3 @@ export async function getCoach(id: string) {
     return null;
   }
 }
-

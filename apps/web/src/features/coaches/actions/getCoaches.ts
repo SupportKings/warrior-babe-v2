@@ -100,7 +100,6 @@ export async function getCoachesWithFaceted(
         const values = filter.values;
         const operator = filter.operator || "is";
         const columnId = filter.columnId;
-        console.log("columnID", columnId, "values:", values, "operator:", operator);
         // Apply filter based on column type and operator
         switch (columnId) {
           case "name":
@@ -115,14 +114,11 @@ export async function getCoachesWithFaceted(
 
           case "premier_coach_id":
             // Filter by premier coach ID - need to filter where the team's premier_coach_id matches
-            console.log("APPLYING PREMIER COACH FILTER:", values, operator);
             if (operator === "is") {
               if (values.length === 1) {
-                console.log("Filtering by single premier coach ID:", values[0]);
                 // Filter team members whose team has this premier coach
                 query = query.filter("team.premier_coach_id", "eq", values[0]);
               } else if (values.length > 1) {
-                console.log("Filtering by multiple premier coach IDs:", values);
                 // For multiple values, use IN
                 query = query.filter("team.premier_coach_id", "in", `(${values.join(",")})`);
               }
@@ -133,7 +129,6 @@ export async function getCoachesWithFaceted(
                 query = query.not("team.premier_coach_id", "in", `(${values.join(",")})`);
               }
             }
-            console.log("Query after premier coach filter applied");
             break;
 
           case "contract_type":

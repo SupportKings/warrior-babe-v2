@@ -76,6 +76,7 @@ export function CoachPaymentsTable({ payments, coachId }: CoachPaymentsTableProp
           {payments && payments.length > 0 ? (
             <UniversalDataTable
               table={tableConfig.table}
+              totalCount={tableConfig.totalCount}
             />
           ) : (
             <div className="flex flex-col items-center justify-center py-8 text-center">

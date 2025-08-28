@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { format } from "date-fns";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { Calendar, Mail, User, Users, Briefcase, Crown } from "lucide-react";
@@ -15,7 +15,7 @@ interface CoachGeneralInfoProps {
 
 export function CoachGeneralInfo({ coach }: CoachGeneralInfoProps) {
   const roles = coach.user?.role || null;
-  
+
   const rolesList = roles
     ? roles
         .split(",")
@@ -47,7 +47,7 @@ export function CoachGeneralInfo({ coach }: CoachGeneralInfoProps) {
         <div className="flex items-center gap-4">
           <Avatar className="h-16 w-16">
             {coach.user?.image ? (
-              <Image src={coach.user.image} alt={""} />
+              <AvatarImage src={coach.user.image} alt={coach.name ?? ""} />
             ) : (
               <AvatarFallback className="bg-primary/10 text-lg font-semibold">
                 {getInitials(coach.name)}
@@ -81,9 +81,7 @@ export function CoachGeneralInfo({ coach }: CoachGeneralInfoProps) {
               <Mail className="h-4 w-4" />
               <span>Email</span>
             </div>
-            <p className="font-medium">
-              {coach.user?.email || "Not provided"}
-            </p>
+            <p className="font-medium">{coach.user?.email || "Not provided"}</p>
           </div>
 
           {/* Contract Type */}
@@ -129,9 +127,7 @@ export function CoachGeneralInfo({ coach }: CoachGeneralInfoProps) {
             </div>
             <div className="flex flex-wrap gap-1">
               {!rolesList && (
-                <span className="text-sm text-muted-foreground">
-                  No roles
-                </span>
+                <span className="text-sm text-muted-foreground">No roles</span>
               )}
               {rolesList &&
                 rolesList.map((role: string, index: number) => (
