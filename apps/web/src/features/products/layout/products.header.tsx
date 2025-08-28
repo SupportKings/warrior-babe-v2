@@ -13,7 +13,7 @@ export default function ProductsHeader() {
 				<h1 className="font-medium text-[13px] ">Products </h1>
 			</div>
 			<Button asChild>
-				<Link href="#" className="flex items-center gap-2">
+				<Link href="/dashboard/system-config/products/add" className="flex items-center gap-2">
 					<PackagePlusIcon className="mr-[6px] h-4 w-4" />
 					Add Product
 				</Link>
