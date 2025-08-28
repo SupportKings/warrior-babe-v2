@@ -2,6 +2,164 @@
 
 import { createClient } from "@/utils/supabase/server";
 
+import { z } from "zod";
+
+// Zod schemas for type safety
+const FilterSchema = z.object({
+	columnId: z.string(),
+	operator: z.string().optional().default("is"),
+	values: z.array(z.unknown()),
+});
+
+const SortingSchema = z.object({
+	id: z.string(),
+	desc: z.boolean().optional().default(false),
+});
+
+// TypeScript types derived from schemas
+type Filter = z.infer<typeof FilterSchema>;
+type Sorting = z.infer<typeof SortingSchema>;
+
+// Shared helper function to apply filters to a query
+function applyProductFilters(
+	query: any,
+	filters: Filter[],
+	excludeColumnId?: string,
+) {
+	let filteredQuery = query;
+
+	filters.forEach((filter) => {
+		// Skip if this column should be excluded or if no values
+		if (
+			filter.columnId === excludeColumnId ||
+			!filter.values ||
+			filter.values.length === 0
+		) {
+			return;
+		}
+
+		const { columnId, operator = "is", values } = filter;
+
+		// Apply filter based on column type and operator
+		switch (columnId) {
+			case "name":
+			case "description":
+				// Text fields - support contains/does not contain
+				if (operator === "contains") {
+					filteredQuery = filteredQuery.ilike(
+						columnId,
+						`%${String(values[0])}%`,
+					);
+				} else if (operator === "does not contain") {
+					filteredQuery = filteredQuery.not(
+						columnId,
+						"ilike",
+						`%${String(values[0])}%`,
+					);
+				}
+				break;
+
+			case "is_active":
+				// Boolean field
+				if (operator === "is") {
+					filteredQuery = filteredQuery.eq(
+						columnId,
+						String(values[0]) === "true",
+					);
+				} else if (operator === "is not") {
+					filteredQuery = filteredQuery.not(
+						columnId,
+						"eq",
+						String(values[0]) === "true",
+					);
+				} else if (operator === "is any of") {
+					const boolValues = values.map((v) => String(v) === "true");
+					filteredQuery = filteredQuery.in(columnId, boolValues);
+				} else if (operator === "is none of") {
+					const boolValues = values.map((v) => String(v) === "true");
+					filteredQuery = filteredQuery.not(
+						columnId,
+						"in",
+						`(${boolValues.join(",")})`,
+					);
+				}
+				break;
+
+			case "default_duration_months":
+				// Number field
+				if (operator === "is") {
+					filteredQuery = filteredQuery.eq(
+						columnId,
+						Number.parseInt(String(values[0])),
+					);
+				} else if (operator === "is not") {
+					filteredQuery = filteredQuery.not(
+						columnId,
+						"eq",
+						Number.parseInt(String(values[0])),
+					);
+				} else if (operator === "is greater than") {
+					filteredQuery = filteredQuery.gt(
+						columnId,
+						Number.parseInt(String(values[0])),
+					);
+				} else if (operator === "is greater than or equal to") {
+					filteredQuery = filteredQuery.gte(
+						columnId,
+						Number.parseInt(String(values[0])),
+					);
+				} else if (operator === "is less than") {
+					filteredQuery = filteredQuery.lt(
+						columnId,
+						Number.parseInt(String(values[0])),
+					);
+				} else if (operator === "is less than or equal to") {
+					filteredQuery = filteredQuery.lte(
+						columnId,
+						Number.parseInt(String(values[0])),
+					);
+				} else if (operator === "is between" && values.length === 2) {
+					filteredQuery = filteredQuery
+						.gte(columnId, Number.parseInt(String(values[0])))
+						.lte(columnId, Number.parseInt(String(values[1])));
+				} else if (operator === "is not between" && values.length === 2) {
+					filteredQuery = filteredQuery.or(
+						`${columnId}.lt.${Number.parseInt(String(values[0]))},${columnId}.gt.${Number.parseInt(String(values[1]))}`,
+					);
+				}
+				break;
+
+			case "created_at":
+			case "updated_at":
+				// Date fields - support various date operators
+				if (operator === "is") {
+					filteredQuery = filteredQuery.eq(columnId, String(values[0]));
+				} else if (operator === "is not") {
+					filteredQuery = filteredQuery.not(columnId, "eq", String(values[0]));
+				} else if (operator === "is before") {
+					filteredQuery = filteredQuery.lt(columnId, String(values[0]));
+				} else if (operator === "is on or before") {
+					filteredQuery = filteredQuery.lte(columnId, String(values[0]));
+				} else if (operator === "is after") {
+					filteredQuery = filteredQuery.gt(columnId, String(values[0]));
+				} else if (operator === "is on or after") {
+					filteredQuery = filteredQuery.gte(columnId, String(values[0]));
+				} else if (operator === "is between" && values.length === 2) {
+					filteredQuery = filteredQuery
+						.gte(columnId, String(values[0]))
+						.lte(columnId, String(values[1]));
+				} else if (operator === "is not between" && values.length === 2) {
+					filteredQuery = filteredQuery.or(
+						`${columnId}.lt.${String(values[0])},${columnId}.gt.${String(values[1])}`,
+					);
+				}
+				break;
+		}
+	});
+
+	return filteredQuery;
+}
+
 export async function getProduct(id: string) {
 	try {
 		const supabase = await createClient();
@@ -69,105 +227,26 @@ export async function getAllProducts() {
 }
 
 export async function getProductsWithFilters(
-	filters: any[] = [],
+	filters: Filter[] = [],
 	page = 0,
 	pageSize = 25,
-	sorting: any[] = [],
+	sorting: Sorting[] = [],
 ) {
 	try {
+		// Validate and parse input parameters
+		const validatedFilters = z.array(FilterSchema).parse(filters);
+		const validatedSorting = z.array(SortingSchema).parse(sorting);
+
 		const supabase = await createClient();
 
 		let query = supabase.from("products").select("*", { count: "exact" });
 
-		// Apply filters with proper operator support
-		filters.forEach((filter) => {
-			if (filter.values && filter.values.length > 0) {
-				const values = filter.values;
-				const operator = filter.operator || "is";
-				const columnId = filter.columnId;
-
-				// Apply filter based on column type and operator
-				switch (columnId) {
-					case "name":
-					case "description":
-						// Text fields - support contains/does not contain
-						if (operator === "contains") {
-							query = query.ilike(columnId, `%${values[0]}%`);
-						} else if (operator === "does not contain") {
-							query = query.not(columnId, "ilike", `%${values[0]}%`);
-						}
-						break;
-
-					case "is_active":
-						// Boolean field
-						if (operator === "is") {
-							query = query.eq(columnId, values[0] === "true");
-						} else if (operator === "is not") {
-							query = query.not(columnId, "eq", values[0] === "true");
-						} else if (operator === "is any of") {
-							const boolValues = values.map((v: string) => v === "true");
-							query = query.in(columnId, boolValues);
-						} else if (operator === "is none of") {
-							const boolValues = values.map((v: string) => v === "true");
-							query = query.not(columnId, "in", `(${boolValues.join(",")})`);
-						}
-						break;
-
-					case "default_duration_months":
-						// Number field
-						if (operator === "is") {
-							query = query.eq(columnId, Number.parseInt(values[0]));
-						} else if (operator === "is not") {
-							query = query.not(columnId, "eq", Number.parseInt(values[0]));
-						} else if (operator === "is greater than") {
-							query = query.gt(columnId, Number.parseInt(values[0]));
-						} else if (operator === "is greater than or equal to") {
-							query = query.gte(columnId, Number.parseInt(values[0]));
-						} else if (operator === "is less than") {
-							query = query.lt(columnId, Number.parseInt(values[0]));
-						} else if (operator === "is less than or equal to") {
-							query = query.lte(columnId, Number.parseInt(values[0]));
-						} else if (operator === "is between" && values.length === 2) {
-							query = query
-								.gte(columnId, Number.parseInt(values[0]))
-								.lte(columnId, Number.parseInt(values[1]));
-						} else if (operator === "is not between" && values.length === 2) {
-							query = query.or(
-								`${columnId}.lt.${Number.parseInt(values[0])},${columnId}.gt.${Number.parseInt(values[1])}`,
-							);
-						}
-						break;
-
-					case "created_at":
-					case "updated_at":
-						// Date fields - support various date operators
-						if (operator === "is") {
-							query = query.eq(columnId, values[0]);
-						} else if (operator === "is not") {
-							query = query.not(columnId, "eq", values[0]);
-						} else if (operator === "is before") {
-							query = query.lt(columnId, values[0]);
-						} else if (operator === "is on or before") {
-							query = query.lte(columnId, values[0]);
-						} else if (operator === "is after") {
-							query = query.gt(columnId, values[0]);
-						} else if (operator === "is on or after") {
-							query = query.gte(columnId, values[0]);
-						} else if (operator === "is between" && values.length === 2) {
-							query = query.gte(columnId, values[0]).lte(columnId, values[1]);
-						} else if (operator === "is not between" && values.length === 2) {
-							query = query.or(
-								`${columnId}.lt.${values[0]},${columnId}.gt.${values[1]}`,
-							);
-						}
-						break;
-				}
-			}
-		});
+		// Apply filters using the shared helper
+		query = applyProductFilters(query, validatedFilters);
 
 		// Apply sorting
-		if (sorting.length > 0) {
-			const sort = sorting[0];
+		if (validatedSorting.length > 0) {
+			const sort = validatedSorting[0];
 			query = query.order(sort.id, { ascending: !sort.desc });
 		} else {
 			query = query.order("created_at", { ascending: false });
@@ -194,21 +273,25 @@ export async function getProductsWithFilters(
 
 // Combined query for products with faceted data - optimized single call
 export async function getProductsWithFaceted(
-	filters: any[] = [],
+	filters: Filter[] = [],
 	page = 0,
 	pageSize = 25,
-	sorting: any[] = [],
+	sorting: Sorting[] = [],
 	facetedColumns: string[] = ["is_active"],
 ) {
 	try {
+		// Validate and parse input parameters
+		const validatedFilters = z.array(FilterSchema).parse(filters);
+		const validatedSorting = z.array(SortingSchema).parse(sorting);
+
 		const supabase = await createClient();
 
 		// Get main products data
 		const productsResult = await getProductsWithFilters(
-			filters,
+			validatedFilters,
 			page,
 			pageSize,
-			sorting,
+			validatedSorting,
 		);
 
 		// Get faceted data for each requested column
@@ -221,138 +304,12 @@ export async function getProductsWithFaceted(
 					.from("products")
 					.select(columnId, { count: "exact" });
 
-				// Apply existing filters (excluding the column we're faceting) using same operator logic
-				filters
-					.filter((filter) => filter.columnId !== columnId)
-					.forEach((filter) => {
-						if (filter.values && filter.values.length > 0) {
-							const values = filter.values;
-							const operator = filter.operator || "is";
-							const filterColumnId = filter.columnId;
-
-							// Apply same operator logic as main query
-							switch (filterColumnId) {
-								case "name":
-								case "description":
-									if (operator === "contains") {
-										facetQuery = facetQuery.ilike(
-											filterColumnId,
-											`%${values[0]}%`,
-										);
-									} else if (operator === "does not contain") {
-										facetQuery = facetQuery.not(
-											filterColumnId,
-											"ilike",
-											`%${values[0]}%`,
-										);
-									}
-									break;
-
-								case "is_active":
-									if (operator === "is") {
-										facetQuery = facetQuery.eq(
-											filterColumnId,
-											values[0] === "true",
-										);
-									} else if (operator === "is not") {
-										facetQuery = facetQuery.not(
-											filterColumnId,
-											"eq",
-											values[0] === "true",
-										);
-									} else if (operator === "is any of") {
-										const boolValues = values.map((v: string) => v === "true");
-										facetQuery = facetQuery.in(filterColumnId, boolValues);
-									} else if (operator === "is none of") {
-										const boolValues = values.map((v: string) => v === "true");
-										facetQuery = facetQuery.not(
-											filterColumnId,
-											"in",
-											`(${boolValues.join(",")})`,
-										);
-									}
-									break;
-
-								case "default_duration_months":
-									if (operator === "is") {
-										facetQuery = facetQuery.eq(
-											filterColumnId,
-											Number.parseInt(values[0]),
-										);
-									} else if (operator === "is not") {
-										facetQuery = facetQuery.not(
-											filterColumnId,
-											"eq",
-											Number.parseInt(values[0]),
-										);
-									} else if (operator === "is greater than") {
-										facetQuery = facetQuery.gt(
-											filterColumnId,
-											Number.parseInt(values[0]),
-										);
-									} else if (operator === "is greater than or equal to") {
-										facetQuery = facetQuery.gte(
-											filterColumnId,
-											Number.parseInt(values[0]),
-										);
-									} else if (operator === "is less than") {
-										facetQuery = facetQuery.lt(
-											filterColumnId,
-											Number.parseInt(values[0]),
-										);
-									} else if (operator === "is less than or equal to") {
-										facetQuery = facetQuery.lte(
-											filterColumnId,
-											Number.parseInt(values[0]),
-										);
-									} else if (operator === "is between" && values.length === 2) {
-										facetQuery = facetQuery
-											.gte(filterColumnId, Number.parseInt(values[0]))
-											.lte(filterColumnId, Number.parseInt(values[1]));
-									} else if (
-										operator === "is not between" &&
-										values.length === 2
-									) {
-										facetQuery = facetQuery.or(
-											`${filterColumnId}.lt.${Number.parseInt(values[0])},${filterColumnId}.gt.${Number.parseInt(values[1])}`,
-										);
-									}
-									break;
-
-								case "created_at":
-								case "updated_at":
-									if (operator === "is") {
-										facetQuery = facetQuery.eq(filterColumnId, values[0]);
-									} else if (operator === "is not") {
-										facetQuery = facetQuery.not(
-											filterColumnId,
-											"eq",
-											values[0],
-										);
-									} else if (operator === "is before") {
-										facetQuery = facetQuery.lt(filterColumnId, values[0]);
-									} else if (operator === "is on or before") {
-										facetQuery = facetQuery.lte(filterColumnId, values[0]);
-									} else if (operator === "is after") {
-										facetQuery = facetQuery.gt(filterColumnId, values[0]);
-									} else if (operator === "is on or after") {
-										facetQuery = facetQuery.gte(filterColumnId, values[0]);
-									} else if (operator === "is between" && values.length === 2) {
-										facetQuery = facetQuery
-											.gte(filterColumnId, values[0])
-											.lte(filterColumnId, values[1]);
-									} else if (
-										operator === "is not between" &&
-										values.length === 2
-									) {
-										facetQuery = facetQuery.or(
-											`${filterColumnId}.lt.${values[0]},${filterColumnId}.gt.${values[1]}`,
-										);
-									}
-									break;
-							}
-						}
-					});
+				// Apply existing filters (excluding the column we're faceting) using shared helper
+				facetQuery = applyProductFilters(
+					facetQuery,
+					validatedFilters,
+					columnId,
+				);
 
 				const { data: facetData, error: facetError } = await facetQuery;
 
@@ -396,106 +353,18 @@ export async function getProductsWithFaceted(
 
 export async function getProductsFaceted(
 	columnId: string,
-	filters: any[] = [],
+	filters: Filter[] = [],
 ) {
 	try {
+		// Validate and parse input parameters
+		const validatedFilters = z.array(FilterSchema).parse(filters);
+
 		const supabase = await createClient();
 
 		let query = supabase.from("products").select(columnId, { count: "exact" });
 
-		// Apply existing filters (excluding the column we're faceting) using same operator logic
-		filters
-			.filter((filter) => filter.columnId !== columnId)
-			.forEach((filter) => {
-				if (filter.values && filter.values.length > 0) {
-					const values = filter.values;
-					const operator = filter.operator || "is";
-					const filterColumnId = filter.columnId;
-
-					// Apply same operator logic as main query
-					switch (filterColumnId) {
-						case "name":
-						case "description":
-							if (operator === "contains") {
-								query = query.ilike(filterColumnId, `%${values[0]}%`);
-							} else if (operator === "does not contain") {
-								query = query.not(filterColumnId, "ilike", `%${values[0]}%`);
-							}
-							break;
-
-						case "is_active":
-							if (operator === "is") {
-								query = query.eq(filterColumnId, values[0] === "true");
-							} else if (operator === "is not") {
-								query = query.not(filterColumnId, "eq", values[0] === "true");
-							} else if (operator === "is any of") {
-								const boolValues = values.map((v: string) => v === "true");
-								query = query.in(filterColumnId, boolValues);
-							} else if (operator === "is none of") {
-								const boolValues = values.map((v: string) => v === "true");
-								query = query.not(
-									filterColumnId,
-									"in",
-									`(${boolValues.join(",")})`,
-								);
-							}
-							break;
-
-						case "default_duration_months":
-							if (operator === "is") {
-								query = query.eq(filterColumnId, Number.parseInt(values[0]));
-							} else if (operator === "is not") {
-								query = query.not(
-									filterColumnId,
-									"eq",
-									Number.parseInt(values[0]),
-								);
-							} else if (operator === "is greater than") {
-								query = query.gt(filterColumnId, Number.parseInt(values[0]));
-							} else if (operator === "is greater than or equal to") {
-								query = query.gte(filterColumnId, Number.parseInt(values[0]));
-							} else if (operator === "is less than") {
-								query = query.lt(filterColumnId, Number.parseInt(values[0]));
-							} else if (operator === "is less than or equal to") {
-								query = query.lte(filterColumnId, Number.parseInt(values[0]));
-							} else if (operator === "is between" && values.length === 2) {
-								query = query
-									.gte(filterColumnId, Number.parseInt(values[0]))
-									.lte(filterColumnId, Number.parseInt(values[1]));
-							} else if (operator === "is not between" && values.length === 2) {
-								query = query.or(
-									`${filterColumnId}.lt.${Number.parseInt(values[0])},${filterColumnId}.gt.${Number.parseInt(values[1])}`,
-								);
-							}
-							break;
-
-						case "created_at":
-						case "updated_at":
-							if (operator === "is") {
-								query = query.eq(filterColumnId, values[0]);
-							} else if (operator === "is not") {
-								query = query.not(filterColumnId, "eq", values[0]);
-							} else if (operator === "is before") {
-								query = query.lt(filterColumnId, values[0]);
-							} else if (operator === "is on or before") {
-								query = query.lte(filterColumnId, values[0]);
-							} else if (operator === "is after") {
-								query = query.gt(filterColumnId, values[0]);
-							} else if (operator === "is on or after") {
-								query = query.gte(filterColumnId, values[0]);
-							} else if (operator === "is between" && values.length === 2) {
-								query = query
-									.gte(filterColumnId, values[0])
-									.lte(filterColumnId, values[1]);
-							} else if (operator === "is not between" && values.length === 2) {
-								query = query.or(
-									`${filterColumnId}.lt.${values[0]},${filterColumnId}.gt.${values[1]}`,
-								);
-							}
-							break;
-					}
-				}
-			});
+		// Apply existing filters (excluding the column we're faceting) using shared helper
+		query = applyProductFilters(query, validatedFilters, columnId);
 
 		const { data, error } = await query;
 
