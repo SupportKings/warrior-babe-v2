@@ -114,7 +114,6 @@ export async function getCoachTeamsWithFilters(
 	pageSize = 25,
 	sorting: any[] = [],
 ) {
-	console.log("FILTER ON TEAM TABLE", filters)
 	try {
 		const supabase = await createClient();
 
