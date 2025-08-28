@@ -455,15 +455,6 @@ const OptionItem = memo(function OptionItem({
 					))}
 				<span>
 					{label}
-					<sup
-						className={cn(
-							count == null && "hidden",
-							"ml-0.5 text-muted-foreground tabular-nums tracking-tight",
-							count === 0 && "slashed-zero",
-						)}
-					>
-						{typeof count === "number" ? (count < 100 ? count : "100+") : ""}
-					</sup>
 				</span>
 			</div>
 		</CommandItem>

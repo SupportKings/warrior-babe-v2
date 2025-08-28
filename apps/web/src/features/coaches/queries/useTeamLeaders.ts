@@ -1,7 +1,7 @@
 "use client";
 
-import { getAllPotentialTeamLeaders } from "../actions/get-coach-teams";
 import { useQuery } from "@tanstack/react-query";
+import { getAllPotentialTeamLeaders } from "../actions/get-coach-teams";
 
 export const teamLeadersQueries = {
 	all: () => ({

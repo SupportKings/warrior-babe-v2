@@ -1,7 +1,7 @@
-// This file should stay out of the schema folder. 
+// This file should stay out of the schema folder.
 // Any changes to this file should be made in the shadow folder.
 
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const authUsers = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -27,14 +27,18 @@ export const authSessions = pgTable("session", {
 	updatedAt: timestamp("updatedAt", { withTimezone: true }).notNull(),
 	ipAddress: text("ipAddress"),
 	userAgent: text("userAgent"),
-	userId: text("userId").notNull().references(() => authUsers.id),
+	userId: text("userId")
+		.notNull()
+		.references(() => authUsers.id),
 });
 
 export const authAccounts = pgTable("account", {
 	id: text("id").primaryKey(),
 	accountId: text("accountId").notNull(),
 	providerId: text("providerId").notNull(),
-	userId: text("userId").notNull().references(() => authUsers.id),
+	userId: text("userId")
+		.notNull()
+		.references(() => authUsers.id),
 	accessToken: text("accessToken"),
 	refreshToken: text("refreshToken"),
 	idToken: text("idToken"),
@@ -59,7 +63,9 @@ export const authPasskeys = pgTable("passkey", {
 	id: text("id").primaryKey(),
 	name: text("name"),
 	publicKey: text("publicKey").notNull(),
-	userId: text("userId").notNull().references(() => authUsers.id),
+	userId: text("userId")
+		.notNull()
+		.references(() => authUsers.id),
 	credentialId: text("credentialId").notNull(),
 	counter: text("counter").notNull(),
 	deviceType: text("deviceType").notNull(),

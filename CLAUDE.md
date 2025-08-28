@@ -230,6 +230,10 @@ const [filter, setFilter] = useQueryState("filter", {
 - Supports server-side data fetching with React Query
 - Column helpers available in `utils/column-helpers.ts`
 
+### Data Table Filter
+- Every time filter references foreign keys, DO NOT use plain search, but list actual records from linked table
+- Every column outlined in requirements for the data table should also be present in the filters
+
 ### CRUD Development
 - If asked to implement CRUD for certain feature, based off existing database types, add/edit forms and detail pages should absolutely always include every single possible field and relation outlined in the database, together with queries to fetch data from different tables if needed
 
@@ -249,3 +253,6 @@ const [filter, setFilter] = useQueryState("filter", {
 - Always create separate components for empty states
 - Use server components for data fetching, client components for interactions
 - Implement optimistic updates with React Query mutations
+
+### User Specific
+- Relevant field for user name is name column in team_members table, do not use name field from Users table

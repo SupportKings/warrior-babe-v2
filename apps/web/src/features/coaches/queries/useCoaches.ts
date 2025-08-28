@@ -6,7 +6,11 @@ import {
 	getCoachesWithFaceted,
 } from "@/features/coaches/actions/getCoaches";
 
-import { useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
+import {
+	type QueryClient,
+	useQuery,
+	type useQueryClient,
+} from "@tanstack/react-query";
 import type { ColumnFiltersState, SortingState } from "@tanstack/react-table";
 
 // Query keys
@@ -19,12 +23,20 @@ export const coachQueries = {
 		page: number,
 		pageSize: number,
 		sorting: SortingState,
-		facetedColumns: string[]
-	) => [...coachQueries.lists(), "tableWithFaceted", filters, page, pageSize, sorting, facetedColumns] as const,
-	faceted: (columnId: string, filters: ColumnFiltersState) => 
+		facetedColumns: string[],
+	) =>
+		[
+			...coachQueries.lists(),
+			"tableWithFaceted",
+			filters,
+			page,
+			pageSize,
+			sorting,
+			facetedColumns,
+		] as const,
+	faceted: (columnId: string, filters: ColumnFiltersState) =>
 		[...coachQueries.lists(), "faceted", columnId, filters] as const,
 };
-
 
 // Hook for coaches with faceted filtering
 export function useCoachesWithFaceted(
@@ -32,11 +44,18 @@ export function useCoachesWithFaceted(
 	page = 0,
 	pageSize = 25,
 	sorting: SortingState = [],
-	facetedColumns: string[] = ["contract_type"]
+	facetedColumns: string[] = ["contract_type"],
 ) {
 	return useQuery({
-		queryKey: coachQueries.tableWithFaceted(filters, page, pageSize, sorting, facetedColumns),
-		queryFn: () => getCoachesWithFaceted(filters, page, pageSize, sorting, facetedColumns),
+		queryKey: coachQueries.tableWithFaceted(
+			filters,
+			page,
+			pageSize,
+			sorting,
+			facetedColumns,
+		),
+		queryFn: () =>
+			getCoachesWithFaceted(filters, page, pageSize, sorting, facetedColumns),
 		staleTime: 2 * 60 * 1000,
 	});
 }

@@ -60,6 +60,11 @@ const detectColorScheme = (
 
 	const normalizedStatus = status.toLowerCase().trim();
 
+	// Check inactive first before active to prevent conflicts
+	if (/inactive/i.test(normalizedStatus)) {
+		return "red";
+	}
+
 	// Success/positive states
 	if (
 		/(active|live|completed?|success|granted|approved|done|finished|enabled|online|published|verified)/i.test(

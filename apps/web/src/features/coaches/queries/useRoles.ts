@@ -1,7 +1,7 @@
 "use client";
 
-import { getAllRoles } from "../actions/get-roles";
 import { useQuery } from "@tanstack/react-query";
+import { getAllRoles } from "../actions/get-roles";
 
 export const rolesQueries = {
 	all: () => ({
