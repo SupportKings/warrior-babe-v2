@@ -2,7 +2,6 @@
 
 import type * as React from "react";
 
-import { usePathname } from "next/navigation";
 
 // Use Better Auth's built-in type inference
 import type { authClient } from "@/lib/auth-client";
@@ -23,25 +22,12 @@ import {
 } from "@/components/ui/sidebar";
 
 import {
-	Activity,
 	ArrowLeft,
-	BrickWallFireIcon,
-	CheckSquare,
-	Cog,
-	CreditCard,
-	DollarSign,
-	FileText,
-	FocusIcon,
+	BrickWallFireIcon, CreditCard, FocusIcon,
 	GoalIcon,
-	InboxIcon,
-	MessageSquare,
-	Package,
-	Phone,
-	Settings,
+	InboxIcon, Settings,
 	ShieldCheckIcon,
-	Star,
-	Tag,
-	Users,
+	Star, Users
 } from "lucide-react";
 import { NavMain } from "./nav-main";
 
@@ -161,6 +147,10 @@ export function AppSidebar({
 					{
 						title: "Coaches",
 						url: "/dashboard/coaches",
+					},
+					{
+						title: "Teams",
+						url: "/dashboard/coaches/teams",
 					},
 					{
 						title: "Premier Coaches",
