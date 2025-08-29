@@ -16,14 +16,7 @@ import {
 import { format } from "date-fns";
 import { AlertTriangleIcon } from "lucide-react";
 
-type ClientActivityPeriodRow =
-	Database["public"]["Tables"]["client_activity_period"]["Row"] & {
-		client?: {
-			id: string;
-			name: string;
-			email: string;
-		} | null;
-	};
+type ClientActivityPeriodRow = Database["public"]["Views"]["v_client_activity_period_core"]["Row"];
 
 interface ClientActivityPeriodDeleteModalProps {
 	clientActivityPeriod: ClientActivityPeriodRow;
@@ -57,7 +50,7 @@ export function ClientActivityPeriodDeleteModal({
 		? format(new Date(clientActivityPeriod.end_date), "MMM dd, yyyy")
 		: "Ongoing";
 
-	const clientName = clientActivityPeriod.client?.name || "Unknown Client";
+	const clientName = clientActivityPeriod.client_name || "Unknown Client";
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>

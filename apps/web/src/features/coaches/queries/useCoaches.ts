@@ -1,12 +1,12 @@
 "use client";
 
+import { getCoach } from "@/features/coaches/actions/get-coach";
+import { getAllPotentialTeamLeaders } from "@/features/coaches/actions/get-coach-teams";
 import {
 	getActiveCoaches,
 	getAllCoaches,
 	getCoaches,
 } from "@/features/coaches/actions/getCoaches";
-import { getCoach } from "@/features/coaches/actions/get-coach";
-import { getAllPotentialTeamLeaders } from "@/features/coaches/actions/get-coach-teams";
 
 import {
 	type QueryClient,
@@ -46,14 +46,8 @@ export function useCoachesTable(
 	sorting: SortingState = [],
 ) {
 	return useQuery({
-		queryKey: coachQueries.table(
-			filters,
-			page,
-			pageSize,
-			sorting,
-		),
-		queryFn: () =>
-			getCoaches(filters, page, pageSize, sorting),
+		queryKey: coachQueries.table(filters, page, pageSize, sorting),
+		queryFn: () => getCoaches(filters, page, pageSize, sorting),
 		staleTime: 2 * 60 * 1000,
 	});
 }

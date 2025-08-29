@@ -1,48 +1,46 @@
 "use client";
 
-import { 
-  useCoachBasicInfo, 
-  useCoachClientAssignments, 
-  useCoachPayments 
+import {
+	useCoachBasicInfo,
+	useCoachClientAssignments,
+	useCoachPayments,
 } from "@/features/coaches/queries/useCoachDetails";
-import { 
-  CoachGeneralInfo, 
-  CoachAssignmentsTable, 
-  CoachPaymentsTable 
+
+import {
+	CoachAssignmentsTable,
+	CoachGeneralInfo,
+	CoachPaymentsTable,
 } from "./coach-details";
 
 interface CoachDetailViewProps {
-  coachId: string;
+	coachId: string;
 }
 
 export default function CoachDetailView({ coachId }: CoachDetailViewProps) {
-  const { data: coach, isLoading: isLoadingCoach } = useCoachBasicInfo(coachId);
-  const { data: clientAssignments, isLoading: isLoadingAssignments } = useCoachClientAssignments(coachId);
-  const { data: coachPayments, isLoading: isLoadingPayments } = useCoachPayments(coachId);
+	const { data: coach, isLoading: isLoadingCoach } = useCoachBasicInfo(coachId);
+	const { data: clientAssignments, isLoading: isLoadingAssignments } =
+		useCoachClientAssignments(coachId);
+	const { data: coachPayments, isLoading: isLoadingPayments } =
+		useCoachPayments(coachId);
 
-  if (isLoadingCoach) {
-    return <div>Loading...</div>;
-  }
+	if (isLoadingCoach) {
+		return <div>Loading...</div>;
+	}
 
-  if (!coach) {
-    return <div>Coach not found</div>;
-  }
+	if (!coach) {
+		return <div>Coach not found</div>;
+	}
 
-  return (
-    <div className="space-y-6 p-6">
-      {/* General Information */}
-      <CoachGeneralInfo coach={coach} />
+	return (
+		<div className="space-y-6 p-6">
+			{/* General Information */}
+			<CoachGeneralInfo coach={coach} />
 
-      {/* Client Assignments */}
-      <CoachAssignmentsTable 
-        assignments={clientAssignments || []} 
-      />
+			{/* Client Assignments */}
+			<CoachAssignmentsTable assignments={clientAssignments || []} />
 
-      {/* Coach Payments */}
-      <CoachPaymentsTable 
-        payments={coachPayments || []} 
-        coachId={coachId}
-      />
-    </div>
-  );
+			{/* Coach Payments */}
+			<CoachPaymentsTable payments={coachPayments || []} coachId={coachId} />
+		</div>
+	);
 }

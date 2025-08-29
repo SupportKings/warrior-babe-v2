@@ -6,7 +6,6 @@ import { createColumnHelper } from "@tanstack/react-table";
 import type { CoachRow } from "../types";
 import { getContractTypeBadgeClass } from "../utils";
 
-
 // Create column helper for TanStack table
 const columnHelper = createColumnHelper<CoachRow>();
 
@@ -71,32 +70,32 @@ export const coachesTableColumns = [
 				return <span className="text-muted-foreground text-sm">No roles</span>;
 			}
 
-      const rolesList = roles
-        .split(",")
-        .map((role) => role.trim())
-        .filter(Boolean);
+			const rolesList = roles
+				.split(",")
+				.map((role) => role.trim())
+				.filter(Boolean);
 
-      return (
-        <div className="flex flex-wrap gap-1">
-          {rolesList.map((role, index) => (
-            <span
-              key={index}
-              className="inline-flex items-center rounded-md bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground capitalize"
-            >
-              {role.split("_").join(" ")}
-            </span>
-          ))}
-        </div>
-      );
-    },
-  }),
-  columnHelper.accessor((row) => row.team?.premier_coach?.name, {
-    id: "premier_coach",
-    header: "Assigned Premier Coach",
-    enableColumnFilter: true,
-    enableSorting: true,
-    cell: ({ row }) => {
-      const premierCoachName = row.original.team?.premier_coach?.name;
+			return (
+				<div className="flex flex-wrap gap-1">
+					{rolesList.map((role, index) => (
+						<span
+							key={index}
+							className="inline-flex items-center rounded-md bg-secondary px-2 py-0.5 font-medium text-secondary-foreground text-xs capitalize"
+						>
+							{role.split("_").join(" ")}
+						</span>
+					))}
+				</div>
+			);
+		},
+	}),
+	columnHelper.accessor((row) => row.team?.premier_coach?.name, {
+		id: "premier_coach",
+		header: "Assigned Premier Coach",
+		enableColumnFilter: true,
+		enableSorting: true,
+		cell: ({ row }) => {
+			const premierCoachName = row.original.team?.premier_coach?.name;
 
 			if (premierCoachName) {
 				return <div className="font-medium text-sm">{premierCoachName}</div>;

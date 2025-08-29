@@ -13,9 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { createProductAction } from "@/features/products/actions/createProduct";
 import {
 	getAllValidationErrors,
+	type ProductFormRawInput,
 	validateSingleField,
 	validationUtils,
-	type ProductFormRawInput,
 } from "@/features/products/types/products";
 
 import { useForm } from "@tanstack/react-form";
@@ -317,7 +317,7 @@ export default function ProductsForm({ onSuccess }: ProductsFormProps) {
 			{/* Payment Plan Templates Section */}
 			<div className="space-y-6">
 				<div>
-					<div className="flex items-center justify-between mb-4">
+					<div className="mb-4 flex items-center justify-between">
 						<h3 className="font-medium text-base text-foreground">
 							Payment Plan Templates
 						</h3>
@@ -347,7 +347,7 @@ export default function ProductsForm({ onSuccess }: ProductsFormProps) {
 								{field.state.value.map((template, templateIndex) => (
 									<div
 										key={templateIndex}
-										className="border rounded-lg p-4 space-y-4"
+										className="space-y-4 rounded-lg border p-4"
 									>
 										<div className="flex items-center justify-between">
 											<h4 className="font-medium text-sm">
@@ -370,7 +370,9 @@ export default function ProductsForm({ onSuccess }: ProductsFormProps) {
 
 										<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 											{/* Template Name */}
-											<form.Field name={`payment_plan_templates[${templateIndex}].name`}>
+											<form.Field
+												name={`payment_plan_templates[${templateIndex}].name`}
+											>
 												{(templateNameField) => (
 													<div>
 														<Label
@@ -421,7 +423,8 @@ export default function ProductsForm({ onSuccess }: ProductsFormProps) {
 															}
 															placeholder="1"
 														/>
-														{programLengthField.state.meta.errors.length > 0 && (
+														{programLengthField.state.meta.errors.length >
+															0 && (
 															<p className="mt-1 text-destructive text-xs">
 																{programLengthField.state.meta.errors[0]}
 															</p>
@@ -433,14 +436,17 @@ export default function ProductsForm({ onSuccess }: ProductsFormProps) {
 
 										{/* Payment Slots */}
 										<div>
-											<div className="flex items-center justify-between mb-3">
-												<Label className="font-medium text-sm">Payment Slots</Label>
+											<div className="mb-3 flex items-center justify-between">
+												<Label className="font-medium text-sm">
+													Payment Slots
+												</Label>
 												<Button
 													type="button"
 													variant="outline"
 													size="sm"
 													onClick={() => {
-														const currentTemplate = field.state.value[templateIndex];
+														const currentTemplate =
+															field.state.value[templateIndex];
 														const newSlots = [
 															...currentTemplate.slots,
 															{ amount_due: "", months_to_delay: "0" },
@@ -462,7 +468,7 @@ export default function ProductsForm({ onSuccess }: ProductsFormProps) {
 												{template.slots.map((slot, slotIndex) => (
 													<div
 														key={slotIndex}
-														className="flex items-center gap-3 p-3 bg-muted rounded-md"
+														className="flex items-center gap-3 rounded-md bg-muted p-3"
 													>
 														<div className="flex-1">
 															<form.Field
@@ -488,7 +494,8 @@ export default function ProductsForm({ onSuccess }: ProductsFormProps) {
 																			}
 																			placeholder="0.00"
 																		/>
-																		{amountField.state.meta.errors.length > 0 && (
+																		{amountField.state.meta.errors.length >
+																			0 && (
 																			<p className="mt-1 text-destructive text-xs">
 																				{amountField.state.meta.errors[0]}
 																			</p>
@@ -522,7 +529,8 @@ export default function ProductsForm({ onSuccess }: ProductsFormProps) {
 																			}
 																			placeholder="0"
 																		/>
-																		{delayField.state.meta.errors.length > 0 && (
+																		{delayField.state.meta.errors.length >
+																			0 && (
 																			<p className="mt-1 text-destructive text-xs">
 																				{delayField.state.meta.errors[0]}
 																			</p>
@@ -537,7 +545,8 @@ export default function ProductsForm({ onSuccess }: ProductsFormProps) {
 															variant="ghost"
 															size="sm"
 															onClick={() => {
-																const currentTemplate = field.state.value[templateIndex];
+																const currentTemplate =
+																	field.state.value[templateIndex];
 																const newSlots = currentTemplate.slots.filter(
 																	(_, index) => index !== slotIndex,
 																);
@@ -560,12 +569,13 @@ export default function ProductsForm({ onSuccess }: ProductsFormProps) {
 								))}
 
 								{field.state.value.length === 0 && (
-									<div className="text-center py-8 border-2 border-dashed border-muted-foreground/25 rounded-lg">
+									<div className="rounded-lg border-2 border-muted-foreground/25 border-dashed py-8 text-center">
 										<p className="text-muted-foreground text-sm">
 											No payment plan templates added yet.
 										</p>
-										<p className="text-muted-foreground text-xs mt-1">
-											Click "Add Template" to create your first payment plan template.
+										<p className="mt-1 text-muted-foreground text-xs">
+											Click "Add Template" to create your first payment plan
+											template.
 										</p>
 									</div>
 								)}
