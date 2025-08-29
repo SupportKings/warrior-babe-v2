@@ -41,7 +41,6 @@ export async function createCoach(input: CreateCoachInput) {
 		if (existingUser) {
 			// User already exists, use their ID
 			userId = existingUser.id;
-			console.log("Using existing user with ID:", userId);
 		} else {
 			// Create new user in the user table
 			const { data: newUser, error: userError } = await supabase
@@ -64,7 +63,6 @@ export async function createCoach(input: CreateCoachInput) {
 			}
 
 			userId = newUser.id;
-			console.log("Created new user with ID:", userId);
 		}
 
 		// Now create the team_member record linked to the user

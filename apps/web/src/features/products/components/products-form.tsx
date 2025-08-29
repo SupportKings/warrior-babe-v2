@@ -51,7 +51,6 @@ export default function ProductsForm({ onSuccess }: ProductsFormProps) {
 			}>,
 		},
 		onSubmit: async ({ value }) => {
-			console.log("Form onSubmit triggered - value:", value);
 			setIsLoading(true);
 
 			try {

@@ -95,7 +95,6 @@ export function ManageCoachPaymentModal({
 	const fetchActivityPeriods = async () => {
 		try {
 			const periods = await getCoachClientActivityPeriods(coachId);
-			console.log("Fetched activity periods:", periods);
 			setActivityPeriods(periods);
 
 			if (periods.length === 0) {
