@@ -1,44 +1,53 @@
 import { Suspense } from "react";
 
-import { redirect } from "next/navigation";
-
 import MainLayout from "@/components/layout/main-layout";
-
-import ClientWinTagsContent from "@/features/system-config/components/client-win-tags-content";
-import ClientWinTagsHeader from "@/features/system-config/layout/client-win-tags-header";
-
+import { WinTagsContent } from "@/features/system-config/components/win-tags.content";
+import { WinTagsHeader } from "@/features/system-config/layout/win-tags.header";
+import { getWinTagsWithFaceted } from "@/features/system-config/actions/getWinTags";
 import { getUser } from "@/queries/getUser";
-
 import {
-	dehydrate,
 	HydrationBoundary,
 	QueryClient,
+	dehydrate,
 } from "@tanstack/react-query";
-import ClientWinTagsLoading from "./loading";
 
-export default function ClientWinTagsPage() {
-	return (
-		<Suspense fallback={<ClientWinTagsLoading />}>
-			<ClientWinTagsPageAsync />
-		</Suspense>
-	);
-}
-
-async function ClientWinTagsPageAsync() {
+async function WinTagsPageContent() {
 	const queryClient = new QueryClient();
+
+	// Get session once at page level
 	const session = await getUser();
 
-	if (!session) {
-		redirect("/");
-	}
+	// Prefetch all queries with Promise.all for parallel fetching
+	await Promise.all([
+		queryClient.prefetchQuery({
+			queryKey: [
+				"win-tags",
+				"table-with-faceted",
+				{ 
+					filters: [], 
+					page: 0, 
+					pageSize: 25, 
+					sorting: [], 
+					facetedColumns: ["color"] 
+				},
+			],
+			queryFn: () => getWinTagsWithFaceted([], 0, 25, [], ["color"]),
+		}),
+	]);
 
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>
-			<MainLayout
-				headers={[<ClientWinTagsHeader key="client-win-tags-header" />]}
-			>
-				<ClientWinTagsContent />
+			<MainLayout headers={[<WinTagsHeader key="win-tags-header" />]}>
+				<WinTagsContent />
 			</MainLayout>
 		</HydrationBoundary>
+	);
+}
+
+export default function WinTagsPage() {
+	return (
+		<Suspense fallback={<div>Loading...</div>}>
+			<WinTagsPageContent />
+		</Suspense>
 	);
 }
