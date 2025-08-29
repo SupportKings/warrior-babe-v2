@@ -2,7 +2,6 @@
 
 import type * as React from "react";
 
-
 // Use Better Auth's built-in type inference
 import type { authClient } from "@/lib/auth-client";
 
@@ -23,11 +22,15 @@ import {
 
 import {
 	ArrowLeft,
-	BrickWallFireIcon, CreditCard, FocusIcon,
+	BrickWallFireIcon,
+	CreditCard,
+	FocusIcon,
 	GoalIcon,
-	InboxIcon, Settings,
+	InboxIcon,
+	Settings,
 	ShieldCheckIcon,
-	Star, Users
+	Star,
+	Users,
 } from "lucide-react";
 import { NavMain } from "./nav-main";
 

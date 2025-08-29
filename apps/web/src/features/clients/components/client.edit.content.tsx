@@ -53,7 +53,7 @@ export default function ClientEditContent({
 		client_assignments: client.client_assignments || [],
 		client_goals: client.client_goals || [],
 		client_wins: client.client_wins || [],
-		client_activity_period: client.client_activity_period || [],
+		client_activity_period: Array.isArray(client.client_activity_period) ? client.client_activity_period : [],
 		client_nps: client.client_nps || [],
 		client_testimonials: client.client_testimonials || [],
 		payment_plans: client.payment_plans || [],

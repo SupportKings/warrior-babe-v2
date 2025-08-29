@@ -83,7 +83,9 @@ export const validationUtils = {
 export const productCreateSchema = z.object({
 	name: validationUtils.name,
 	description: validationUtils.description,
-	default_duration_months: validationUtils.defaultDurationMonths.nullable().optional(),
+	default_duration_months: validationUtils.defaultDurationMonths
+		.nullable()
+		.optional(),
 	client_unit: validationUtils.clientUnit.nullable().optional(),
 	is_active: validationUtils.isActive,
 });
@@ -93,7 +95,9 @@ export const productUpdateSchema = z.object({
 	id: validationUtils.uuid,
 	name: validationUtils.name.optional(),
 	description: validationUtils.description,
-	default_duration_months: validationUtils.defaultDurationMonths.nullable().optional(),
+	default_duration_months: validationUtils.defaultDurationMonths
+		.nullable()
+		.optional(),
 	client_unit: validationUtils.clientUnit.nullable().optional(),
 	is_active: validationUtils.isActive,
 });
@@ -160,12 +164,17 @@ export const paymentPlanTemplateSchema = z.object({
 			return isNaN(num) ? 1 : num;
 		})
 		.pipe(validationUtils.programLengthMonths),
-	slots: z.array(paymentPlanTemplateSlotSchema).min(1, "At least one payment slot is required"),
+	slots: z
+		.array(paymentPlanTemplateSlotSchema)
+		.min(1, "At least one payment slot is required"),
 });
 
 // Extended product form schema with payment plan templates
 export const productWithPaymentPlanFormSchema = productFormSchema.extend({
-	payment_plan_templates: z.array(paymentPlanTemplateSchema).optional().default([]),
+	payment_plan_templates: z
+		.array(paymentPlanTemplateSchema)
+		.optional()
+		.default([]),
 });
 
 // Form input type that matches what the UI actually sends (before transformation)
@@ -190,9 +199,15 @@ export type ProductCreateInput = z.infer<typeof productCreateSchema>;
 export type ProductUpdateInput = z.infer<typeof productUpdateSchema>;
 export type ProductFormInput = z.infer<typeof productFormSchema>;
 export type ProductEditFormInput = z.infer<typeof productEditFormSchema>;
-export type PaymentPlanTemplateSlotInput = z.infer<typeof paymentPlanTemplateSlotSchema>;
-export type PaymentPlanTemplateInput = z.infer<typeof paymentPlanTemplateSchema>;
-export type ProductWithPaymentPlanFormInput = z.infer<typeof productWithPaymentPlanFormSchema>;
+export type PaymentPlanTemplateSlotInput = z.infer<
+	typeof paymentPlanTemplateSlotSchema
+>;
+export type PaymentPlanTemplateInput = z.infer<
+	typeof paymentPlanTemplateSchema
+>;
+export type ProductWithPaymentPlanFormInput = z.infer<
+	typeof productWithPaymentPlanFormSchema
+>;
 
 // Product status options for UI
 export const PRODUCT_STATUS_OPTIONS = [

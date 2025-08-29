@@ -91,10 +91,15 @@ export const createProductAction = actionClient
 						.single();
 
 					if (templateError) {
-						console.error("Error creating payment plan template:", templateError);
+						console.error(
+							"Error creating payment plan template:",
+							templateError,
+						);
 						return returnValidationErrors(productWithPaymentPlanFormSchema, {
 							payment_plan_templates: {
-								_errors: ["Failed to create payment plan template. Please try again."],
+								_errors: [
+									"Failed to create payment plan template. Please try again.",
+								],
 							},
 						});
 					}
@@ -102,13 +107,15 @@ export const createProductAction = actionClient
 					if (!newTemplate) {
 						return returnValidationErrors(productWithPaymentPlanFormSchema, {
 							payment_plan_templates: {
-								_errors: ["Payment plan template creation failed. Please try again."],
+								_errors: [
+									"Payment plan template creation failed. Please try again.",
+								],
 							},
 						});
 					}
 
 					// Create payment plan template slots
-					const templateSlots = template.slots.map(slot => ({
+					const templateSlots = template.slots.map((slot) => ({
 						payment_plan_template_id: newTemplate.id,
 						amount_due: slot.amount_due,
 						months_to_delay: slot.months_to_delay,
@@ -119,10 +126,15 @@ export const createProductAction = actionClient
 						.insert(templateSlots);
 
 					if (slotsError) {
-						console.error("Error creating payment plan template slots:", slotsError);
+						console.error(
+							"Error creating payment plan template slots:",
+							slotsError,
+						);
 						return returnValidationErrors(productWithPaymentPlanFormSchema, {
 							payment_plan_templates: {
-								_errors: ["Failed to create payment plan template slots. Please try again."],
+								_errors: [
+									"Failed to create payment plan template slots. Please try again.",
+								],
 							},
 						});
 					}

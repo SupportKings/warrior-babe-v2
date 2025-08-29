@@ -42,13 +42,7 @@ async function CoachesPageAsync() {
 	// Prefetch data using server-side function
 	await queryClient.prefetchQuery({
 		queryKey: tableDataKey,
-		queryFn: () =>
-			prefetchCoachesServer(
-				defaultFilters,
-				0,
-				25,
-				defaultSorting,
-			),
+		queryFn: () => prefetchCoachesServer(defaultFilters, 0, 25, defaultSorting),
 		staleTime: 2 * 60 * 1000,
 	});
 

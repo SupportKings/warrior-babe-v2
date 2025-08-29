@@ -1,15 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { 
-	getCoachBasicInfo, 
-	getCoachClientAssignments, 
-	getCoachPayments 
+import {
+	getCoachBasicInfo,
+	getCoachClientAssignments,
+	getCoachPayments,
 } from "../actions/get-coach";
 
 // Query keys factory
 export const coachDetailsKeys = {
 	all: ["coach-details"] as const,
-	basicInfo: (id: string) => [...coachDetailsKeys.all, "basic-info", id] as const,
-	clientAssignments: (id: string) => [...coachDetailsKeys.all, "client-assignments", id] as const,
+	basicInfo: (id: string) =>
+		[...coachDetailsKeys.all, "basic-info", id] as const,
+	clientAssignments: (id: string) =>
+		[...coachDetailsKeys.all, "client-assignments", id] as const,
 	payments: (id: string) => [...coachDetailsKeys.all, "payments", id] as const,
 };
 

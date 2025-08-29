@@ -13,7 +13,10 @@ export default function ClientActivityPeriodHeader() {
 				<h1 className="font-medium text-[13px] ">Client Activity Periods </h1>
 			</div>
 			<Button asChild>
-				<Link href="" className="flex items-center gap-2">
+				<Link
+					href="/dashboard/clients/activity-periods/add"
+					className="flex items-center gap-2"
+				>
 					<CalendarPlusIcon className="mr-[6px] h-4 w-4" />
 					Add Client Activity Period
 				</Link>

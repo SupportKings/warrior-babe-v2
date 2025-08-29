@@ -28,7 +28,7 @@ export const updateClientActivityPeriodAction = actionClient
 		const { data: updatedPeriod, error } = await supabase
 			.from("client_activity_period")
 			.update({
-				client_id: updateData.client_id,
+				payment_plan: updateData.payment_plan,
 				coach_id: updateData.coach_id,
 				start_date: updateData.start_date,
 				end_date: updateData.end_date,

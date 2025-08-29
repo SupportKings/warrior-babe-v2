@@ -53,80 +53,76 @@ export function CoachesTableContent({
 		setCurrentPage(0);
 	}, [filters]);
 
-  // Fetch coaches data
-  const {
-    data: coachesResponse,
-    isLoading,
-    isError,
-    error,
-  } = useCoachesTable(
-    filters,
-    currentPage,
-    25,
-    sorting
-  );
-  
-  // Fetch team leaders for filter options
-  const { data: teamLeaders } = useTeamLeaders();
-  // Extract data from response
-  const coachesData = coachesResponse
-    ? {
-        data: coachesResponse.coaches,
-        count: coachesResponse.totalCount,
-      }
-    : { data: [], count: 0 };
+	// Fetch coaches data
+	const {
+		data: coachesResponse,
+		isLoading,
+		isError,
+		error,
+	} = useCoachesTable(filters, currentPage, 25, sorting);
+
+	// Fetch team leaders for filter options
+	const { data: teamLeaders } = useTeamLeaders();
+	// Extract data from response
+	const coachesData = coachesResponse
+		? {
+				data: coachesResponse.coaches,
+				count: coachesResponse.totalCount,
+			}
+		: { data: [], count: 0 };
 
 	// Create universal column helper
 	const universalColumnHelper = createUniversalColumnHelper<CoachRow>();
 
-  // Extract unique contract types from the data
-  const uniqueContractTypes = new Set<string>();
-  coachesData?.data?.forEach((coach: any) => {
-    if (coach.contract_type) {
-      uniqueContractTypes.add(coach.contract_type);
-    }
-  });
+	// Extract unique contract types from the data
+	const uniqueContractTypes = new Set<string>();
+	coachesData?.data?.forEach((coach: any) => {
+		if (coach.contract_type) {
+			uniqueContractTypes.add(coach.contract_type);
+		}
+	});
 
-  // Create dynamic filter config with options
-  const dynamicFilterConfig = [
-    universalColumnHelper
-      .text("name")
-      .displayName("Name")
-      .icon(UserIcon)
-      .build(),
-    universalColumnHelper
-      .text("email")
-      .displayName("Email")
-      .icon(MailIcon)
-      .build(),
-    {
-      ...universalColumnHelper
-        .option("premier_coach_id")
-        .displayName("Premier Coach")
-        .icon(UsersIcon)
-        .build(),
-      options: teamLeaders?.map((leader) => ({
-        value: leader.premier_coach_id, // Use the team_members ID of the premier coach
-        label: leader.name, // Show premier coach name
-      })) || [],
-    },
-    {
-      ...universalColumnHelper
-        .option("contract_type")
-        .displayName("Contract Type")
-        .icon(FileTextIcon)
-        .build(),
-      options: Array.from(uniqueContractTypes).map((type) => ({
-        value: type,
-        label: type,
-      })),
-    },
-    universalColumnHelper
-      .date("created_at")
-      .displayName("Created Date")
-      .icon(CalendarIcon)
-      .build(),
-  ];
+	// Create dynamic filter config with options
+	const dynamicFilterConfig = [
+		universalColumnHelper
+			.text("name")
+			.displayName("Name")
+			.icon(UserIcon)
+			.build(),
+		universalColumnHelper
+			.text("email")
+			.displayName("Email")
+			.icon(MailIcon)
+			.build(),
+		{
+			...universalColumnHelper
+				.option("premier_coach_id")
+				.displayName("Premier Coach")
+				.icon(UsersIcon)
+				.build(),
+			options:
+				teamLeaders?.map((leader) => ({
+					value: leader.premier_coach_id, // Use the team_members ID of the premier coach
+					label: leader.name, // Show premier coach name
+				})) || [],
+		},
+		{
+			...universalColumnHelper
+				.option("contract_type")
+				.displayName("Contract Type")
+				.icon(FileTextIcon)
+				.build(),
+			options: Array.from(uniqueContractTypes).map((type) => ({
+				value: type,
+				label: type,
+			})),
+		},
+		universalColumnHelper
+			.date("created_at")
+			.displayName("Created Date")
+			.icon(CalendarIcon)
+			.build(),
+	];
 
 	const rowActions = [
 		{
@@ -153,26 +149,26 @@ export function CoachesTableContent({
 		},
 	];
 
-  const { table, filterColumns, filterState, actions, strategy, totalCount } =
-    useUniversalTable<CoachRow>({
-      data: (coachesData?.data as any) || [],
-      totalCount: coachesData?.count || 0,
-      columns: coachesTableColumns,
-      columnsConfig: dynamicFilterConfig,
-      filters,
-      onFiltersChange: setFilters,
-      enableSelection: true,
-      pageSize: 25,
-      serverSide: true,
-      rowActions,
-      isLoading,
-      isError,
-      error,
-      onPaginationChange: (pageIndex) => {
-        setCurrentPage(pageIndex);
-      },
-      onSortingChange: setSorting,
-    });
+	const { table, filterColumns, filterState, actions, strategy, totalCount } =
+		useUniversalTable<CoachRow>({
+			data: (coachesData?.data as any) || [],
+			totalCount: coachesData?.count || 0,
+			columns: coachesTableColumns,
+			columnsConfig: dynamicFilterConfig,
+			filters,
+			onFiltersChange: setFilters,
+			enableSelection: true,
+			pageSize: 25,
+			serverSide: true,
+			rowActions,
+			isLoading,
+			isError,
+			error,
+			onPaginationChange: (pageIndex) => {
+				setCurrentPage(pageIndex);
+			},
+			onSortingChange: setSorting,
+		});
 
 	if (isError) {
 		return (
