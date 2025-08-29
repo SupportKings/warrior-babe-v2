@@ -1,27 +1,21 @@
 import MainLayout from "@/components/layout/main-layout";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import TestimonialsHeader from "@/features/clients/layout/testimonials.header";
+import ClientTestimonialsHeader from "@/features/clients/layout/client-testimonials.header";
 
-export default function TestimonialsLoading() {
+export default function ClientTestimonialsLoading() {
 	return (
-		<MainLayout headers={[<TestimonialsHeader key="testimonials-header" />]}>
+		<MainLayout headers={[<ClientTestimonialsHeader key="client-testimonials-header" />]}>
 			<div className="space-y-6 p-6">
-				<div className="space-y-2">
-					<Skeleton className="h-10 w-64" />
-					<Skeleton className="h-4 w-96" />
-				</div>
-
-				<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-					<Skeleton className="h-32 w-full rounded-lg" />
-					<Skeleton className="h-32 w-full rounded-lg" />
-					<Skeleton className="h-32 w-full rounded-lg" />
-					<Skeleton className="h-32 w-full rounded-lg" />
-				</div>
-
-				<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-					<Skeleton className="h-64 w-full rounded-lg" />
-					<Skeleton className="h-64 w-full rounded-lg" />
+				<div className="space-y-4">
+					<Skeleton className="h-8 w-32" />
+					<div className="space-y-2">
+						<Skeleton className="h-10 w-full" />
+						<Skeleton className="h-10 w-full" />
+						<Skeleton className="h-10 w-full" />
+						<Skeleton className="h-10 w-full" />
+						<Skeleton className="h-10 w-full" />
+					</div>
 				</div>
 			</div>
 		</MainLayout>
