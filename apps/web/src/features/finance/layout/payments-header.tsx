@@ -1,4 +1,9 @@
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+
+import { PlusIcon } from "lucide-react";
 
 export default function PaymentsHeader() {
 	return (
@@ -7,6 +12,12 @@ export default function PaymentsHeader() {
 				<SidebarTrigger />
 				<h1 className="font-medium text-[13px]">Payments</h1>
 			</div>
+			<Button size="sm" className="gap-2" asChild>
+				<Link href="#">
+					<PlusIcon className="h-4 w-4" />
+					Add Payment
+				</Link>
+			</Button>
 		</div>
 	);
 }
