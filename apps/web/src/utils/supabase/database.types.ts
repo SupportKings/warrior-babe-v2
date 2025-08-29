@@ -117,6 +117,7 @@ export type Database = {
         Row: {
           active: boolean
           coach_id: string | null
+          coach_payment: string | null
           created_at: string
           end_date: string | null
           id: string
@@ -127,6 +128,7 @@ export type Database = {
         Insert: {
           active?: boolean
           coach_id?: string | null
+          coach_payment?: string | null
           created_at?: string
           end_date?: string | null
           id?: string
@@ -137,6 +139,7 @@ export type Database = {
         Update: {
           active?: boolean
           coach_id?: string | null
+          coach_payment?: string | null
           created_at?: string
           end_date?: string | null
           id?: string
@@ -153,11 +156,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "client_activity_period_coach_payment_fkey"
+            columns: ["coach_payment"]
+            isOneToOne: false
+            referencedRelation: "coach_capacity"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "client_activity_period_payment_plan_fkey"
             columns: ["payment_plan"]
             isOneToOne: false
             referencedRelation: "payment_plans"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_activity_period_payment_plan_fkey"
+            columns: ["payment_plan"]
+            isOneToOne: false
+            referencedRelation: "payments_with_details"
+            referencedColumns: ["payment_plan_id"]
           },
         ]
       }
@@ -627,7 +644,6 @@ export type Database = {
       coach_payments: {
         Row: {
           amount: number
-          client_activity_period_id: string | null
           coach_id: string | null
           created_at: string
           date: string | null
@@ -639,7 +655,6 @@ export type Database = {
         }
         Insert: {
           amount: number
-          client_activity_period_id?: string | null
           coach_id?: string | null
           created_at?: string
           date?: string | null
@@ -651,7 +666,6 @@ export type Database = {
         }
         Update: {
           amount?: number
-          client_activity_period_id?: string | null
           coach_id?: string | null
           created_at?: string
           date?: string | null
@@ -662,20 +676,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "coach_payments_client_activity_period_id_client_activity_period"
-            columns: ["client_activity_period_id"]
-            isOneToOne: false
-            referencedRelation: "client_activity_period"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "coach_payments_client_activity_period_id_client_activity_period"
-            columns: ["client_activity_period_id"]
-            isOneToOne: false
-            referencedRelation: "v_client_activity_period_core"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "coach_payments_coach_id_fkey"
             columns: ["coach_id"]
@@ -1116,11 +1116,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "payment_slots_payment_id_payments_id_fk"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments_with_details"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "payment_slots_plan_id_payment_plans_id_fk"
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "payment_plans"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_slots_plan_id_payment_plans_id_fk"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "payments_with_details"
+            referencedColumns: ["payment_plan_id"]
           },
         ]
       }
@@ -1432,6 +1446,83 @@ export type Database = {
       }
     }
     Views: {
+      payments_with_details: {
+        Row: {
+          amount: number | null
+          amount_due: number | null
+          amount_paid: number | null
+          client_email: string | null
+          client_id: string | null
+          client_name: string | null
+          created_at: string | null
+          declined_at: string | null
+          dispute_fee: number | null
+          disputed_status: Database["public"]["Enums"]["disputed_status"] | null
+          id: string | null
+          payment_date: string | null
+          payment_method: string | null
+          payment_plan_id: string | null
+          payment_plan_name: string | null
+          payment_slot_id: string | null
+          plan_platform: string | null
+          plan_total_amount: number | null
+          plan_type: string | null
+          platform: string | null
+          product_id: string | null
+          product_name: string | null
+          slot_due_date: string | null
+          slot_notes: string | null
+          status: string | null
+          stripe_transaction_id: string | null
+          term_end_date: string | null
+          term_start_date: string | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_plans_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_plans_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "v_client_activity_period_core"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "payment_plans_product_id_products_id_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_plans_product_id_products_id_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "v_client_activity_period_core"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "payment_plans_type_fkey"
+            columns: ["plan_type"]
+            isOneToOne: false
+            referencedRelation: "payment_plan_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_plans_type_fkey"
+            columns: ["plan_type"]
+            isOneToOne: false
+            referencedRelation: "v_client_activity_period_core"
+            referencedColumns: ["ppt_id"]
+          },
+        ]
+      }
       v_client_activity_period_core: {
         Row: {
           active: boolean | null
@@ -1468,6 +1559,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "payment_plans"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_activity_period_payment_plan_fkey"
+            columns: ["payment_plan"]
+            isOneToOne: false
+            referencedRelation: "payments_with_details"
+            referencedColumns: ["payment_plan_id"]
           },
           {
             foreignKeyName: "payment_plan_templates_product_id_products_id_fk"
