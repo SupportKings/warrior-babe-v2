@@ -1,4 +1,9 @@
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+
+import { PlusIcon } from "lucide-react";
 
 export default function CoachPaymentsHeader() {
 	return (
@@ -7,6 +12,12 @@ export default function CoachPaymentsHeader() {
 				<SidebarTrigger />
 				<h1 className="font-medium text-[13px]">Coach Payments</h1>
 			</div>
+			<Link href="#">
+				<Button size="sm" className="h-8">
+					<PlusIcon className="mr-2 h-4 w-4" />
+					Add Coach Payment
+				</Button>
+			</Link>
 		</div>
 	);
 }
