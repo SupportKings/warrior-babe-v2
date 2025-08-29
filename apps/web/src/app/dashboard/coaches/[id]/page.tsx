@@ -4,10 +4,10 @@ import { notFound, redirect } from "next/navigation";
 
 import MainLayout from "@/components/layout/main-layout";
 
-import { coachDetailsQueries } from "@/features/coaches/queries/useCoachDetails";
 import CoachDetailSkeleton from "@/features/coaches/components/coach-detail-skeleton";
 import CoachDetailView from "@/features/coaches/components/coach-detail-view";
 import CoachDetailHeader from "@/features/coaches/layout/coach-detail-header";
+import { coachDetailsQueries } from "@/features/coaches/queries/useCoachDetails";
 
 import { getUser } from "@/queries/getUser";
 
@@ -56,9 +56,7 @@ async function CoachDetailPageAsync({ params }: CoachDetailPageProps) {
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>
 			<MainLayout
-				headers={[
-					<CoachDetailHeader key="coach-detail-header" coachId={id} />,
-				]}
+				headers={[<CoachDetailHeader key="coach-detail-header" coachId={id} />]}
 			>
 				<CoachDetailView coachId={id} />
 			</MainLayout>

@@ -1,21 +1,34 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
+import { getUser } from "@/queries/getUser";
 import { actionClient } from "@/lib/safe-action";
+
+import { returnValidationErrors } from "next-safe-action";
 
 import { createClient } from "@/utils/supabase/server";
 
-import { clientActivityPeriodFormSchema } from "../types/clientActivityPeriod";
+import { clientActivityPeriodCreateSchema } from "../types/clientActivityPeriod";
 
 export const createClientActivityPeriodAction = actionClient
-	.inputSchema(clientActivityPeriodFormSchema)
+	.inputSchema(clientActivityPeriodCreateSchema)
 	.action(async ({ parsedInput }) => {
+		// Check authentication
+		const user = await getUser();
+		if (!user) {
+			return returnValidationErrors(clientActivityPeriodCreateSchema, {
+				_errors: ["Authentication required. Please sign in."],
+			});
+		}
+
 		const supabase = await createClient();
 
 		// Insert the new client activity period
 		const { data: newPeriod, error } = await supabase
 			.from("client_activity_period")
 			.insert({
-				client_id: parsedInput.client_id,
+				payment_plan: parsedInput.payment_plan,
 				coach_id: parsedInput.coach_id,
 				start_date: parsedInput.start_date,
 				end_date: parsedInput.end_date,
@@ -25,10 +38,17 @@ export const createClientActivityPeriodAction = actionClient
 			.single();
 
 		if (error) {
-			throw new Error(
-				`Failed to create client activity period: ${error.message}`,
-			);
+			console.error("Failed to create client activity period:", error);
+			return returnValidationErrors(clientActivityPeriodCreateSchema, {
+				_errors: ["Failed to create client activity period"],
+			});
 		}
 
-		return newPeriod;
+		// Revalidate relevant paths
+		revalidatePath("/dashboard/clients/activity-periods");
+
+		return {
+			success: true,
+			data: newPeriod,
+		};
 	});

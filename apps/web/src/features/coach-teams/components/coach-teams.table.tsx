@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import Link from "next/link";
 
+import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/utils/supabase/database.types";
 
 import { DataTableFilter } from "@/components/data-table-filter";
@@ -18,18 +19,11 @@ import { UniversalDataTable } from "@/components/universal-data-table/universal-
 import { UniversalDataTableWrapper } from "@/components/universal-data-table/universal-data-table-wrapper";
 import { createUniversalColumnHelper } from "@/components/universal-data-table/utils/column-helpers";
 
+import { useQuery } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
-import {
-	EditIcon,
-	EyeIcon,
-	PlusIcon,
-	TrashIcon,
-	UserIcon,
-} from "lucide-react";
+import { EditIcon, EyeIcon, PlusIcon, TrashIcon, UserIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useCoachTeamsWithFaceted } from "../queries/usecoach-teams";
-import { useQuery } from "@tanstack/react-query";
-import { createClient } from "@/utils/supabase/client";
 
 // Fetch all team members for filter options
 async function getAllTeamMembers() {
@@ -133,11 +127,7 @@ const coachTeamTableColumns = [
 		enableColumnFilter: false,
 		cell: ({ row }) => {
 			const coach = row.original.coach;
-			return (
-				<div className="text-sm">
-					{coach?.name || "No coach"}
-				</div>
-			);
+			return <div className="text-sm">{coach?.name || "No coach"}</div>;
 		},
 	}),
 ];
@@ -167,9 +157,10 @@ function CoachTeamsTableContent({
 }) {
 	const [currentPage, setCurrentPage] = useState(0);
 	const [sorting, setSorting] = useState<any[]>([]);
-	
+
 	// Fetch team members for filter options
-	const { data: teamMembers, isLoading: isLoadingTeamMembers } = useTeamMembers();
+	const { data: teamMembers, isLoading: isLoadingTeamMembers } =
+		useTeamMembers();
 
 	// Reset to first page when filters change
 	useEffect(() => {
@@ -199,10 +190,12 @@ function CoachTeamsTableContent({
 		: { data: [], count: 0 };
 
 	// Create dynamic filter config with team members options
-	const teamMemberOptions = teamMembers?.map(member => ({
-		value: member.id,
-		label: member.name || member.user?.name || member.user?.email || 'Unknown'
-	})) || [];
+	const teamMemberOptions =
+		teamMembers?.map((member) => ({
+			value: member.id,
+			label:
+				member.name || member.user?.name || member.user?.email || "Unknown",
+		})) || [];
 
 	const dynamicFilterConfig = [
 		{

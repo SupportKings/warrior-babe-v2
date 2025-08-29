@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import Link from "next/link";
 
@@ -35,24 +35,8 @@ import { deleteClientActivityPeriod } from "../actions/deleteClientActivityPerio
 import { useClientActivityPeriodsWithFaceted } from "../queries/useClientActivityPeriod";
 import { ClientActivityPeriodDeleteModal } from "./client-activity-period-delete-modal";
 
-// Type for client activity period row from Supabase with relations
-type ClientActivityPeriodRow =
-	Database["public"]["Tables"]["client_activity_period"]["Row"] & {
-		client?: {
-			id: string;
-			name: string;
-			email: string;
-		} | null;
-		coach?: {
-			id: number;
-			name: string | null;
-			user: {
-				id: string;
-				name: string;
-				email: string;
-			} | null;
-		} | null;
-	};
+// Type for client activity period row from the view
+type ClientActivityPeriodRow = Database["public"]["Views"]["v_client_activity_period_core"]["Row"];
 
 // Create column helper for TanStack table
 const columnHelper = createColumnHelper<ClientActivityPeriodRow>();
@@ -83,13 +67,23 @@ const clientActivityPeriodTableColumns = [
 		enableColumnFilter: false,
 	}),
 	columnHelper.display({
-		id: "client",
-		header: "Client",
+		id: "payment_plan",
+		header: "Client & Payment Plan",
 		enableColumnFilter: true,
 		cell: ({ row }) => {
-			const client = row.original.client;
+			const clientName = row.original.client_name;
+			const planName = row.original.ppt_name || "No payment plan";
+			const productName = row.original.product_name;
 			return (
-				<div className="font-medium">{client?.name || "Unknown Client"}</div>
+				<div>
+					<div className="font-medium">{clientName || "Unknown Client"}</div>
+					<div className="text-xs text-muted-foreground">
+						{planName}
+						{productName && (
+							<span className="block">{productName}</span>
+						)}
+					</div>
+				</div>
 			);
 		},
 	}),
@@ -120,9 +114,9 @@ const clientActivityPeriodTableColumns = [
 		header: "Coach",
 		enableColumnFilter: true,
 		cell: ({ row }) => {
-			const coach = row.original.coach;
+			const coachName = row.original.coach_name;
 			return (
-				<div className="text-sm">{coach?.name || "No coach assigned"}</div>
+				<div className="text-sm">{coachName || "No coach assigned"}</div>
 			);
 		},
 	}),
@@ -143,12 +137,12 @@ const universalColumnHelper =
 
 const clientActivityPeriodFilterConfig = [
 	universalColumnHelper
-		.option("client")
-		.displayName("Client")
+		.option("payment_plan")
+		.displayName("Payment Plan")
 		.icon(UserIcon)
 		.build(),
 	universalColumnHelper
-		.option("coach")
+		.option("coach_id")
 		.displayName("Coach")
 		.icon(UserIcon)
 		.build(),
@@ -177,6 +171,25 @@ function ClientActivityPeriodsTableContent({
 	const [currentPage, setCurrentPage] = useState(0);
 	const [sorting, setSorting] = useState<any[]>([]);
 
+	// Convert date strings back to Date objects for UI components
+	// This is needed because when filters are loaded from URL, dates become strings
+	// but the filter UI expects Date objects
+	const processedFilters = useMemo(() => {
+		return filters.map((filter: any) => {
+			if (filter.type === 'date' && filter.values) {
+				const processedValues = filter.values.map((value: any) => {
+					if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+						// Convert YYYY-MM-DD string to Date object for UI
+						return new Date(value + 'T00:00:00.000Z');
+					}
+					return value;
+				});
+				return { ...filter, values: processedValues };
+			}
+			return filter;
+		});
+	}, [filters]);
+
 	// Reset to first page when filters change
 	useEffect(() => {
 		setCurrentPage(0);
@@ -193,7 +206,7 @@ function ClientActivityPeriodsTableContent({
 		currentPage,
 		25,
 		sorting,
-		["client", "coach"], // faceted columns for dropdowns
+		["client", "product", "coach_id"], // faceted columns for dropdowns
 	);
 
 	// Extract data from combined result
@@ -207,17 +220,19 @@ function ClientActivityPeriodsTableContent({
 	// Extract faceted data for options with counts
 	const clientFaceted =
 		clientActivityPeriodsWithFaceted?.facetedData?.client || [];
+	const productFaceted =
+		clientActivityPeriodsWithFaceted?.facetedData?.product || [];
 	const coachFaceted =
-		clientActivityPeriodsWithFaceted?.facetedData?.coach || [];
+		clientActivityPeriodsWithFaceted?.facetedData?.coach_id || [];
 
 	// Create dynamic filter config with options from faceted data
 	const dynamicFilterConfig = [
 		{
-			...universalColumnHelper
-				.option("client")
-				.displayName("Client")
-				.icon(UserIcon)
-				.build(),
+			id: "client",
+			type: "option" as const,
+			displayName: "Client",
+			icon: UserIcon,
+			accessor: (row: ClientActivityPeriodRow) => row.client_id,
 			options: clientFaceted.map((item: any) => ({
 				value: item.value,
 				label: item.label,
@@ -225,8 +240,20 @@ function ClientActivityPeriodsTableContent({
 			})),
 		},
 		{
+			id: "product",
+			type: "option" as const,
+			displayName: "Product",
+			icon: UserIcon,
+			accessor: (row: ClientActivityPeriodRow) => row.product_id,
+			options: productFaceted.map((item: any) => ({
+				value: item.value,
+				label: item.label,
+				count: item.count,
+			})),
+		},
+		{
 			...universalColumnHelper
-				.option("coach")
+				.option("coach_id")
 				.displayName("Coach")
 				.icon(UserIcon)
 				.build(),
@@ -281,7 +308,7 @@ function ClientActivityPeriodsTableContent({
 			totalCount: clientActivityPeriodsData?.count || 0,
 			columns: clientActivityPeriodTableColumns,
 			columnsConfig: dynamicFilterConfig,
-			filters,
+			filters: processedFilters, // Use processed filters here too
 			onFiltersChange: setFilters,
 			faceted: {},
 			enableSelection: true,

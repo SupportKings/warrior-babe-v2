@@ -5,6 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import type { FiltersState } from "@/components/data-table-filter/core/types";
 
 import type { SortingState } from "@tanstack/react-table";
+import { format } from "date-fns";
 
 export async function getClientActivityPeriod(id: string) {
 	try {
@@ -15,10 +16,23 @@ export async function getClientActivityPeriod(id: string) {
 			.from("client_activity_period")
 			.select(`
 				*,
-				client:clients!client_activity_period_client_id_clients_id_fk (
+				payment_plan:payment_plans!client_activity_period_payment_plan_fkey (
 					id,
 					name,
-					email
+					client:clients!payment_plans_client_id_fkey (
+						id,
+						name,
+						email
+					),
+					product:products (
+						id,
+						name,
+						description
+					),
+					payment_plan_template:payment_plan_templates!payment_plans_type_fkey (
+						id,
+						name
+					)
 				),
 				coach:team_members!client_activity_period_coach_id_fkey (
 					id,
@@ -78,10 +92,23 @@ export async function getAllClientActivityPeriods() {
 			.from("client_activity_period")
 			.select(`
 				*,
-				client:clients!client_activity_period_client_id_clients_id_fk (
+				payment_plan:payment_plans!client_activity_period_payment_plan_fkey (
 					id,
 					name,
-					email
+					client:clients!payment_plans_client_id_fkey (
+						id,
+						name,
+						email
+					),
+					product:products (
+						id,
+						name,
+						description
+					),
+					payment_plan_template:payment_plan_templates!payment_plans_type_fkey (
+						id,
+						name
+					)
 				),
 				coach:team_members!client_activity_period_coach_id_fkey (
 					id,
@@ -108,75 +135,214 @@ export async function getAllClientActivityPeriods() {
 	}
 }
 
-// Helper function to build filter query based on FiltersState
+// Helper function to build filter query based on FiltersState using the view
 function buildFilterQuery(supabase: any, filters: FiltersState) {
-	let query = supabase.from("client_activity_period").select(`
-		*,
-		client:clients!client_activity_period_client_id_clients_id_fk (
-			id,
-			name,
-			email
-		),
-		coach:team_members!client_activity_period_coach_id_fkey (
-			id,
-			name,
-			user:user!team_members_user_id_fkey (
-				id,
-				name,
-				email
-			)
-		)
-	`);
+	let query = supabase.from("v_client_activity_period_core").select("*");
 
-	// Apply filters
-	filters.forEach((filter) => {
-		const { columnId, values } = filter;
+	// Apply filters based on their type and operator
+	for (const filter of filters) {
+		const { columnId, type, operator, values } = filter;
 
-		if (!values || (Array.isArray(values) && values.length === 0)) return;
+		if (!values || (Array.isArray(values) && values.length === 0)) continue;
 
-		// For consistency, use the first value if it's an array
-		const value = Array.isArray(values) ? values[0] : values;
-
-		switch (columnId) {
-			case "client":
-				// Filter by client ID (since we're using option dropdown with IDs)
-				if (Array.isArray(values)) {
-					query = query.in("client_id", values);
-				} else {
-					query = query.eq("client_id", value);
+		// Map columnId to the actual database column
+		const dbColumn = getDbColumnName(columnId);
+		
+		// Apply filter based on type and operator
+		switch (type) {
+			case "text":
+				switch (operator) {
+					case "contains":
+						if (values[0]) {
+							query = query.ilike(dbColumn, `%${values[0]}%`);
+						}
+						break;
+					case "does not contain":
+						if (values[0]) {
+							query = query.not(dbColumn, "ilike", `%${values[0]}%`);
+						}
+						break;
 				}
 				break;
-			case "coach":
-				// Filter by coach ID (since we're using option dropdown with IDs)
-				if (Array.isArray(values)) {
-					query = query.in("coach_id", values);
-				} else {
-					query = query.eq("coach_id", value);
+
+			case "option":
+				switch (operator) {
+					case "is":
+						if (values[0]) {
+							query = query.eq(dbColumn, values[0]);
+						}
+						break;
+					case "is not":
+						if (values[0]) {
+							query = query.not(dbColumn, "eq", values[0]);
+						}
+						break;
+					case "is any of":
+						if (values.length > 0) {
+							query = query.in(dbColumn, values);
+						}
+						break;
+					case "is none of":
+						if (values.length > 0) {
+							// Use NOT IN syntax: column.not.in.(value1,value2,...)
+							query = query.filter(dbColumn, "not.in", `(${values.join(",")})`);
+						}
+						break;
 				}
 				break;
-			case "start_date":
-				if (Array.isArray(values) && values.length === 2) {
-					query = query
-						.gte("start_date", values[0])
-						.lte("start_date", values[1]);
+
+			case "date":
+				switch (operator) {
+					case "is":
+						if (values[0]) {
+							query = query.eq(dbColumn, formatDateForDb(values[0]));
+						}
+						break;
+					case "is not":
+						if (values[0]) {
+							query = query.not(dbColumn, "eq", formatDateForDb(values[0]));
+						}
+						break;
+					case "is before":
+						if (values[0]) {
+							query = query.lt(dbColumn, formatDateForDb(values[0]));
+						}
+						break;
+					case "is on or after":
+						if (values[0]) {
+							query = query.gte(dbColumn, formatDateForDb(values[0]));
+						}
+						break;
+					case "is after":
+						if (values[0]) {
+							query = query.gt(dbColumn, formatDateForDb(values[0]));
+						}
+						break;
+					case "is on or before":
+						if (values[0]) {
+							query = query.lte(dbColumn, formatDateForDb(values[0]));
+						}
+						break;
+					case "is between":
+						if (values.length >= 2 && values[0] && values[1]) {
+							query = query.gte(dbColumn, formatDateForDb(values[0])).lte(dbColumn, formatDateForDb(values[1]));
+						}
+						break;
+					case "is not between":
+						if (values.length >= 2 && values[0] && values[1]) {
+							// NOT BETWEEN means: date < start_date OR date > end_date
+							query = query.or(`${dbColumn}.lt.${formatDateForDb(values[0])},${dbColumn}.gt.${formatDateForDb(values[1])}`);
+						}
+						break;
 				}
 				break;
-			case "end_date":
-				if (Array.isArray(values) && values.length === 2) {
-					query = query.gte("end_date", values[0]).lte("end_date", values[1]);
+
+			case "number":
+				switch (operator) {
+					case "is":
+						if (values[0] !== undefined) {
+							query = query.eq(dbColumn, values[0]);
+						}
+						break;
+					case "is not":
+						if (values[0] !== undefined) {
+							query = query.not(dbColumn, "eq", values[0]);
+						}
+						break;
+					case "is less than":
+						if (values[0] !== undefined) {
+							query = query.lt(dbColumn, values[0]);
+						}
+						break;
+					case "is greater than":
+						if (values[0] !== undefined) {
+							query = query.gt(dbColumn, values[0]);
+						}
+						break;
+					case "is greater than or equal to":
+						if (values[0] !== undefined) {
+							query = query.gte(dbColumn, values[0]);
+						}
+						break;
+					case "is less than or equal to":
+						if (values[0] !== undefined) {
+							query = query.lte(dbColumn, values[0]);
+						}
+						break;
+					case "is between":
+						if (values.length >= 2 && values[0] !== undefined && values[1] !== undefined) {
+							query = query.gte(dbColumn, values[0]).lte(dbColumn, values[1]);
+						}
+						break;
+					case "is not between":
+						if (values.length >= 2 && values[0] !== undefined && values[1] !== undefined) {
+							// NOT BETWEEN means: number < start_value OR number > end_value
+							query = query.or(`${dbColumn}.lt.${values[0]},${dbColumn}.gt.${values[1]}`);
+						}
+						break;
 				}
 				break;
-			case "active":
-				if (Array.isArray(values)) {
-					query = query.in("active", values);
-				} else {
-					query = query.eq("active", values);
+
+			case "multiOption":
+				switch (operator) {
+					case "include any of":
+						if (values.length > 0) {
+							query = query.in(dbColumn, values);
+						}
+						break;
+					case "include all of":
+						// This would require array overlap logic - implement if needed
+						if (values.length > 0) {
+							query = query.in(dbColumn, values);
+						}
+						break;
+					case "exclude if any of":
+						if (values.length > 0) {
+							// Use NOT IN syntax for multiOption
+							query = query.filter(dbColumn, "not.in", `(${values.join(",")})`);
+						}
+						break;
 				}
 				break;
 		}
-	});
+	}
 
 	return query;
+}
+
+// Helper function to map column IDs to database column names
+function getDbColumnName(columnId: string): string {
+	switch (columnId) {
+		case "client":
+			return "client_id";
+		case "product":
+			return "product_id";
+		case "coach":
+		case "coach_id":
+			return "coach_id";
+		case "start_date":
+			return "start_date";
+		case "end_date":
+			return "end_date";
+		case "active":
+			return "active";
+		case "payment_plan":
+			return "payment_plan";
+		default:
+			return columnId;
+	}
+}
+
+// Helper function to format date values for database queries (date columns only)
+function formatDateForDb(dateValue: string | Date): string {
+	// If it's already a properly formatted date string (YYYY-MM-DD), use it as-is
+	if (typeof dateValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+		return dateValue;
+	}
+	
+	// Use date-fns to format consistently as YYYY-MM-DD
+	// This handles all date inputs (Date objects, ISO strings, etc.) reliably
+	return format(new Date(dateValue), "yyyy-MM-dd");
 }
 
 // Helper function to apply sorting
@@ -208,60 +374,9 @@ export async function getClientActivityPeriodsWithFilters(
 		// Apply sorting
 		query = applySorting(query, sorting);
 
-		// Get total count for pagination - no joins needed as filters use direct columns
-		let countQuery = supabase
-			.from("client_activity_period")
-			.select("id", { count: "exact", head: true });
-
-		// Apply the same filters to count query
-		filters.forEach((filter) => {
-			const { columnId, values } = filter;
-
-			if (!values || (Array.isArray(values) && values.length === 0)) return;
-
-			// For consistency, use the first value if it's an array
-			const value = Array.isArray(values) ? values[0] : values;
-
-			switch (columnId) {
-				case "client":
-					// Filter by client ID (since we're using option dropdown with IDs)
-					if (Array.isArray(values)) {
-						countQuery = countQuery.in("client_id", values);
-					} else {
-						countQuery = countQuery.eq("client_id", value);
-					}
-					break;
-				case "coach":
-					// Filter by coach ID (since we're using option dropdown with IDs)
-					if (Array.isArray(values)) {
-						countQuery = countQuery.in("coach_id", values);
-					} else {
-						countQuery = countQuery.eq("coach_id", value);
-					}
-					break;
-				case "start_date":
-					if (Array.isArray(values) && values.length === 2) {
-						countQuery = countQuery
-							.gte("start_date", values[0])
-							.lte("start_date", values[1]);
-					}
-					break;
-				case "end_date":
-					if (Array.isArray(values) && values.length === 2) {
-						countQuery = countQuery
-							.gte("end_date", values[0])
-							.lte("end_date", values[1]);
-					}
-					break;
-				case "active":
-					if (Array.isArray(values)) {
-						countQuery = countQuery.in("active", values);
-					} else {
-						countQuery = countQuery.eq("active", values);
-					}
-					break;
-			}
-		});
+		// Build count query with the same filters using the view
+		let countQuery = buildFilterQuery(supabase, filters);
+		countQuery = countQuery.select("id", { count: "exact", head: true });
 
 		// Execute count query
 		const { count, error: countError } = await countQuery;
@@ -299,7 +414,7 @@ export async function getClientActivityPeriodsWithFilters(
 	}
 }
 
-// Faceted data for filters
+// Faceted data for filters using the view
 export async function getClientActivityPeriodsFaceted(
 	columnId: string,
 	filters: FiltersState = [],
@@ -310,79 +425,19 @@ export async function getClientActivityPeriodsFaceted(
 		// Build base query with filters (excluding the column we're getting faceted data for)
 		const filteredFilters = filters.filter((f) => f.columnId !== columnId);
 
-		// Start with base query that includes all necessary joins
-		let query = supabase.from("client_activity_period").select(`
-			*,
-			client:clients!client_activity_period_client_id_clients_id_fk (
-				id,
-				name,
-				email
-			),
-			coach:team_members!client_activity_period_coach_id_fkey (
-				id,
-				name,
-				user:user!team_members_user_id_fkey (
-					id,
-					name,
-					email
-				)
-			)
-		`);
+		// Use the view for simplified querying
+		let query = buildFilterQuery(supabase, filteredFilters);
 
-		// Apply the filtered filters to the query
-		filteredFilters.forEach((filter) => {
-			const { columnId: filterColumnId, values } = filter;
-
-			if (!values || (Array.isArray(values) && values.length === 0)) return;
-
-			// For consistency, use the first value if it's an array
-			const value = Array.isArray(values) ? values[0] : values;
-
-			switch (filterColumnId) {
-				case "client":
-					if (Array.isArray(values)) {
-						query = query.in("client_id", values);
-					} else {
-						query = query.eq("client_id", value);
-					}
-					break;
-				case "coach":
-					if (Array.isArray(values)) {
-						query = query.in("coach_id", values);
-					} else {
-						query = query.eq("coach_id", value);
-					}
-					break;
-				case "start_date":
-					if (Array.isArray(values) && values.length === 2) {
-						query = query
-							.gte("start_date", values[0])
-							.lte("start_date", values[1]);
-					}
-					break;
-				case "end_date":
-					if (Array.isArray(values) && values.length === 2) {
-						query = query.gte("end_date", values[0]).lte("end_date", values[1]);
-					}
-					break;
-				case "active":
-					if (Array.isArray(values)) {
-						query = query.in("active", values);
-					} else {
-						query = query.eq("active", values);
-					}
-					break;
-			}
-		});
-
-		// Now modify the query to only select what we need for faceted data
+		// Filter out nulls for the specific column we're getting faceted data for
 		switch (columnId) {
 			case "client":
-				// We already have the joins, just filter out nulls
 				query = query.not("client_id", "is", null);
 				break;
+			case "product":
+				query = query.not("product_id", "is", null);
+				break;
 			case "coach":
-				// We already have the joins, just filter out nulls
+			case "coach_id":
 				query = query.not("coach_id", "is", null);
 				break;
 			case "active":
@@ -407,18 +462,29 @@ export async function getClientActivityPeriodsFaceted(
 				facetedData =
 					data
 						?.map((item: any) => ({
-							value: item.client?.id,
-							label: item.client?.name,
+							value: item.client_id,
+							label: item.client_name,
+							count: 1,
+						}))
+						.filter((item: any) => item.value) || [];
+				break;
+			case "product":
+				facetedData =
+					data
+						?.map((item: any) => ({
+							value: item.product_id,
+							label: item.product_name,
 							count: 1,
 						}))
 						.filter((item: any) => item.value) || [];
 				break;
 			case "coach":
+			case "coach_id":
 				facetedData =
 					data
 						?.map((item: any) => ({
-							value: item.coach?.id,
-							label: item.coach?.name || `Coach ${item.coach?.id}`,
+							value: item.coach_id,
+							label: item.coach_name || `Coach ${item.coach_id}`,
 							count: 1,
 						}))
 						.filter((item: any) => item.value) || [];
@@ -426,7 +492,7 @@ export async function getClientActivityPeriodsFaceted(
 			case "active":
 				facetedData =
 					data?.map((item: any) => ({
-						value: item[columnId],
+						value: item.active,
 						count: 1,
 					})) || [];
 				break;
@@ -438,7 +504,7 @@ export async function getClientActivityPeriodsFaceted(
 		const groupedData = facetedData.reduce((acc: any[], item: any) => {
 			const existing = acc.find((a) => a.value === item.value);
 			if (existing) {
-				existing.count += 1; // Increment count properly
+				existing.count += 1;
 			} else {
 				acc.push({
 					value: item.value,

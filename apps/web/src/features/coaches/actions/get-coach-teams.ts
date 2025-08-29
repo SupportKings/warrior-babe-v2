@@ -17,7 +17,7 @@ export async function getAllPotentialTeamLeaders(): Promise<PremierCoach[]> {
 		const { data: coachTeams, error } = await supabase
 			.from("coach_teams")
 			.select(
-			`
+				`
 				id,
 				premier_coach_id,
 				premier_coach:team_members!coach_teams_premier_coach_id_fkey (

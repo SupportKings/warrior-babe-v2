@@ -265,7 +265,11 @@ export async function getCoachTeamsWithFaceted(
 									if (operator === "is") {
 										facetQuery = facetQuery.eq(filterColumnId, values[0]);
 									} else if (operator === "is not") {
-										facetQuery = facetQuery.not(filterColumnId, "eq", values[0]);
+										facetQuery = facetQuery.not(
+											filterColumnId,
+											"eq",
+											values[0],
+										);
 									} else if (operator === "is any of") {
 										facetQuery = facetQuery.in(filterColumnId, values);
 									} else if (operator === "is none of") {
@@ -353,11 +357,16 @@ export async function getCoachTeamsWithFaceted(
 	}
 }
 
-export async function getCoachTeamsFaceted(columnId: string, filters: any[] = []) {
+export async function getCoachTeamsFaceted(
+	columnId: string,
+	filters: any[] = [],
+) {
 	try {
 		const supabase = await createClient();
 
-		let query = supabase.from("coach_teams").select(`${columnId}, count:${columnId}.count()`, { head: false });
+		let query = supabase
+			.from("coach_teams")
+			.select(`${columnId}, count:${columnId}.count()`, { head: false });
 
 		// Apply existing filters (excluding the column we're faceting)
 		filters

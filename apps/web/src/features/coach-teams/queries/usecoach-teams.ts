@@ -109,7 +109,13 @@ export function useCoachTeamsWithFaceted(
 			facetedColumns,
 		),
 		queryFn: () =>
-			getCoachTeamsWithFaceted(filters, page, pageSize, sorting, facetedColumns),
+			getCoachTeamsWithFaceted(
+				filters,
+				page,
+				pageSize,
+				sorting,
+				facetedColumns,
+			),
 		staleTime: 2 * 60 * 1000, // 2 minutes
 	});
 }
@@ -179,8 +185,12 @@ export function useDeleteCoachTeam() {
 		},
 		onSuccess: (result, deletedId) => {
 			// Remove the deleted coach team from the cache
-			queryClient.removeQueries({ queryKey: coachTeamQueries.detail(deletedId) });
-			queryClient.removeQueries({ queryKey: coachTeamQueries.basic(deletedId) });
+			queryClient.removeQueries({
+				queryKey: coachTeamQueries.detail(deletedId),
+			});
+			queryClient.removeQueries({
+				queryKey: coachTeamQueries.basic(deletedId),
+			});
 
 			// Invalidate the coach teams list to refetch
 			queryClient.invalidateQueries({ queryKey: coachTeamQueries.lists() });
