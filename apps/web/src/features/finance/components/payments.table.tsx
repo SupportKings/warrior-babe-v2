@@ -443,7 +443,6 @@ function PaymentsTableContent({
     },
   ];
 
-  console.log(paymentsData?.data);
 
   const { table, filterColumns, filterState, actions, strategy, totalCount } =
     useUniversalTable<PaymentRow>({
