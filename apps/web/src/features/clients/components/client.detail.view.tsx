@@ -679,7 +679,7 @@ export default function ClientDetailView({ clientId }: ClientDetailViewProps) {
 	});
 
 	const activityPeriodTable = useReactTable({
-		data: client.client_activity_period || [],
+		data: client.client_activity_period as any || [] as any,
 		columns: activityPeriodColumns,
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),

@@ -34,7 +34,7 @@ export default function ClientEditContent({
 	}
 
 	// Transform the client data for the form
-	const formData = {
+	const formData: any = {
 		id: client.id,
 		name: client.name,
 		email: client.email,

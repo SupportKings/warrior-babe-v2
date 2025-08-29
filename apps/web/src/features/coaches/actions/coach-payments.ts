@@ -223,90 +223,31 @@ export async function getCoachClientActivityPeriods(coachId: string) {
   try {
     const supabase = await createClient();
 
-    // Directly fetch activity periods that belong to this coach
-    // The coach_id field exists on client_activity_period table
+    // Use the view that has proper client relationships
     const { data: activityPeriods, error } = await supabase
-      .from("client_activity_period")
+      .from("v_client_activity_period_core")
       .select(
         `
         id,
         start_date,
         end_date,
         active,
-        client:clients!client_activity_period_client_id_clients_id_fk (
-          id,
-          name,
-          email
-        )
+        client_id,
+        client_name
       `
       )
-      .eq("coach_id", coachId) // Try with string first, as it might be UUID
+      .eq("coach_id", coachId)
       .order("start_date", { ascending: false });
-
-    let finalActivityPeriods = activityPeriods || [];
 
     if (error) {
       console.error("Error fetching client activity periods:", error);
-
-      // Fallback: If direct query fails, try through client assignments
-      const { data: clientAssignments, error: assignmentsError } =
-        await supabase
-          .from("client_assignments")
-          .select(
-            `
-          client_id
-        `
-          )
-          .eq("coach_id", coachId);
-
-      if (assignmentsError) {
-        console.error("Error fetching client assignments:", assignmentsError);
-        return [];
-      }
-
-      // Get unique client IDs
-      const clientIds = [
-        ...new Set(clientAssignments?.map((a) => a.client_id) || []),
-      ];
-
-      if (clientIds.length === 0) {
-        return [];
-      }
-
-      // Get all activity periods for these clients
-      const { data: fallbackPeriods, error: fallbackError } = await supabase
-        .from("client_activity_period")
-        .select(
-          `
-          id,
-          start_date,
-          end_date,
-          active,
-          client:clients!client_activity_period_client_id_clients_id_fk (
-            id,
-            name,
-            email
-          )
-        `
-        )
-        .in("client_id", clientIds)
-        .order("start_date", { ascending: false });
-
-      if (fallbackError) {
-        console.error(
-          "Error fetching activity periods (fallback):",
-          fallbackError
-        );
-        return [];
-      }
-
-      // Use fallback periods if main query failed
-      finalActivityPeriods = fallbackPeriods || [];
+      return [];
     }
+
     const formattedPeriods =
-      finalActivityPeriods?.map((period) => ({
+      activityPeriods?.map((period) => ({
         id: period.id,
-        label: `${period.client?.name || "Unknown Client"} - ${
+        label: `${period.client_name || "Unknown Client"} - ${
           period.start_date
             ? format(new Date(period.start_date), "MMM dd, yyyy")
             : "N/A"
@@ -315,7 +256,7 @@ export async function getCoachClientActivityPeriods(coachId: string) {
             ? format(new Date(period.end_date), "MMM dd, yyyy")
             : "Present"
         }${period.active ? " (Active)" : ""}`,
-        clientName: period.client?.name || "Unknown Client",
+        clientName: period.client_name || "Unknown Client",
         startDate: period.start_date,
         endDate: period.end_date,
         active: period.active,

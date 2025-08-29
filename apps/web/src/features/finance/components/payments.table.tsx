@@ -374,7 +374,7 @@ function PaymentsTableContent({
         : [],
     },
     {
-      ...universalColumnHelper
+      ...(universalColumnHelper as any)
         .option("client_id")
         .displayName("Client")
         .icon(UserIcon)
@@ -387,7 +387,7 @@ function PaymentsTableContent({
         : [],
     },
     {
-      ...universalColumnHelper
+      ...(universalColumnHelper as any)
         .option("product_id")
         .displayName("Product")
         .icon(PackageIcon)
@@ -573,12 +573,12 @@ export function PaymentsDataTable() {
       table="payments"
       columns={paymentTableColumns}
       columnsConfig={[
-        universalColumnHelper
+        (universalColumnHelper as any)
           .option("client_id")
           .displayName("Client")
           .icon(UserIcon)
           .build(),
-        universalColumnHelper
+        (universalColumnHelper as any)
           .option("product_id")
           .displayName("Product")
           .icon(PackageIcon)

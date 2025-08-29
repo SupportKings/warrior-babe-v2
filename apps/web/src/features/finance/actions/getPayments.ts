@@ -171,7 +171,7 @@ export async function getPaymentsWithFilters(
 
     // Use the view for simpler filtering
     let query = supabase
-      .from("payments_with_details" as any)
+      .from("payments_with_details")
       .select(`*`, { count: "exact" });
 
     // Apply filters with proper operator support
@@ -186,13 +186,13 @@ export async function getPaymentsWithFilters(
           case "client_id":
           case "product_id":
             if (operator === "is") {
-              query = query.eq(columnId, values[0]);
+              query = (query as any).eq(columnId, values[0]);
             } else if (operator === "is not") {
-              query = query.not(columnId, "eq", values[0]);
+              query = (query as any).not(columnId, "eq", values[0]);
             } else if (operator === "is any of") {
-              query = query.in(columnId, values);
+              query = (query as any).in(columnId, values);
             } else if (operator === "is none of") {
-              query = query.not(columnId, "in", `(${values.join(",")})`);
+              query = (query as any).not(columnId, "in", `(${values.join(",")})`);
             }
             break;
 
@@ -200,9 +200,9 @@ export async function getPaymentsWithFilters(
           case "stripe_transaction_id":
             // Text fields - support contains/does not contain
             if (operator === "contains") {
-              query = query.ilike(columnId, `%${values[0]}%`);
+              query = (query as any).ilike(columnId, `%${values[0]}%`);
             } else if (operator === "does not contain") {
-              query = query.not(columnId, "ilike", `%${values[0]}%`);
+              query = (query as any).not(columnId, "ilike", `%${values[0]}%`);
             }
             break;
 
@@ -211,17 +211,17 @@ export async function getPaymentsWithFilters(
           case "disputed_status":
             // Status can be treated as both text and option
             if (operator === "contains") {
-              query = query.ilike(columnId, `%${values[0]}%`);
+              query = (query as any).ilike(columnId, `%${values[0]}%`);
             } else if (operator === "does not contain") {
-              query = query.not(columnId, "ilike", `%${values[0]}%`);
+              query = (query as any).not(columnId, "ilike", `%${values[0]}%`);
             } else if (operator === "is") {
-              query = query.eq(columnId, values[0]);
+              query = (query as any).eq(columnId, values[0]);
             } else if (operator === "is not") {
-              query = query.not(columnId, "eq", values[0]);
+              query = (query as any).not(columnId, "eq", values[0]);
             } else if (operator === "is any of") {
-              query = query.in(columnId, values);
+              query = (query as any).in(columnId, values);
             } else if (operator === "is none of") {
-              query = query.not(columnId, "in", `(${values.join(",")})`);
+              query = (query as any).not(columnId, "in", `(${values.join(",")})`);
             }
             break;
 
@@ -236,17 +236,17 @@ export async function getPaymentsWithFilters(
             });
 
             if (operator === "is") {
-              query = query.eq(columnId, numValues[0]);
+              query = (query as any).eq(columnId, numValues[0]);
             } else if (operator === "is not") {
-              query = query.not(columnId, "eq", numValues[0]);
+              query = (query as any).not(columnId, "eq", numValues[0]);
             } else if (operator === "is greater than") {
-              query = query.gt(columnId, numValues[0]);
+              query = (query as any).gt(columnId, numValues[0]);
             } else if (operator === "is greater than or equal to") {
-              query = query.gte(columnId, numValues[0]);
+              query = (query as any).gte(columnId, numValues[0]);
             } else if (operator === "is less than") {
-              query = query.lt(columnId, numValues[0]);
+              query = (query as any).lt(columnId, numValues[0]);
             } else if (operator === "is less than or equal to") {
-              query = query.lte(columnId, numValues[0]);
+              query = (query as any).lte(columnId, numValues[0]);
             } else if (operator === "is between" && numValues.length === 2) {
               query = query
                 .gte(columnId, numValues[0])
@@ -274,21 +274,21 @@ export async function getPaymentsWithFilters(
             const formattedValues = values.map(formatDate);
             // Date fields - support various date operators
             if (operator === "is") {
-              query = query.eq(columnId, formattedValues[0]);
+              query = (query as any).eq(columnId, formattedValues[0]);
             } else if (operator === "is not") {
-              query = query.not(columnId, "eq", formattedValues[0]);
+              query = (query as any).not(columnId, "eq", formattedValues[0]);
             } else if (operator === "is before") {
-              query = query.lt(columnId, formattedValues[0]);
+              query = (query as any).lt(columnId, formattedValues[0]);
             } else if (operator === "is on or before") {
-              query = query.lte(columnId, formattedValues[0]);
+              query = (query as any).lte(columnId, formattedValues[0]);
             } else if (operator === "is after") {
-              query = query.gt(columnId, formattedValues[0]);
+              query = (query as any).gt(columnId, formattedValues[0]);
             } else if (operator === "is on or after") {
-              query = query.gte(columnId, formattedValues[0]);
+              query = (query as any).gte(columnId, formattedValues[0]);
             } else if (operator === "is between" && formattedValues.length === 2) {
-              query = query.gte(columnId, formattedValues[0]).lte(columnId, formattedValues[1]);
+              query = (query as any).gte(columnId, formattedValues[0]).lte(columnId, formattedValues[1]);
             } else if (operator === "is not between" && values.length === 2) {
-              query = query.or(
+              query = (query as any).or(
                 `${columnId}.lt.${formattedValues[0]},${columnId}.gt.${formattedValues[1]}`
               );
             }
@@ -300,15 +300,15 @@ export async function getPaymentsWithFilters(
     // Apply sorting
     if (sorting.length > 0) {
       const sort = sorting[0];
-      query = query.order(sort.id, { ascending: !sort.desc });
+      query = (query as any).order(sort.id, { ascending: !sort.desc });
     } else {
-      query = query.order("created_at", { ascending: false });
+      query = (query as any).order("created_at", { ascending: false });
     }
 
     // Apply pagination
     const from = page * pageSize;
     const to = from + pageSize - 1;
-    query = query.range(from, to);
+    query = (query as any).range(from, to);
 
     const { data, error, count } = await query;
 
