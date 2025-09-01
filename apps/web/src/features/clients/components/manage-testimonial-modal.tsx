@@ -23,8 +23,10 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import { addClientTestimonial } from "@/features/clients/actions/addClientRelations";
-import { updateClientTestimonial } from "@/features/clients/actions/updateClientRelations";
+import {
+	createClientTestimonial,
+	updateClientTestimonial,
+} from "@/features/clients/actions/relations/testimonials";
 import { clientQueries } from "@/features/clients/queries/useClients";
 
 import { useQueryClient } from "@tanstack/react-query";
@@ -37,6 +39,8 @@ interface ManageTestimonialModalProps {
 	mode: "add" | "edit";
 	testimonial?: any;
 	children?: ReactNode;
+	open?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
 export function ManageTestimonialModal({
@@ -44,9 +48,15 @@ export function ManageTestimonialModal({
 	mode,
 	testimonial,
 	children,
+	open: externalOpen,
+	onOpenChange: externalOnOpenChange,
 }: ManageTestimonialModalProps) {
 	const isEdit = mode === "edit";
-	const [open, setOpen] = useState(false);
+	const [internalOpen, setInternalOpen] = useState(false);
+
+	// Use external state if provided, otherwise use internal state
+	const open = externalOpen !== undefined ? externalOpen : internalOpen;
+	const setOpen = externalOnOpenChange || setInternalOpen;
 	const [isLoading, setIsLoading] = useState(false);
 	const queryClient = useQueryClient();
 
@@ -91,13 +101,10 @@ export function ManageTestimonialModal({
 
 		try {
 			if (isEdit && testimonial) {
-				await updateClientTestimonial(clientId, {
-					...formData,
-					id: testimonial.id,
-				});
+				await updateClientTestimonial(testimonial.id, formData);
 				toast.success("Testimonial updated successfully!");
 			} else {
-				await addClientTestimonial(clientId, formData);
+				await createClientTestimonial(clientId, formData);
 				toast.success("Testimonial added successfully!");
 			}
 
@@ -120,18 +127,20 @@ export function ManageTestimonialModal({
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger>
-				{children || (
-					<Button variant="outline" size="sm" className="gap-2">
-						{isEdit ? (
-							<Edit className="h-4 w-4" />
-						) : (
-							<Plus className="h-4 w-4" />
-						)}
-						{isEdit ? "Edit Testimonial" : "Add Testimonial"}
-					</Button>
-				)}
-			</DialogTrigger>
+			{externalOpen === undefined && (
+				<DialogTrigger>
+					{children || (
+						<Button variant="outline" size="sm" className="gap-2">
+							{isEdit ? (
+								<Edit className="h-4 w-4" />
+							) : (
+								<Plus className="h-4 w-4" />
+							)}
+							{isEdit ? "Edit Testimonial" : "Add Testimonial"}
+						</Button>
+					)}
+				</DialogTrigger>
+			)}
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">

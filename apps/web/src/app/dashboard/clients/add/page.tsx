@@ -43,7 +43,7 @@ async function ClientAddPageAsync() {
 		<HydrationBoundary state={dehydrate(queryClient)}>
 			<MainLayout headers={[<ClientAddHeader key="client-add-header" />]}>
 				<div className="p-6">
-					<ClientForm mode="create" />
+					<ClientForm />
 				</div>
 			</MainLayout>
 		</HydrationBoundary>

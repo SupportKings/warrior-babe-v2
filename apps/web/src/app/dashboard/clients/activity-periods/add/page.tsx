@@ -2,15 +2,15 @@ import { Suspense } from "react";
 
 import { redirect } from "next/navigation";
 
-import { getUser } from "@/queries/getUser";
-
 import MainLayout from "@/components/layout/main-layout";
 
+import { getAllPaymentPlansWithClients } from "@/features/client_activity_period/actions/getPaymentPlans";
 import ClientActivityPeriodAddSkeleton from "@/features/client_activity_period/components/client_activity_period.add.skeleton";
 import { ClientActivityPeriodForm } from "@/features/client_activity_period/components/client_activity_period-form";
 import ClientActivityPeriodAddHeader from "@/features/client_activity_period/layout/client_activity_period.add.header";
-import { getAllPaymentPlansWithClients } from "@/features/client_activity_period/actions/getPaymentPlans";
 import { getActiveCoaches } from "@/features/coaches/actions/getCoaches";
+
+import { getUser } from "@/queries/getUser";
 
 import {
 	dehydrate,

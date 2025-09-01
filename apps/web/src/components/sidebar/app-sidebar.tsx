@@ -133,10 +133,6 @@ export function AppSidebar({
 						url: "/dashboard/clients/activity-periods",
 					},
 					{
-						title: "Call Feedback",
-						url: "/dashboard/clients/call-feedback",
-					},
-					{
 						title: "Testimonials",
 						url: "/dashboard/clients/testimonials",
 					},
@@ -148,17 +144,13 @@ export function AppSidebar({
 				icon: Star,
 				items: [
 					{
-						title: "Coaches",
+						title: "Team Members",
 						url: "/dashboard/coaches",
 					},
 					{
-						title: "Teams",
+						title: "Coach Teams",
 						url: "/dashboard/coaches/teams",
-					},
-					{
-						title: "Premier Coaches",
-						url: "/dashboard/coaches/premiere-coaches",
-					},
+					}
 				],
 			},
 			{
@@ -188,14 +180,6 @@ export function AppSidebar({
 					{
 						title: "Products",
 						url: "/dashboard/system-config/products",
-					},
-					{
-						title: "Financial Settings",
-						url: "/dashboard/system-config/financial-settings",
-					},
-					{
-						title: "Checklist Settings",
-						url: "/dashboard/system-config/checklist-settings",
 					},
 					{
 						title: "Client Win Tags",

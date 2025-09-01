@@ -85,10 +85,10 @@ export function ClientActivityPeriodForm({
 				const errorMessages = Object.entries(result.validationErrors)
 					.map(([field, message]) => {
 						// Handle nested error objects from next-safe-action
-						if (typeof message === 'object' && message !== null) {
+						if (typeof message === "object" && message !== null) {
 							const errorObj = message as any;
 							if (errorObj._errors && Array.isArray(errorObj._errors)) {
-								return `${field}: ${errorObj._errors.join(', ')}`;
+								return `${field}: ${errorObj._errors.join(", ")}`;
 							}
 							return `${field}: ${JSON.stringify(message)}`;
 						}
@@ -169,34 +169,47 @@ export function ClientActivityPeriodForm({
 						name="payment_plan"
 						validators={{
 							onBlur: ({ value }) => validateSingleField("payment_plan", value),
-							onChange: ({ value }) => validateSingleField("payment_plan", value),
+							onChange: ({ value }) =>
+								validateSingleField("payment_plan", value),
 						}}
 					>
 						{(field) => {
-							const selectedPlan = paymentPlans.find(plan => plan.id === field.state.value);
-							
+							const selectedPlan = paymentPlans.find(
+								(plan) => plan.id === field.state.value,
+							);
+
 							return (
 								<div className="space-y-2">
 									<Label className="font-medium text-xs">Payment Plan</Label>
-									<Popover open={paymentPlanOpen} onOpenChange={setPaymentPlanOpen}>
+									<Popover
+										open={paymentPlanOpen}
+										onOpenChange={setPaymentPlanOpen}
+									>
 										<PopoverTrigger asChild>
 											<Button
 												variant="outline"
 												role="combobox"
 												aria-expanded={paymentPlanOpen}
-												className="w-full justify-between h-10"
+												className="h-10 w-full justify-between"
 											>
 												{selectedPlan
-													? selectedPlan.client?.name 
-														? `${selectedPlan.client.name} - ${selectedPlan.payment_plan_template?.name || selectedPlan.name}${selectedPlan.product?.name ? ` - ${selectedPlan.product.name}` : ''}`
-														: `${selectedPlan.payment_plan_template?.name || selectedPlan.name}${selectedPlan.product?.name ? ` - ${selectedPlan.product.name}` : ''}`
+													? selectedPlan.client?.name
+														? `${selectedPlan.client.name} - ${selectedPlan.payment_plan_template?.name || selectedPlan.name}${selectedPlan.product?.name ? ` - ${selectedPlan.product.name}` : ""}`
+														: `${selectedPlan.payment_plan_template?.name || selectedPlan.name}${selectedPlan.product?.name ? ` - ${selectedPlan.product.name}` : ""}`
 													: "Select payment plan "}
 												<ChevronsUpDown className="opacity-50" />
 											</Button>
 										</PopoverTrigger>
-										<PopoverContent className="w-full p-0" align="start" style={{width: 'var(--radix-popover-trigger-width)'}}>
+										<PopoverContent
+											className="w-full p-0"
+											align="start"
+											style={{ width: "var(--radix-popover-trigger-width)" }}
+										>
 											<Command className="w-full">
-												<CommandInput placeholder="Search payment plans..." className="h-9" />
+												<CommandInput
+													placeholder="Search payment plans..."
+													className="h-9"
+												/>
 												<CommandList>
 													<CommandEmpty>No payment plan found.</CommandEmpty>
 													<CommandGroup>
@@ -211,21 +224,28 @@ export function ClientActivityPeriodForm({
 															<Check
 																className={cn(
 																	"ml-auto",
-																	!field.state.value ? "opacity-100" : "opacity-0"
+																	!field.state.value
+																		? "opacity-100"
+																		: "opacity-0",
 																)}
 															/>
 														</CommandItem>
 														{paymentPlans.map((plan) => {
-															const planName = plan.payment_plan_template?.name || plan.name;
-															const displayName = plan.client?.name 
-																? `${plan.client.name} - ${planName}${plan.product?.name ? ` - ${plan.product.name}` : ''}`
-																: `${planName}${plan.product?.name ? ` - ${plan.product.name}` : ''}`;
+															const planName =
+																plan.payment_plan_template?.name || plan.name;
+															const displayName = plan.client?.name
+																? `${plan.client.name} - ${planName}${plan.product?.name ? ` - ${plan.product.name}` : ""}`
+																: `${planName}${plan.product?.name ? ` - ${plan.product.name}` : ""}`;
 															return (
 																<CommandItem
 																	key={plan.id}
 																	value={displayName}
 																	onSelect={() => {
-																		field.handleChange(field.state.value === plan.id ? null : plan.id);
+																		field.handleChange(
+																			field.state.value === plan.id
+																				? null
+																				: plan.id,
+																		);
 																		setPaymentPlanOpen(false);
 																	}}
 																>
@@ -233,7 +253,9 @@ export function ClientActivityPeriodForm({
 																	<Check
 																		className={cn(
 																			"ml-auto",
-																			field.state.value === plan.id ? "opacity-100" : "opacity-0"
+																			field.state.value === plan.id
+																				? "opacity-100"
+																				: "opacity-0",
 																		)}
 																	/>
 																</CommandItem>
@@ -263,8 +285,10 @@ export function ClientActivityPeriodForm({
 						}}
 					>
 						{(field) => {
-							const selectedCoach = coaches.find(coach => coach.id === field.state.value);
-							
+							const selectedCoach = coaches.find(
+								(coach) => coach.id === field.state.value,
+							);
+
 							return (
 								<div className="space-y-2">
 									<Label className="font-medium text-xs">Coach</Label>
@@ -274,7 +298,7 @@ export function ClientActivityPeriodForm({
 												variant="outline"
 												role="combobox"
 												aria-expanded={coachOpen}
-												className="w-full justify-between h-10"
+												className="h-10 w-full justify-between"
 											>
 												{selectedCoach
 													? selectedCoach.name || "Unknown Coach"
@@ -282,9 +306,16 @@ export function ClientActivityPeriodForm({
 												<ChevronsUpDown className="opacity-50" />
 											</Button>
 										</PopoverTrigger>
-										<PopoverContent className="w-full p-0" align="start" style={{width: 'var(--radix-popover-trigger-width)'}}>
+										<PopoverContent
+											className="w-full p-0"
+											align="start"
+											style={{ width: "var(--radix-popover-trigger-width)" }}
+										>
 											<Command className="w-full">
-												<CommandInput placeholder="Search coaches..." className="h-9" />
+												<CommandInput
+													placeholder="Search coaches..."
+													className="h-9"
+												/>
 												<CommandList>
 													<CommandEmpty>No coach found.</CommandEmpty>
 													<CommandGroup>
@@ -299,7 +330,9 @@ export function ClientActivityPeriodForm({
 															<Check
 																className={cn(
 																	"ml-auto",
-																	!field.state.value ? "opacity-100" : "opacity-0"
+																	!field.state.value
+																		? "opacity-100"
+																		: "opacity-0",
 																)}
 															/>
 														</CommandItem>
@@ -308,7 +341,11 @@ export function ClientActivityPeriodForm({
 																key={coach.id}
 																value={coach.name || "Unknown Coach"}
 																onSelect={() => {
-																	field.handleChange(field.state.value === coach.id ? null : coach.id);
+																	field.handleChange(
+																		field.state.value === coach.id
+																			? null
+																			: coach.id,
+																	);
 																	setCoachOpen(false);
 																}}
 															>
@@ -316,7 +353,9 @@ export function ClientActivityPeriodForm({
 																<Check
 																	className={cn(
 																		"ml-auto",
-																		field.state.value === coach.id ? "opacity-100" : "opacity-0"
+																		field.state.value === coach.id
+																			? "opacity-100"
+																			: "opacity-0",
 																	)}
 																/>
 															</CommandItem>
@@ -418,7 +457,7 @@ export function ClientActivityPeriodForm({
 			</div>
 
 			{/* Action Buttons */}
-			<div className="flex gap-3 justify-end">
+			<div className="flex justify-end gap-3">
 				<Button
 					type="button"
 					variant="outline"

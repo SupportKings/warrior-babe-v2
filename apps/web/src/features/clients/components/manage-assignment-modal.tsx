@@ -21,8 +21,10 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 
-import { addClientAssignment } from "@/features/clients/actions/addClientRelations";
-import { updateClientAssignment } from "@/features/clients/actions/updateClientRelations";
+import {
+	createClientAssignment,
+	updateClientAssignment,
+} from "@/features/clients/actions/relations/assignments";
 import { clientQueries } from "@/features/clients/queries/useClients";
 import { useActiveCoaches } from "@/features/coaches/queries/useCoaches";
 
@@ -36,6 +38,8 @@ interface ManageAssignmentModalProps {
 	mode: "add" | "edit";
 	assignment?: any;
 	children?: ReactNode;
+	open?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
 export function ManageAssignmentModal({
@@ -43,9 +47,15 @@ export function ManageAssignmentModal({
 	mode,
 	assignment,
 	children,
+	open: externalOpen,
+	onOpenChange: externalOnOpenChange,
 }: ManageAssignmentModalProps) {
 	const isEdit = mode === "edit";
-	const [open, setOpen] = useState(false);
+	const [internalOpen, setInternalOpen] = useState(false);
+
+	// Use external state if provided, otherwise use internal state
+	const open = externalOpen !== undefined ? externalOpen : internalOpen;
+	const setOpen = externalOnOpenChange || setInternalOpen;
 	const [isLoading, setIsLoading] = useState(false);
 	const queryClient = useQueryClient();
 	const { data: coaches = [] } = useActiveCoaches();
@@ -98,13 +108,10 @@ export function ManageAssignmentModal({
 
 		try {
 			if (isEdit && assignment) {
-				await updateClientAssignment(clientId, {
-					...formData,
-					id: assignment.id,
-				});
+				await updateClientAssignment(assignment.id, formData);
 				toast.success("Assignment updated successfully!");
 			} else {
-				await addClientAssignment(clientId, formData);
+				await createClientAssignment(clientId, formData);
 				toast.success("Assignment added successfully!");
 			}
 
@@ -127,18 +134,20 @@ export function ManageAssignmentModal({
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger>
-				{children || (
-					<Button variant="outline" size="sm" className="gap-2">
-						{isEdit ? (
-							<Edit className="h-4 w-4" />
-						) : (
-							<Plus className="h-4 w-4" />
-						)}
-						{isEdit ? "Edit Assignment" : "Add Assignment"}
-					</Button>
-				)}
-			</DialogTrigger>
+			{externalOpen === undefined && (
+				<DialogTrigger>
+					{children || (
+						<Button variant="outline" size="sm" className="gap-2">
+							{isEdit ? (
+								<Edit className="h-4 w-4" />
+							) : (
+								<Plus className="h-4 w-4" />
+							)}
+							{isEdit ? "Edit Assignment" : "Add Assignment"}
+						</Button>
+					)}
+				</DialogTrigger>
+			)}
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">

@@ -147,7 +147,7 @@ function buildFilterQuery(supabase: any, filters: FiltersState) {
 
 		// Map columnId to the actual database column
 		const dbColumn = getDbColumnName(columnId);
-		
+
 		// Apply filter based on type and operator
 		switch (type) {
 			case "text":
@@ -225,13 +225,17 @@ function buildFilterQuery(supabase: any, filters: FiltersState) {
 						break;
 					case "is between":
 						if (values.length >= 2 && values[0] && values[1]) {
-							query = query.gte(dbColumn, formatDateForDb(values[0])).lte(dbColumn, formatDateForDb(values[1]));
+							query = query
+								.gte(dbColumn, formatDateForDb(values[0]))
+								.lte(dbColumn, formatDateForDb(values[1]));
 						}
 						break;
 					case "is not between":
 						if (values.length >= 2 && values[0] && values[1]) {
 							// NOT BETWEEN means: date < start_date OR date > end_date
-							query = query.or(`${dbColumn}.lt.${formatDateForDb(values[0])},${dbColumn}.gt.${formatDateForDb(values[1])}`);
+							query = query.or(
+								`${dbColumn}.lt.${formatDateForDb(values[0])},${dbColumn}.gt.${formatDateForDb(values[1])}`,
+							);
 						}
 						break;
 				}
@@ -270,14 +274,24 @@ function buildFilterQuery(supabase: any, filters: FiltersState) {
 						}
 						break;
 					case "is between":
-						if (values.length >= 2 && values[0] !== undefined && values[1] !== undefined) {
+						if (
+							values.length >= 2 &&
+							values[0] !== undefined &&
+							values[1] !== undefined
+						) {
 							query = query.gte(dbColumn, values[0]).lte(dbColumn, values[1]);
 						}
 						break;
 					case "is not between":
-						if (values.length >= 2 && values[0] !== undefined && values[1] !== undefined) {
+						if (
+							values.length >= 2 &&
+							values[0] !== undefined &&
+							values[1] !== undefined
+						) {
 							// NOT BETWEEN means: number < start_value OR number > end_value
-							query = query.or(`${dbColumn}.lt.${values[0]},${dbColumn}.gt.${values[1]}`);
+							query = query.or(
+								`${dbColumn}.lt.${values[0]},${dbColumn}.gt.${values[1]}`,
+							);
 						}
 						break;
 				}
@@ -339,7 +353,7 @@ function formatDateForDb(dateValue: string | Date): string {
 	if (typeof dateValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
 		return dateValue;
 	}
-	
+
 	// Use date-fns to format consistently as YYYY-MM-DD
 	// This handles all date inputs (Date objects, ISO strings, etc.) reliably
 	return format(new Date(dateValue), "yyyy-MM-dd");

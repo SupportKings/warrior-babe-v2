@@ -3,7 +3,17 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
+import { cn } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from "@/components/ui/command";
 import {
 	Dialog,
 	DialogContent,
@@ -15,22 +25,25 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 
-import { addClientActivityPeriod } from "@/features/clients/actions/addClientRelations";
-import { updateClientActivityPeriod } from "@/features/clients/actions/updateClientRelations";
+import {
+	createClientActivityPeriod,
+	updateClientActivityPeriod,
+} from "@/features/clients/actions/relations/activity-periods";
+import {
+	useClientAssignedCoaches,
+	useClientPaymentPlans,
+} from "@/features/clients/queries/useClientData";
 import { clientQueries } from "@/features/clients/queries/useClients";
-import { useActiveCoaches } from "@/features/coaches/queries/useCoaches";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { Calendar, Edit, Plus } from "lucide-react";
+import { Calendar, Check, ChevronsUpDown, Edit, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 interface ManageActivityPeriodModalProps {
@@ -38,6 +51,8 @@ interface ManageActivityPeriodModalProps {
 	mode: "add" | "edit";
 	activityPeriod?: any;
 	children?: ReactNode;
+	open?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
 export function ManageActivityPeriodModal({
@@ -45,18 +60,30 @@ export function ManageActivityPeriodModal({
 	mode,
 	activityPeriod,
 	children,
+	open: externalOpen,
+	onOpenChange: externalOnOpenChange,
 }: ManageActivityPeriodModalProps) {
 	const isEdit = mode === "edit";
-	const [open, setOpen] = useState(false);
+	const [internalOpen, setInternalOpen] = useState(false);
+
+	// Use external state if provided, otherwise use internal state
+	const open = externalOpen !== undefined ? externalOpen : internalOpen;
+	const setOpen = externalOnOpenChange || setInternalOpen;
 	const [isLoading, setIsLoading] = useState(false);
+	const [paymentPlanOpen, setPaymentPlanOpen] = useState(false);
+	const [coachOpen, setCoachOpen] = useState(false);
 	const queryClient = useQueryClient();
-	const { data: coaches = [] } = useActiveCoaches();
+
+	// Fetch client's payment plans and coaches using server-side hooks
+	const { data: clientPaymentPlans = [] } = useClientPaymentPlans(clientId);
+	const { data: clientCoaches = [] } = useClientAssignedCoaches(clientId);
 
 	const [formData, setFormData] = useState({
 		active: true,
 		start_date: format(new Date(), "yyyy-MM-dd"),
 		end_date: "",
 		coach_id: null as string | null,
+		payment_plan: null as string | null,
 	});
 
 	// Populate form data when editing
@@ -71,6 +98,7 @@ export function ManageActivityPeriodModal({
 					? format(new Date(activityPeriod.end_date), "yyyy-MM-dd")
 					: "",
 				coach_id: activityPeriod.coach_id || null,
+				payment_plan: activityPeriod.payment_plan || null,
 			});
 		} else if (!isEdit) {
 			// Reset form for add mode
@@ -79,6 +107,7 @@ export function ManageActivityPeriodModal({
 				start_date: format(new Date(), "yyyy-MM-dd"),
 				end_date: "",
 				coach_id: null,
+				payment_plan: null,
 			});
 		}
 	}, [isEdit, activityPeriod, open]);
@@ -90,13 +119,10 @@ export function ManageActivityPeriodModal({
 
 		try {
 			if (isEdit && activityPeriod) {
-				await updateClientActivityPeriod(clientId, {
-					...formData,
-					id: activityPeriod.id,
-				});
+				await updateClientActivityPeriod(activityPeriod.id, formData);
 				toast.success("Activity period updated successfully!");
 			} else {
-				await addClientActivityPeriod(clientId, formData);
+				await createClientActivityPeriod(clientId, formData);
 				toast.success("Activity period added successfully!");
 			}
 
@@ -119,18 +145,20 @@ export function ManageActivityPeriodModal({
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger>
-				{children || (
-					<Button variant="outline" size="sm" className="gap-2">
-						{isEdit ? (
-							<Edit className="h-4 w-4" />
-						) : (
-							<Plus className="h-4 w-4" />
-						)}
-						{isEdit ? "Edit Activity Period" : "Add Activity Period"}
-					</Button>
-				)}
-			</DialogTrigger>
+			{externalOpen === undefined && (
+				<DialogTrigger>
+					{children || (
+						<Button variant="outline" size="sm" className="gap-2">
+							{isEdit ? (
+								<Edit className="h-4 w-4" />
+							) : (
+								<Plus className="h-4 w-4" />
+							)}
+							{isEdit ? "Edit Activity Period" : "Add Activity Period"}
+						</Button>
+					)}
+				</DialogTrigger>
+			)}
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
@@ -156,29 +184,174 @@ export function ManageActivityPeriodModal({
 						<Label htmlFor="active">Active</Label>
 					</div>
 
+					{/* Coach Selection */}
 					<div>
 						<Label htmlFor="coach_id">Coach</Label>
-						<Select
-							value={formData.coach_id ? formData.coach_id : "none"}
-							onValueChange={(value) =>
-								setFormData({
-									...formData,
-									coach_id: value === "none" ? null : value,
-								})
-							}
-						>
-							<SelectTrigger>
-								<SelectValue placeholder="Select a coach (optional)" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="none">No coach assigned</SelectItem>
-								{coaches.map((coach: any) => (
-									<SelectItem key={coach.id} value={coach.id.toString()}>
-										{coach.name}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
+						<Popover open={coachOpen} onOpenChange={setCoachOpen}>
+							<PopoverTrigger asChild>
+								<Button
+									variant="outline"
+									role="combobox"
+									aria-expanded={coachOpen}
+									className="h-10 w-full justify-between"
+								>
+									{formData.coach_id
+										? clientCoaches.find(
+												(coach) => coach?.id === formData.coach_id,
+											)?.name || "Unknown Coach"
+										: "Select coach (optional)"}
+									<ChevronsUpDown className="opacity-50" />
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent
+								className="w-full p-0"
+								align="start"
+								style={{ width: "var(--radix-popover-trigger-width)" }}
+							>
+								<Command className="w-full">
+									<CommandInput
+										placeholder="Search coaches..."
+										className="h-9"
+									/>
+									<CommandList>
+										<CommandEmpty>No coach found.</CommandEmpty>
+										<CommandGroup>
+											<CommandItem
+												value=""
+												onSelect={() => {
+													setFormData({ ...formData, coach_id: null });
+													setCoachOpen(false);
+												}}
+											>
+												No coach assigned
+												<Check
+													className={cn(
+														"ml-auto",
+														!formData.coach_id ? "opacity-100" : "opacity-0",
+													)}
+												/>
+											</CommandItem>
+											{clientCoaches.map((coach) => (
+												<CommandItem
+													key={coach?.id}
+													value={coach?.name || "Unknown Coach"}
+													onSelect={() => {
+														setFormData({
+															...formData,
+															coach_id:
+																formData.coach_id === coach?.id
+																	? null
+																	: coach?.id || null,
+														});
+														setCoachOpen(false);
+													}}
+												>
+													{coach?.name || "Unknown Coach"}
+													<Check
+														className={cn(
+															"ml-auto",
+															formData.coach_id === coach?.id
+																? "opacity-100"
+																: "opacity-0",
+														)}
+													/>
+												</CommandItem>
+											))}
+										</CommandGroup>
+									</CommandList>
+								</Command>
+							</PopoverContent>
+						</Popover>
+					</div>
+
+					{/* Payment Plan Selection */}
+					<div>
+						<Label htmlFor="payment_plan">Payment Plan</Label>
+						<Popover open={paymentPlanOpen} onOpenChange={setPaymentPlanOpen}>
+							<PopoverTrigger asChild>
+								<Button
+									variant="outline"
+									role="combobox"
+									aria-expanded={paymentPlanOpen}
+									className="h-10 w-full justify-between"
+								>
+									{formData.payment_plan
+										? (() => {
+												const selectedPlan = clientPaymentPlans.find(
+													(plan) => plan.id === formData.payment_plan,
+												);
+												return selectedPlan
+													? `${selectedPlan.name}${selectedPlan.products?.name ? ` - ${selectedPlan.products.name}` : ""}`
+													: "Unknown Plan";
+											})()
+										: "Select payment plan (optional)"}
+									<ChevronsUpDown className="opacity-50" />
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent
+								className="w-full p-0"
+								align="start"
+								style={{ width: "var(--radix-popover-trigger-width)" }}
+							>
+								<Command className="w-full">
+									<CommandInput
+										placeholder="Search payment plans..."
+										className="h-9"
+									/>
+									<CommandList>
+										<CommandEmpty>No payment plan found.</CommandEmpty>
+										<CommandGroup>
+											<CommandItem
+												value=""
+												onSelect={() => {
+													setFormData({ ...formData, payment_plan: null });
+													setPaymentPlanOpen(false);
+												}}
+											>
+												No payment plan
+												<Check
+													className={cn(
+														"ml-auto",
+														!formData.payment_plan
+															? "opacity-100"
+															: "opacity-0",
+													)}
+												/>
+											</CommandItem>
+											{clientPaymentPlans.map((plan) => {
+												const displayName = `${plan.name}${plan.products?.name ? ` - ${plan.products.name}` : ""}`;
+												return (
+													<CommandItem
+														key={plan.id}
+														value={displayName}
+														onSelect={() => {
+															setFormData({
+																...formData,
+																payment_plan:
+																	formData.payment_plan === plan.id
+																		? null
+																		: plan.id,
+															});
+															setPaymentPlanOpen(false);
+														}}
+													>
+														{displayName}
+														<Check
+															className={cn(
+																"ml-auto",
+																formData.payment_plan === plan.id
+																	? "opacity-100"
+																	: "opacity-0",
+															)}
+														/>
+													</CommandItem>
+												);
+											})}
+										</CommandGroup>
+									</CommandList>
+								</Command>
+							</PopoverContent>
+						</Popover>
 					</div>
 
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">

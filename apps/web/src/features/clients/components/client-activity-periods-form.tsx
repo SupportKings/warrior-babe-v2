@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -21,6 +22,7 @@ interface ClientActivityPeriod {
 	start_date: string;
 	end_date: string;
 	coach_id: string | null;
+	payment_plan?: string | null;
 }
 
 interface Coach {
@@ -52,6 +54,7 @@ export function ClientActivityPeriodsForm({
 			start_date: format(new Date(), "yyyy-MM-dd"),
 			end_date: "",
 			coach_id: null,
+			payment_plan: null,
 		};
 		onChange([...activityPeriods, newActivityPeriod]);
 	};
@@ -171,6 +174,19 @@ export function ClientActivityPeriodsForm({
 									))}
 								</SelectContent>
 							</Select>
+						</div>
+
+						<div>
+							<Label>Payment Plan ID</Label>
+							<Input
+								value={activityPeriod.payment_plan || ""}
+								onChange={(e) =>
+									updateActivityPeriod(index, {
+										payment_plan: e.target.value || null,
+									})
+								}
+								placeholder="Payment plan ID (optional)"
+							/>
 						</div>
 					</div>
 				</div>

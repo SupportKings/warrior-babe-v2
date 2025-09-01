@@ -10,25 +10,27 @@ export type ClientActivityPeriodUpdate =
 	Database["public"]["Tables"]["client_activity_period"]["Update"];
 
 // Form input schemas
-export const clientActivityPeriodFormSchema = z.object({
-	payment_plan: z.string().optional().nullable(),
-	coach_id: z.string().optional().nullable(),
-	start_date: z.string(),
-	end_date: z.string().optional().nullable(),
-	active: z.boolean().default(true),
-}).refine(
-	(data) => {
-		// Only validate date constraint if both dates are provided
-		if (!data.start_date || !data.end_date) {
-			return true;
-		}
-		return new Date(data.end_date) >= new Date(data.start_date);
-	},
-	{
-		message: "End date cannot be before start date",
-		path: ["end_date"],
-	}
-);
+export const clientActivityPeriodFormSchema = z
+	.object({
+		payment_plan: z.string().optional().nullable(),
+		coach_id: z.string().optional().nullable(),
+		start_date: z.string(),
+		end_date: z.string().optional().nullable(),
+		active: z.boolean().default(true),
+	})
+	.refine(
+		(data) => {
+			// Only validate date constraint if both dates are provided
+			if (!data.start_date || !data.end_date) {
+				return true;
+			}
+			return new Date(data.end_date) >= new Date(data.start_date);
+		},
+		{
+			message: "End date cannot be before start date",
+			path: ["end_date"],
+		},
+	);
 
 export const clientActivityPeriodCreateSchema = clientActivityPeriodFormSchema;
 

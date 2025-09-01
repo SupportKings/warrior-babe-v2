@@ -90,6 +90,13 @@ export type Database = {
             foreignKeyName: "account_userId_fkey"
             columns: ["userId"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "account_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
@@ -152,6 +159,13 @@ export type Database = {
             foreignKeyName: "client_activity_period_coach_id_fkey"
             columns: ["coach_id"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["coach_id"]
+          },
+          {
+            foreignKeyName: "client_activity_period_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
             referencedRelation: "team_members"
             referencedColumns: ["id"]
           },
@@ -159,8 +173,22 @@ export type Database = {
             foreignKeyName: "client_activity_period_coach_payment_fkey"
             columns: ["coach_payment"]
             isOneToOne: false
-            referencedRelation: "coach_capacity"
+            referencedRelation: "coach_payments"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_activity_period_coach_payment_fkey"
+            columns: ["coach_payment"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["coach_payment_id"]
+          },
+          {
+            foreignKeyName: "client_activity_period_payment_plan_fkey"
+            columns: ["payment_plan"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["plan_id"]
           },
           {
             foreignKeyName: "client_activity_period_payment_plan_fkey"
@@ -217,6 +245,13 @@ export type Database = {
             foreignKeyName: "client_assignments_assigned_by_user_id_fk"
             columns: ["assigned_by"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "client_assignments_assigned_by_user_id_fk"
+            columns: ["assigned_by"]
+            isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
@@ -231,8 +266,22 @@ export type Database = {
             foreignKeyName: "client_assignments_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "client_assignments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_client_activity_period_core"
             referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "client_assignments_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["coach_id"]
           },
           {
             foreignKeyName: "client_assignments_coach_id_fkey"
@@ -313,8 +362,22 @@ export type Database = {
             foreignKeyName: "client_goals_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "client_goals_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_client_activity_period_core"
             referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "client_goals_created_by_user_id_fk"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "client_goals_created_by_user_id_fk"
@@ -329,6 +392,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "goal_types"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_goals_updated_by_user_id_fk"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "client_goals_updated_by_user_id_fk"
@@ -382,8 +452,22 @@ export type Database = {
             foreignKeyName: "client_nps_provided_by_clients_id_fk"
             columns: ["provided_by"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "client_nps_provided_by_clients_id_fk"
+            columns: ["provided_by"]
+            isOneToOne: false
             referencedRelation: "v_client_activity_period_core"
             referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "client_nps_recorded_by_user_id_fk"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "client_nps_recorded_by_user_id_fk"
@@ -440,8 +524,22 @@ export type Database = {
             foreignKeyName: "client_testimonials_client_id_clients_id_fk"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "client_testimonials_client_id_clients_id_fk"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_client_activity_period_core"
             referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "client_testimonials_recorded_by_user_id_fk"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "client_testimonials_recorded_by_user_id_fk"
@@ -534,8 +632,22 @@ export type Database = {
             foreignKeyName: "client_wins_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "client_wins_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_client_activity_period_core"
             referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "client_wins_recorded_by_user_id_fk"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "client_wins_recorded_by_user_id_fk"
@@ -561,7 +673,6 @@ export type Database = {
             | Database["public"]["Enums"]["client_overall_status"]
             | null
           phone: string
-          team_ids: string | null
           two_week_check_in_call_completed: boolean
           updated_at: string
           vip_terms_signed: boolean
@@ -580,7 +691,6 @@ export type Database = {
             | Database["public"]["Enums"]["client_overall_status"]
             | null
           phone: string
-          team_ids?: string | null
           two_week_check_in_call_completed?: boolean
           updated_at?: string
           vip_terms_signed?: boolean
@@ -599,7 +709,6 @@ export type Database = {
             | Database["public"]["Enums"]["client_overall_status"]
             | null
           phone?: string
-          team_ids?: string | null
           two_week_check_in_call_completed?: boolean
           updated_at?: string
           vip_terms_signed?: boolean
@@ -632,6 +741,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "coach_capacity_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["coach_id"]
+          },
           {
             foreignKeyName: "coach_capacity_coach_id_fkey"
             columns: ["coach_id"]
@@ -680,6 +796,13 @@ export type Database = {
             foreignKeyName: "coach_payments_coach_id_fkey"
             columns: ["coach_id"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["coach_id"]
+          },
+          {
+            foreignKeyName: "coach_payments_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
             referencedRelation: "team_members"
             referencedColumns: ["id"]
           },
@@ -715,8 +838,22 @@ export type Database = {
             foreignKeyName: "coach_teams_coach_id_fkey"
             columns: ["coach_id"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["coach_id"]
+          },
+          {
+            foreignKeyName: "coach_teams_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
             referencedRelation: "team_members"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coach_teams_premier_coach_id_fkey"
+            columns: ["premier_coach_id"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["coach_id"]
           },
           {
             foreignKeyName: "coach_teams_premier_coach_id_fkey"
@@ -756,6 +893,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "financial_settings_created_by_user_id_fk"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "financial_settings_created_by_user_id_fk"
             columns: ["created_by"]
@@ -890,6 +1034,13 @@ export type Database = {
             foreignKeyName: "passkey_userId_fkey"
             columns: ["userId"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "passkey_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
@@ -967,6 +1118,13 @@ export type Database = {
             foreignKeyName: "payment_plan_templates_product_id_products_id_fk"
             columns: ["product_id"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "payment_plan_templates_product_id_products_id_fk"
+            columns: ["product_id"]
+            isOneToOne: false
             referencedRelation: "products"
             referencedColumns: ["id"]
           },
@@ -1040,8 +1198,22 @@ export type Database = {
             foreignKeyName: "payment_plans_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "payment_plans_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_client_activity_period_core"
             referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "payment_plans_product_id_products_id_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "payment_plans_product_id_products_id_fk"
@@ -1121,6 +1293,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "payments_with_details"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_slots_plan_id_payment_plans_id_fk"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["plan_id"]
           },
           {
             foreignKeyName: "payment_slots_plan_id_payment_plans_id_fk"
@@ -1286,6 +1465,13 @@ export type Database = {
             foreignKeyName: "session_userId_fkey"
             columns: ["userId"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "session_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
             referencedRelation: "user"
             referencedColumns: ["id"]
           },
@@ -1335,6 +1521,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "coach_teams"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "team_members_user_id_fkey"
@@ -1446,6 +1639,37 @@ export type Database = {
       }
     }
     Views: {
+      coach_payments_list_view: {
+        Row: {
+          amount: number | null
+          client_email: string | null
+          client_id: string | null
+          client_name: string | null
+          coach_email: string | null
+          coach_id: string | null
+          coach_name: string | null
+          coach_payment_id: string | null
+          contract_type:
+            | Database["public"]["Enums"]["contract_type_enum"]
+            | null
+          created_at: string | null
+          date: string | null
+          number_of_activity_periods: number | null
+          onboarding_date: string | null
+          plan_id: string | null
+          plan_name: string | null
+          product_id: string | null
+          product_name: string | null
+          status:
+            | Database["public"]["Enums"]["coach_payment_status_enum"]
+            | null
+          total_amount: number | null
+          total_amount_paid: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
       payments_with_details: {
         Row: {
           amount: number | null
@@ -1490,8 +1714,22 @@ export type Database = {
             foreignKeyName: "payment_plans_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "payment_plans_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "v_client_activity_period_core"
             referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "payment_plans_product_id_products_id_fk"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "payment_plans_product_id_products_id_fk"
@@ -1550,8 +1788,22 @@ export type Database = {
             foreignKeyName: "client_activity_period_coach_id_fkey"
             columns: ["coach_id"]
             isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["coach_id"]
+          },
+          {
+            foreignKeyName: "client_activity_period_coach_id_fkey"
+            columns: ["coach_id"]
+            isOneToOne: false
             referencedRelation: "team_members"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_activity_period_payment_plan_fkey"
+            columns: ["payment_plan"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["plan_id"]
           },
           {
             foreignKeyName: "client_activity_period_payment_plan_fkey"
@@ -1566,6 +1818,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "payments_with_details"
             referencedColumns: ["payment_plan_id"]
+          },
+          {
+            foreignKeyName: "payment_plan_templates_product_id_products_id_fk"
+            columns: ["ppt_product_id"]
+            isOneToOne: false
+            referencedRelation: "coach_payments_list_view"
+            referencedColumns: ["product_id"]
           },
           {
             foreignKeyName: "payment_plan_templates_product_id_products_id_fk"
