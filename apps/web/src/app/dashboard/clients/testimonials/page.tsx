@@ -1,41 +1,66 @@
 import { Suspense } from "react";
 
-import { redirect } from "next/navigation";
-
 import MainLayout from "@/components/layout/main-layout";
 
-import TestimonialsContent from "@/features/clients/components/testimonials.content";
-import TestimonialsHeader from "@/features/clients/layout/testimonials.header";
-
-import { getUser } from "@/queries/getUser";
+import { prefetchClientTestimonialsWithFacetedServer } from "@/features/clients/actions/getClientTestimonials";
+import ClientTestimonialsContent from "@/features/clients/components/client-testimonials.content";
+import ClientTestimonialsHeader from "@/features/clients/layout/client-testimonials.header";
 
 import {
 	dehydrate,
 	HydrationBoundary,
 	QueryClient,
 } from "@tanstack/react-query";
-import TestimonialsLoading from "./loading";
+import ClientTestimonialsLoading from "./loading";
 
-export default function TestimonialsPage() {
+export default function ClientTestimonialsPage() {
 	return (
-		<Suspense fallback={<TestimonialsLoading />}>
-			<TestimonialsPageAsync />
+		<Suspense fallback={<ClientTestimonialsLoading />}>
+			<ClientTestimonialsPageAsync />
 		</Suspense>
 	);
 }
 
-async function TestimonialsPageAsync() {
+async function ClientTestimonialsPageAsync() {
 	const queryClient = new QueryClient();
-	const session = await getUser();
 
-	if (!session) {
-		redirect("/");
-	}
+	// Default filters for initial load
+	const defaultFilters: any[] = [];
+	const defaultSorting: any[] = [];
+
+	// Create query keys directly (matching client-side keys)
+	const facetedColumns = ["testimonial_type"];
+	const combinedDataKey = [
+		"clientTestimonials",
+		"list",
+		"tableWithFaceted",
+		defaultFilters,
+		0,
+		25,
+		defaultSorting,
+		facetedColumns,
+	];
+
+	// Prefetch optimized combined data using server-side functions
+	await queryClient.prefetchQuery({
+		queryKey: combinedDataKey,
+		queryFn: () =>
+			prefetchClientTestimonialsWithFacetedServer(
+				defaultFilters,
+				0,
+				25,
+				defaultSorting,
+				facetedColumns,
+			),
+		staleTime: 2 * 60 * 1000,
+	});
 
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>
-			<MainLayout headers={[<TestimonialsHeader key="testimonials-header" />]}>
-				<TestimonialsContent />
+			<MainLayout
+				headers={[<ClientTestimonialsHeader key="client-testimonials-header" />]}
+			>
+				<ClientTestimonialsContent />
 			</MainLayout>
 		</HydrationBoundary>
 	);
