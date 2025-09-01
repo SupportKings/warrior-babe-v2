@@ -35,7 +35,7 @@ import {
 	updateClientWin,
 } from "@/features/clients/actions/relations/wins";
 import { clientQueries } from "@/features/clients/queries/useClients";
-import { useWinTags } from "@/features/system-config/queries/useWinTags";
+import { useAllWinTags } from "@/features/system-config/queries/useWinTags";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -68,7 +68,7 @@ export function ManageWinModal({
 	const [isLoading, setIsLoading] = useState(false);
 	const [comboboxOpen, setComboboxOpen] = useState(false);
 	const queryClient = useQueryClient();
-	const { data: winTags = [], isLoading: isLoadingTags } = useWinTags();
+	const { data: winTags = [], isLoading: isLoadingTags } = useAllWinTags();
 
 	const [formData, setFormData] = useState({
 		title: "",

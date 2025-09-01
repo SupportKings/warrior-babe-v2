@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import {
 	deleteWinTag as deleteWinTagAction,
+	getAllWinTags,
 	getWinTag,
 	getWinTagsWithFaceted,
 	getWinTagsWithFilters,
@@ -16,6 +17,7 @@ export const winTagsQueries = {
 	lists: () => [...winTagsQueries.all, "list"] as const,
 	list: (filters?: any[], page?: number, pageSize?: number, sorting?: any[]) =>
 		[...winTagsQueries.lists(), { filters, page, pageSize, sorting }] as const,
+	allTags: () => [...winTagsQueries.all, "all-tags"] as const,
 	faceted: (columnId: string, filters?: any[]) =>
 		[...winTagsQueries.all, "faceted", columnId, { filters }] as const,
 	detail: (id: string) => [...winTagsQueries.all, "detail", id] as const,
@@ -74,6 +76,14 @@ export function useWinTag(id: string) {
 		queryFn: () => getWinTag(id),
 		enabled: !!id,
 		staleTime: 2 * 60 * 1000, // 2 minutes
+	});
+}
+
+export function useAllWinTags() {
+	return useQuery({
+		queryKey: winTagsQueries.allTags(),
+		queryFn: () => getAllWinTags(),
+		staleTime: 5 * 60 * 1000, // 5 minutes (longer cache for simple all tags query)
 	});
 }
 

@@ -24,6 +24,27 @@ export async function getWinTag(id: string) {
   }
 }
 
+export async function getAllWinTags() {
+  try {
+    const supabase = await createClient();
+
+    const { data: winTags, error } = await supabase
+      .from("win_tags")
+      .select("*")
+      .order("name", { ascending: true });
+
+    if (error) {
+      console.error("Error fetching all win tags:", error);
+      return [];
+    }
+
+    return winTags || [];
+  } catch (error) {
+    console.error("Unexpected error in getAllWinTags:", error);
+    return [];
+  }
+}
+
 export async function getWinTagsWithFilters(
   filters: any[] = [],
   page = 0,
