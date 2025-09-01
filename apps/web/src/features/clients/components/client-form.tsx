@@ -19,19 +19,15 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
 import { createClientAction } from "@/features/clients/actions/createClient";
-import {
-	saveClientActivityPeriods,
-	saveClientAssignments,
-	saveClientGoals,
-	saveClientNPSScores,
-	saveClientPaymentPlans,
-	saveClientTestimonials,
-	saveClientWins,
-} from "@/features/clients/actions/manageClientRelations";
-import { updateClientAction } from "@/features/clients/actions/updateClient";
+import { saveClientActivityPeriods } from "@/features/clients/actions/relations/activity-periods";
+import { saveClientAssignments } from "@/features/clients/actions/relations/assignments";
+import { saveClientGoals } from "@/features/clients/actions/relations/goals";
+import { saveClientNPSScores } from "@/features/clients/actions/relations/nps-scores";
+import { saveClientPaymentPlans } from "@/features/clients/actions/relations/payment-plans";
+import { saveClientTestimonials } from "@/features/clients/actions/relations/testimonials";
+import { saveClientWins } from "@/features/clients/actions/relations/wins";
 import {
 	CLIENT_OVERALL_STATUS_OPTIONS,
-	type ClientEditFormInput,
 	type ClientFormInput,
 	EVERFIT_ACCESS_OPTIONS,
 	getAllValidationErrors,
@@ -53,42 +49,20 @@ import { ClientTestimonialsForm } from "./client-testimonials-form";
 import { ClientWinsForm } from "./client-wins-form";
 
 interface ClientFormProps {
-	mode: "create" | "edit";
-	initialData?: ClientEditFormInput & {
-		client_assignments?: any[];
-		client_goals?: any[];
-		client_wins?: any[];
-		client_activity_period?: any[];
-		client_nps?: any[];
-		client_testimonials?: any[];
-		payment_plans?: any[];
-	};
 	onSuccess?: () => void;
 }
 
 // Using enhanced validation utilities from types/client.ts
 
-export default function ClientForm({
-	mode,
-	initialData,
-	onSuccess,
-}: ClientFormProps) {
+export default function ClientForm({ onSuccess }: ClientFormProps) {
 	const [isLoading, setIsLoading] = useState(false);
-	const [assignments, setAssignments] = useState(
-		initialData?.client_assignments || [],
-	);
-	const [goals, setGoals] = useState(initialData?.client_goals || []);
-	const [wins, setWins] = useState(initialData?.client_wins || []);
-	const [activityPeriods, setActivityPeriods] = useState(
-		initialData?.client_activity_period || [],
-	);
-	const [npsScores, setNpsScores] = useState(initialData?.client_nps || []);
-	const [testimonials, setTestimonials] = useState(
-		initialData?.client_testimonials || [],
-	);
-	const [paymentPlans, setPaymentPlans] = useState(
-		initialData?.payment_plans || [],
-	);
+	const [assignments, setAssignments] = useState<any[]>([]);
+	const [goals, setGoals] = useState<any[]>([]);
+	const [wins, setWins] = useState<any[]>([]);
+	const [activityPeriods, setActivityPeriods] = useState<any[]>([]);
+	const [npsScores, setNpsScores] = useState<any[]>([]);
+	const [testimonials, setTestimonials] = useState<any[]>([]);
+	const [paymentPlans, setPaymentPlans] = useState<any[]>([]);
 
 	const router = useRouter();
 	const queryClient = useQueryClient();
@@ -96,66 +70,36 @@ export default function ClientForm({
 	// Fetch available coaches for assignments
 	const { data: coaches = [] } = useActiveCoaches();
 
-	const isEditMode = mode === "edit";
-
 	const form = useForm({
-		defaultValues:
-			isEditMode && initialData
-				? {
-						id: initialData.id,
-						name: initialData.name || "",
-						email: initialData.email || "",
-						phone: initialData.phone || "",
-						overall_status: initialData.overall_status || "new",
-						everfit_access: initialData.everfit_access || "new",
-						team_ids: initialData.team_ids || "",
-						onboarding_call_completed:
-							initialData.onboarding_call_completed || false,
-						two_week_check_in_call_completed:
-							initialData.two_week_check_in_call_completed || false,
-						vip_terms_signed: initialData.vip_terms_signed || false,
-						onboarding_notes: initialData.onboarding_notes || "",
-						onboarding_completed_date:
-							initialData.onboarding_completed_date?.split("T")[0] || "",
-						offboard_date: initialData.offboard_date?.split("T")[0] || "",
-					}
-				: {
-						name: "",
-						email: "",
-						phone: "",
-						overall_status: "new",
-						everfit_access: "new",
-						team_ids: "",
-						onboarding_call_completed: false,
-						two_week_check_in_call_completed: false,
-						vip_terms_signed: false,
-						onboarding_notes: "",
-						onboarding_completed_date: "",
-						offboard_date: "",
-					},
+		defaultValues: {
+			name: "",
+			email: "",
+			phone: "",
+			overall_status: "new",
+			everfit_access: "new",
+			team_ids: "",
+			onboarding_call_completed: false,
+			two_week_check_in_call_completed: false,
+			vip_terms_signed: false,
+			onboarding_notes: "",
+			onboarding_completed_date: "",
+			offboard_date: "",
+		},
 		onSubmit: async ({ value }) => {
 			console.log("Form onSubmit triggered - value:", value);
 			setIsLoading(true);
 
 			try {
-				let result;
-
-				if (isEditMode) {
-					result = await updateClientAction(value as ClientEditFormInput);
-				} else {
-					result = await createClientAction(value as ClientFormInput);
-				}
+				const result = await createClientAction(value as ClientFormInput);
 
 				if (result?.data?.success) {
-					// Get the client ID for both create and edit modes
-					const clientId = isEditMode
-						? initialData?.id
-						: result?.data?.data?.client?.id;
+					// Get the client ID from create result
+					const clientId = result?.data?.data?.client?.id;
 
-					// Always save relations if we have a client ID (handles both additions and deletions)
+					// Save relations if we have a client ID
 					if (clientId) {
 						try {
-							// Save all relations in parallel - even empty arrays to handle deletions
+							// Save all relations in parallel
 							await Promise.all([
 								saveClientAssignments(clientId, assignments),
 								saveClientGoals(clientId, goals),
@@ -173,19 +117,10 @@ export default function ClientForm({
 						}
 					}
 
-					toast.success(
-						isEditMode
-							? "Client updated successfully!"
-							: "Client created successfully!",
-					);
+					toast.success("Client created successfully!");
 
 					// Invalidate queries
 					queryClient.invalidateQueries({ queryKey: ["clients"] });
-					if (isEditMode && initialData?.id) {
-						queryClient.invalidateQueries({
-							queryKey: ["client", initialData.id],
-						});
-					}
 
 					if (onSuccess) {
 						onSuccess();
@@ -529,32 +464,6 @@ export default function ClientForm({
 				</form.Field>
 			</div>
 
-			{/* Additional Dates (Edit Mode Only) */}
-			{isEditMode && (
-				<div className="space-y-4">
-					<h3 className="font-medium text-lg">Additional Dates</h3>
-
-					<form.Field name="offboard_date">
-						{(field) => (
-							<div className="space-y-2">
-								<Label htmlFor={field.name}>Offboard Date</Label>
-								<DatePicker
-									id={field.name}
-									value={field.state.value}
-									onChange={(value) => field.handleChange(value)}
-									placeholder="Select offboard date"
-								/>
-								{field.state.meta.errors &&
-									field.state.meta.errors.length > 0 && (
-										<p className="text-red-500 text-sm">
-											{String(field.state.meta.errors[0] || "")}
-										</p>
-									)}
-							</div>
-						)}
-					</form.Field>
-				</div>
-			)}
 
 			{/* Client Relations */}
 			<ClientAssignmentsForm
@@ -605,7 +514,7 @@ export default function ClientForm({
 							{(state.isSubmitting || isLoading) && (
 								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 							)}
-							{isEditMode ? "Update Client" : "Create Client"}
+							Create Client
 						</Button>
 					)}
 				</form.Subscribe>

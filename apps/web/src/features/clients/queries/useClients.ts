@@ -20,56 +20,17 @@ import type {
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { SortingState } from "@tanstack/react-table";
+import { clientQueryKeys, STALE_TIME } from "../utils/query-keys";
 
-// Query keys
-export const clientQueries = {
-	all: ["clients"] as const,
-	lists: () => [...clientQueries.all, "list"] as const,
-	list: (filters: Record<string, unknown>) =>
-		[...clientQueries.lists(), filters] as const,
-	tableData: (
-		filters: FiltersState,
-		page: number,
-		pageSize: number,
-		sorting: SortingState,
-	) =>
-		[
-			...clientQueries.lists(),
-			"table",
-			filters,
-			page,
-			pageSize,
-			sorting,
-		] as const,
-	tableDataWithFaceted: (
-		filters: FiltersState,
-		page: number,
-		pageSize: number,
-		sorting: SortingState,
-		facetedColumns: string[],
-	) =>
-		[
-			...clientQueries.lists(),
-			"tableWithFaceted",
-			filters,
-			page,
-			pageSize,
-			sorting,
-			facetedColumns,
-		] as const,
-	faceted: (columnId: string, filters: FiltersState) =>
-		[...clientQueries.lists(), "faceted", columnId, filters] as const,
-	details: () => [...clientQueries.all, "detail"] as const,
-	detail: (id: string) => [...clientQueries.details(), id] as const,
-	basic: (id: string) => [...clientQueries.all, "basic", id] as const,
-};
+// Re-export for backward compatibility
+export const clientQueries = clientQueryKeys;
 
 // Query hooks
 export function useClients() {
 	return useQuery({
 		queryKey: clientQueries.lists(),
 		queryFn: getAllClients,
-		staleTime: 5 * 60 * 1000, // 5 minutes
+		staleTime: STALE_TIME.MEDIUM,
 	});
 }
 
@@ -83,7 +44,7 @@ export function useClientsTableData(
 	return useQuery({
 		queryKey: clientQueries.tableData(filters, page, pageSize, sorting),
 		queryFn: () => getClientsWithFilters(filters, page, pageSize, sorting),
-		staleTime: 2 * 60 * 1000, // 2 minutes
+		staleTime: STALE_TIME.SHORT,
 	});
 }
 
@@ -95,7 +56,7 @@ export function useClientsFaceted(
 	return useQuery({
 		queryKey: clientQueries.faceted(columnId, filters),
 		queryFn: () => getClientsFaceted(columnId, filters),
-		staleTime: 5 * 60 * 1000, // 5 minutes
+		staleTime: STALE_TIME.MEDIUM,
 	});
 }
 
@@ -117,7 +78,7 @@ export function useClientsWithFaceted(
 		),
 		queryFn: () =>
 			getClientsWithFaceted(filters, page, pageSize, sorting, facetedColumns),
-		staleTime: 2 * 60 * 1000, // 2 minutes
+		staleTime: STALE_TIME.SHORT,
 	});
 }
 
@@ -126,7 +87,7 @@ export function useClient(id: string) {
 		queryKey: clientQueries.detail(id),
 		queryFn: () => getClient(id),
 		enabled: !!id,
-		staleTime: 2 * 60 * 1000, // 2 minutes
+		staleTime: STALE_TIME.SHORT,
 	});
 }
 
@@ -135,7 +96,7 @@ export function useClientBasic(id: string) {
 		queryKey: clientQueries.basic(id),
 		queryFn: () => getClientBasic(id),
 		enabled: !!id,
-		staleTime: 2 * 60 * 1000, // 2 minutes
+		staleTime: STALE_TIME.SHORT,
 	});
 }
 
@@ -193,7 +154,7 @@ export function prefetchClients(
 	return queryClient.prefetchQuery({
 		queryKey: clientQueries.lists(),
 		queryFn: getAllClients,
-		staleTime: 5 * 60 * 1000,
+		staleTime: STALE_TIME.MEDIUM,
 	});
 }
 
@@ -204,7 +165,7 @@ export function prefetchClient(
 	return queryClient.prefetchQuery({
 		queryKey: clientQueries.detail(id),
 		queryFn: () => getClient(id),
-		staleTime: 2 * 60 * 1000,
+		staleTime: STALE_TIME.SHORT,
 	});
 }
 
@@ -215,7 +176,7 @@ export function prefetchClientBasic(
 	return queryClient.prefetchQuery({
 		queryKey: clientQueries.basic(id),
 		queryFn: () => getClientBasic(id),
-		staleTime: 2 * 60 * 1000,
+		staleTime: STALE_TIME.SHORT,
 	});
 }
 
@@ -230,7 +191,7 @@ export function prefetchClientsTableData(
 	return queryClient.prefetchQuery({
 		queryKey: clientQueries.tableData(filters, page, pageSize, sorting),
 		queryFn: () => getClientsWithFilters(filters, page, pageSize, sorting),
-		staleTime: 2 * 60 * 1000,
+		staleTime: STALE_TIME.SHORT,
 	});
 }
 
@@ -242,6 +203,6 @@ export function prefetchClientsFaceted(
 	return queryClient.prefetchQuery({
 		queryKey: clientQueries.faceted(columnId, filters),
 		queryFn: () => getClientsFaceted(columnId, filters),
-		staleTime: 5 * 60 * 1000,
+		staleTime: STALE_TIME.MEDIUM,
 	});
 }

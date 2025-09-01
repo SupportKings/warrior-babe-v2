@@ -16,7 +16,8 @@ import {
 import { format } from "date-fns";
 import { AlertTriangleIcon } from "lucide-react";
 
-type ClientActivityPeriodRow = Database["public"]["Views"]["v_client_activity_period_core"]["Row"];
+type ClientActivityPeriodRow =
+	Database["public"]["Views"]["v_client_activity_period_core"]["Row"];
 
 interface ClientActivityPeriodDeleteModalProps {
 	clientActivityPeriod: ClientActivityPeriodRow;

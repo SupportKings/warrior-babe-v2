@@ -16,8 +16,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-import { addClientNPSScore } from "@/features/clients/actions/addClientRelations";
-import { updateClientNPSScore } from "@/features/clients/actions/updateClientRelations";
+import {
+	createClientNPSScore,
+	updateClientNPSScore,
+} from "@/features/clients/actions/relations/nps-scores";
 import { clientQueries } from "@/features/clients/queries/useClients";
 
 import { useQueryClient } from "@tanstack/react-query";
@@ -30,6 +32,8 @@ interface ManageNPSModalProps {
 	mode: "add" | "edit";
 	npsScore?: any;
 	children?: ReactNode;
+	open?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
 export function ManageNPSModal({
@@ -37,9 +41,15 @@ export function ManageNPSModal({
 	mode,
 	npsScore,
 	children,
+	open: externalOpen,
+	onOpenChange: externalOnOpenChange,
 }: ManageNPSModalProps) {
 	const isEdit = mode === "edit";
-	const [open, setOpen] = useState(false);
+	const [internalOpen, setInternalOpen] = useState(false);
+
+	// Use external state if provided, otherwise use internal state
+	const open = externalOpen !== undefined ? externalOpen : internalOpen;
+	const setOpen = externalOnOpenChange || setInternalOpen;
 	const [isLoading, setIsLoading] = useState(false);
 	const queryClient = useQueryClient();
 
@@ -76,10 +86,10 @@ export function ManageNPSModal({
 
 		try {
 			if (isEdit && npsScore) {
-				await updateClientNPSScore(clientId, { ...formData, id: npsScore.id });
+				await updateClientNPSScore(npsScore.id, formData);
 				toast.success("NPS score updated successfully!");
 			} else {
-				await addClientNPSScore(clientId, formData);
+				await createClientNPSScore(clientId, formData);
 				toast.success("NPS score added successfully!");
 			}
 
@@ -114,18 +124,20 @@ export function ManageNPSModal({
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger>
-				{children || (
-					<Button variant="outline" size="sm" className="gap-2">
-						{isEdit ? (
-							<Edit className="h-4 w-4" />
-						) : (
-							<Plus className="h-4 w-4" />
-						)}
-						{isEdit ? "Edit NPS Score" : "Add NPS Score"}
-					</Button>
-				)}
-			</DialogTrigger>
+			{externalOpen === undefined && (
+				<DialogTrigger>
+					{children || (
+						<Button variant="outline" size="sm" className="gap-2">
+							{isEdit ? (
+								<Edit className="h-4 w-4" />
+							) : (
+								<Plus className="h-4 w-4" />
+							)}
+							{isEdit ? "Edit NPS Score" : "Add NPS Score"}
+						</Button>
+					)}
+				</DialogTrigger>
+			)}
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">

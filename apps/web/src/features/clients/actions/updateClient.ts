@@ -49,19 +49,39 @@ export const updateClientAction = actionClient
 				}
 			}
 
-			// 3. Prepare update data (remove undefined values)
-			const cleanUpdateData: any = Object.fromEntries(
-				Object.entries(updateData).filter(([_, value]) => value !== undefined),
-			);
+			// 3. Prepare update data (remove undefined values and map to database field names)
+			const cleanUpdateData: any = {};
 
-			// Handle empty strings as null for optional fields
-			const fieldsToNullify = ["phone", "notes", "offboard_date"];
-
-			fieldsToNullify.forEach((field) => {
-				if (cleanUpdateData[field] === "") {
-					cleanUpdateData[field] = null;
-				}
-			});
+			// Map camelCase to snake_case and handle data transformations
+			if (updateData.name !== undefined) cleanUpdateData.name = updateData.name;
+			if (updateData.email !== undefined) cleanUpdateData.email = updateData.email;
+			if (updateData.phone !== undefined) {
+				cleanUpdateData.phone = updateData.phone;
+			}
+			if (updateData.overallStatus !== undefined) {
+				cleanUpdateData.overall_status = updateData.overallStatus;
+			}
+			if (updateData.everfitAccess !== undefined) {
+				cleanUpdateData.everfit_access = updateData.everfitAccess;
+			}
+			if (updateData.onboardingCallCompleted !== undefined) {
+				cleanUpdateData.onboarding_call_completed = updateData.onboardingCallCompleted;
+			}
+			if (updateData.twoWeekCheckInCallCompleted !== undefined) {
+				cleanUpdateData.two_week_check_in_call_completed = updateData.twoWeekCheckInCallCompleted;
+			}
+			if (updateData.vipTermsSigned !== undefined) {
+				cleanUpdateData.vip_terms_signed = updateData.vipTermsSigned;
+			}
+			if (updateData.onboardingNotes !== undefined) {
+				cleanUpdateData.onboarding_notes = updateData.onboardingNotes === "" ? null : updateData.onboardingNotes;
+			}
+			if (updateData.onboardingCompletedDate !== undefined) {
+				cleanUpdateData.onboarding_completed_date = updateData.onboardingCompletedDate === "" ? null : updateData.onboardingCompletedDate;
+			}
+			if (updateData.offboardDate !== undefined) {
+				cleanUpdateData.offboard_date = updateData.offboardDate === "" ? null : updateData.offboardDate;
+			}
 
 			// 4. Update the client record
 			const { data: updatedClient, error: updateError } = await supabase

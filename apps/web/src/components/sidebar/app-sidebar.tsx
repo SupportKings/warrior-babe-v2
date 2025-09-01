@@ -144,17 +144,13 @@ export function AppSidebar({
 				icon: Star,
 				items: [
 					{
-						title: "Coaches",
+						title: "Team Members",
 						url: "/dashboard/coaches",
 					},
 					{
-						title: "Teams",
+						title: "Coach Teams",
 						url: "/dashboard/coaches/teams",
-					},
-					{
-						title: "Premier Coaches",
-						url: "/dashboard/coaches/premiere-coaches",
-					},
+					}
 				],
 			},
 			{
@@ -184,10 +180,6 @@ export function AppSidebar({
 					{
 						title: "Products",
 						url: "/dashboard/system-config/products",
-					},
-					{
-						title: "Financial Settings",
-						url: "/dashboard/system-config/financial-settings",
 					},
 					{
 						title: "Client Win Tags",

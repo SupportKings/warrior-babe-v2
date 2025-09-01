@@ -23,8 +23,10 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-import { addClientGoal } from "@/features/clients/actions/addClientRelations";
-import { updateClientGoal } from "@/features/clients/actions/updateClientRelations";
+import {
+	createClientGoal,
+	updateClientGoal,
+} from "@/features/clients/actions/relations/goals";
 import { clientQueries } from "@/features/clients/queries/useClients";
 
 import { useQueryClient } from "@tanstack/react-query";
@@ -37,6 +39,8 @@ interface ManageGoalModalProps {
 	mode: "add" | "edit";
 	goal?: any;
 	children?: ReactNode;
+	open?: boolean;
+	onOpenChange?: (open: boolean) => void;
 }
 
 export function ManageGoalModal({
@@ -44,9 +48,15 @@ export function ManageGoalModal({
 	mode,
 	goal,
 	children,
+	open: externalOpen,
+	onOpenChange: externalOnOpenChange,
 }: ManageGoalModalProps) {
 	const isEdit = mode === "edit";
-	const [open, setOpen] = useState(false);
+	const [internalOpen, setInternalOpen] = useState(false);
+
+	// Use external state if provided, otherwise use internal state
+	const open = externalOpen !== undefined ? externalOpen : internalOpen;
+	const setOpen = externalOnOpenChange || setInternalOpen;
 	const [isLoading, setIsLoading] = useState(false);
 	const queryClient = useQueryClient();
 
@@ -110,10 +120,10 @@ export function ManageGoalModal({
 
 		try {
 			if (isEdit && goal) {
-				await updateClientGoal(clientId, { ...formData, id: goal.id });
+				await updateClientGoal(goal.id, formData);
 				toast.success("Goal updated successfully!");
 			} else {
-				await addClientGoal(clientId, formData);
+				await createClientGoal(clientId, formData);
 				toast.success("Goal added successfully!");
 			}
 
@@ -133,18 +143,20 @@ export function ManageGoalModal({
 
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger>
-				{children || (
-					<Button variant="outline" size="sm" className="gap-2">
-						{isEdit ? (
-							<Edit className="h-4 w-4" />
-						) : (
-							<Plus className="h-4 w-4" />
-						)}
-						{isEdit ? "Edit Goal" : "Add Goal"}
-					</Button>
-				)}
-			</DialogTrigger>
+			{externalOpen === undefined && (
+				<DialogTrigger>
+					{children || (
+						<Button variant="outline" size="sm" className="gap-2">
+							{isEdit ? (
+								<Edit className="h-4 w-4" />
+							) : (
+								<Plus className="h-4 w-4" />
+							)}
+							{isEdit ? "Edit Goal" : "Add Goal"}
+						</Button>
+					)}
+				</DialogTrigger>
+			)}
 			<DialogContent className="sm:max-w-[600px]">
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">

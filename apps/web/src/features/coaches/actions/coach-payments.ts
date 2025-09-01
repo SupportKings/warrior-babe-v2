@@ -306,22 +306,27 @@ export async function getCoachClientActivityPeriods(coachId: string) {
 			finalActivityPeriods = fallbackPeriods || [];
 		}
 		const formattedPeriods =
-			finalActivityPeriods?.filter((period): period is any => period && typeof period === 'object' && 'id' in period).map((period) => ({
-				id: period.id,
-				label: `${(period.client as any)?.name || "Unknown Client"} - ${
-					period.start_date
-						? format(new Date(period.start_date), "MMM dd, yyyy")
-						: "N/A"
-				} to ${
-					period.end_date
-						? format(new Date(period.end_date), "MMM dd, yyyy")
-						: "Present"
-				}${period.active ? " (Active)" : ""}`,
-				clientName: (period.client as any)?.name || "Unknown Client",
-				startDate: period.start_date,
-				endDate: period.end_date,
-				active: period.active,
-			})) || [];
+			finalActivityPeriods
+				?.filter(
+					(period): period is any =>
+						period && typeof period === "object" && "id" in period,
+				)
+				.map((period) => ({
+					id: period.id,
+					label: `${(period.client as any)?.name || "Unknown Client"} - ${
+						period.start_date
+							? format(new Date(period.start_date), "MMM dd, yyyy")
+							: "N/A"
+					} to ${
+						period.end_date
+							? format(new Date(period.end_date), "MMM dd, yyyy")
+							: "Present"
+					}${period.active ? " (Active)" : ""}`,
+					clientName: (period.client as any)?.name || "Unknown Client",
+					startDate: period.start_date,
+					endDate: period.end_date,
+					active: period.active,
+				})) || [];
 
 		return formattedPeriods;
 	} catch (error) {

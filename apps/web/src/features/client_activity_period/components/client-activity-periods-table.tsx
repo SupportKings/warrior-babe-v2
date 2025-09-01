@@ -36,7 +36,8 @@ import { useClientActivityPeriodsWithFaceted } from "../queries/useClientActivit
 import { ClientActivityPeriodDeleteModal } from "./client-activity-period-delete-modal";
 
 // Type for client activity period row from the view
-type ClientActivityPeriodRow = Database["public"]["Views"]["v_client_activity_period_core"]["Row"];
+type ClientActivityPeriodRow =
+	Database["public"]["Views"]["v_client_activity_period_core"]["Row"];
 
 // Create column helper for TanStack table
 const columnHelper = createColumnHelper<ClientActivityPeriodRow>();
@@ -77,11 +78,9 @@ const clientActivityPeriodTableColumns = [
 			return (
 				<div>
 					<div className="font-medium">{clientName || "Unknown Client"}</div>
-					<div className="text-xs text-muted-foreground">
+					<div className="text-muted-foreground text-xs">
 						{planName}
-						{productName && (
-							<span className="block">{productName}</span>
-						)}
+						{productName && <span className="block">{productName}</span>}
 					</div>
 				</div>
 			);
@@ -115,9 +114,7 @@ const clientActivityPeriodTableColumns = [
 		enableColumnFilter: true,
 		cell: ({ row }) => {
 			const coachName = row.original.coach_name;
-			return (
-				<div className="text-sm">{coachName || "No coach assigned"}</div>
-			);
+			return <div className="text-sm">{coachName || "No coach assigned"}</div>;
 		},
 	}),
 	columnHelper.display({
@@ -176,11 +173,11 @@ function ClientActivityPeriodsTableContent({
 	// but the filter UI expects Date objects
 	const processedFilters = useMemo(() => {
 		return filters.map((filter: any) => {
-			if (filter.type === 'date' && filter.values) {
+			if (filter.type === "date" && filter.values) {
 				const processedValues = filter.values.map((value: any) => {
-					if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+					if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
 						// Convert YYYY-MM-DD string to Date object for UI
-						return new Date(value + 'T00:00:00.000Z');
+						return new Date(value + "T00:00:00.000Z");
 					}
 					return value;
 				});

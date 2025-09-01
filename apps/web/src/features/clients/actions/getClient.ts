@@ -51,23 +51,14 @@ export async function getClient(id: string) {
 						id,
 						name,
 						email
-					)
-				),
-				client_activity_period (
-					id,
-					active,
-					start_date,
-					end_date,
-					coach_id,
-					created_at,
-					updated_at,
-					coach:team_members!client_activity_period_coach_id_fkey (
+					),
+					client_win_tags (
 						id,
-						name,
-						user:user!team_members_user_id_fkey (
+						tag_id,
+						win_tags (
 							id,
 							name,
-							email
+							color
 						)
 					)
 				),
@@ -95,13 +86,10 @@ export async function getClient(id: string) {
 					id,
 					name,
 					notes,
-					platform,
 					product_id,
-					subscription_id,
 					term_start_date,
 					term_end_date,
 					total_amount,
-					total_amount_paid,
 					type,
 					created_at,
 					updated_at,
@@ -114,15 +102,62 @@ export async function getClient(id: string) {
 						payment_id,
 						created_at,
 						updated_at
+					),
+					payment_plan_templates (
+						id,
+						name,
+						product_id,
+						program_length_months,
+						created_at,
+						updated_at
+					),
+					products (
+						id,
+						name,
+						description,
+						client_unit,
+						default_duration_months,
+						is_active,
+						created_at,
+						updated_at
 					)
 				)
 			`)
 			.eq("id", id)
+			.eq("is_deleted", false)
 			.single();
 
 		if (error) {
 			console.error("Error fetching client:", error);
 			return null;
+		}
+
+		// Fetch client activity periods separately using the view
+		const { data: activityPeriods } = await supabase
+			.from("v_client_activity_period_core")
+			.select(`
+				id,
+				active,
+				start_date,
+				end_date,
+				coach_id,
+				coach_name,
+				client_id,
+				client_name,
+				payment_plan,
+				product_id,
+				product_name,
+				created_at,
+				updated_at
+			`)
+			.eq("client_id", id);
+
+		// Add the activity periods to the client object
+		if (client) {
+			return {
+				...client,
+				client_activity_periods: activityPeriods || [],
+			};
 		}
 
 		return client;
@@ -140,6 +175,7 @@ export async function getClientBasic(id: string) {
 			.from("clients")
 			.select("*")
 			.eq("id", id)
+			.eq("is_deleted", false)
 			.single();
 
 		if (error) {
@@ -179,6 +215,7 @@ export async function getAllClients() {
 					)
 				)
 			`)
+			.eq("is_deleted", false)
 			.order("created_at", { ascending: false });
 
 		if (error) {
@@ -223,7 +260,7 @@ export async function getClientsWithFilters(
 				)
 			`,
 			{ count: "exact" },
-		);
+		).eq("is_deleted", false);
 
 		// Apply filters with proper operator support
 		filters.forEach((filter) => {
@@ -357,7 +394,8 @@ export async function getClientsWithFaceted(
 			facetedColumns.map(async (columnId) => {
 				let facetQuery = supabase
 					.from("clients")
-					.select(columnId, { count: "exact" });
+					.select(columnId, { count: "exact" })
+					.eq("is_deleted", false);
 
 				// Apply existing filters (excluding the column we're faceting) using same operator logic
 				filters
@@ -518,7 +556,8 @@ export async function getClientsFaceted(columnId: string, filters: any[] = []) {
 	try {
 		const supabase = await createClient();
 
-		let query = supabase.from("clients").select(columnId, { count: "exact" });
+		let query = supabase.from("clients").select(columnId, { count: "exact" })
+			.eq("is_deleted", false);
 
 		// Apply existing filters (excluding the column we're faceting) using same operator logic
 		filters

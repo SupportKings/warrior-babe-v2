@@ -15,7 +15,10 @@ export const deleteClient = actionClient
 
 		const { error } = await supabase
 			.from("clients")
-			.delete()
+			.update({ 
+				is_deleted: true,
+				updated_at: new Date().toISOString()
+			})
 			.eq("id", parsedInput.id);
 
 		if (error) {

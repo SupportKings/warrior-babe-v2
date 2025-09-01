@@ -35,8 +35,8 @@ export function PaymentDeleteModal({
 					<AlertDialogTitle>Delete Payment</AlertDialogTitle>
 					<AlertDialogDescription>
 						Are you sure you want to delete this payment of{" "}
-						<strong>${(payment.amount || 0).toLocaleString()}</strong>? This action cannot
-						be undone.
+						<strong>${(payment.amount || 0).toLocaleString()}</strong>? This
+						action cannot be undone.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>

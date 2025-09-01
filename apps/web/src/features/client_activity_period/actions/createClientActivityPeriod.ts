@@ -2,13 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getUser } from "@/queries/getUser";
 import { actionClient } from "@/lib/safe-action";
-
-import { returnValidationErrors } from "next-safe-action";
 
 import { createClient } from "@/utils/supabase/server";
 
+import { getUser } from "@/queries/getUser";
+
+import { returnValidationErrors } from "next-safe-action";
 import { clientActivityPeriodCreateSchema } from "../types/clientActivityPeriod";
 
 export const createClientActivityPeriodAction = actionClient

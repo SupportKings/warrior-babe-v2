@@ -23,15 +23,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { format } from "date-fns";
 import {
-	CalendarIcon,
-	EditIcon,
-	EyeIcon,
+	CalendarIcon, EyeIcon,
 	MailIcon,
 	PackageIcon,
 	PlusIcon,
 	TagIcon,
 	TrashIcon,
-	UserIcon,
+	UserIcon
 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteClient } from "../actions/deleteClient";
@@ -264,13 +262,6 @@ function ClientsTableContent({
 			icon: EyeIcon,
 			onClick: (client: ClientRow) => {
 				window.location.href = `/dashboard/clients/${client.id}`;
-			},
-		},
-		{
-			label: "Edit",
-			icon: EditIcon,
-			onClick: (client: ClientRow) => {
-				window.location.href = `/dashboard/clients/${client.id}/edit`;
 			},
 		},
 		{

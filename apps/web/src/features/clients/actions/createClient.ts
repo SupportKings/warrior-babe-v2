@@ -19,14 +19,14 @@ export const createClientAction = actionClient
 			name,
 			email,
 			phone,
-			overall_status,
-			everfit_access,
-			team_ids,
-			onboarding_call_completed,
-			two_week_check_in_call_completed,
-			vip_terms_signed,
-			onboarding_notes,
-			onboarding_completed_date,
+			overallStatus,
+			everfitAccess,
+			onboardingCallCompleted,
+			twoWeekCheckInCallCompleted,
+			vipTermsSigned,
+			onboardingNotes,
+			onboardingCompletedDate,
+			offboardDate,
 		} = parsedInput;
 
 		try {
@@ -61,15 +61,15 @@ export const createClientAction = actionClient
 					name,
 					email,
 					phone,
-					overall_status: overall_status || "new",
-					everfit_access: everfit_access || "new",
-					team_ids: team_ids || null,
-					onboarding_call_completed: onboarding_call_completed || false,
+					overall_status: overallStatus || "new",
+					everfit_access: everfitAccess || "new",
+					onboarding_call_completed: onboardingCallCompleted || false,
 					two_week_check_in_call_completed:
-						two_week_check_in_call_completed || false,
-					vip_terms_signed: vip_terms_signed || false,
-					onboarding_notes: onboarding_notes || null,
-					onboarding_completed_date: onboarding_completed_date || null,
+						twoWeekCheckInCallCompleted || false,
+					vip_terms_signed: vipTermsSigned || false,
+					onboarding_notes: onboardingNotes || null,
+					onboarding_completed_date: onboardingCompletedDate || null,
+					offboard_date: offboardDate || null,
 				})
 				.select()
 				.single();

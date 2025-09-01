@@ -28,7 +28,12 @@ export type ClientWithRelations = Client & {
 	>;
 	client_testimonials?: Tables<"client_testimonials">[];
 	client_nps?: Tables<"client_nps">[];
-	client_activity_period?: Tables<"client_activity_period">[];
+	client_activity_periods?: Array<
+		Tables<"client_activity_period"> & {
+			coach_name?: string;
+			payment_plan?: string | null;
+		}
+	>;
 	payment_plans?: Tables<"payment_plans">[];
 };
 
@@ -80,10 +85,10 @@ export const validationUtils = {
 		.string()
 		.optional()
 		.nullable()
-		.transform((val) => val?.trim() || null)
+		.transform((val) => val === undefined ? undefined : (val?.trim() || null))
 		.refine(
 			(val) =>
-				!val ||
+				val === undefined || !val ||
 				(/^\d{4}-\d{2}-\d{2}$/.test(val) && !isNaN(new Date(val).getTime())),
 			"Date must be in YYYY-MM-DD format or empty",
 		),
@@ -96,9 +101,9 @@ export const validationUtils = {
 		.string()
 		.optional()
 		.nullable()
-		.transform((val) => val?.trim() || null)
+		.transform((val) => val === undefined ? undefined : (val?.trim() || null))
 		.refine(
-			(val) => !val || val.length <= 2000,
+			(val) => val === undefined || !val || val.length <= 2000,
 			"Must be less than 2000 characters",
 		),
 
@@ -118,8 +123,6 @@ export const validationUtils = {
 		.nullable()
 		.optional(),
 
-	// Team IDs validation (stored as string in database)
-	teamIds: z.string().nullable().optional(),
 };
 
 // Base client schema for creation (matches database schema)
@@ -127,15 +130,14 @@ export const clientCreateSchema = z.object({
 	name: validationUtils.name,
 	email: validationUtils.email,
 	phone: validationUtils.phone,
-	overall_status: validationUtils.clientOverallStatus,
-	everfit_access: validationUtils.everfitAccess,
-	team_ids: validationUtils.teamIds,
-	onboarding_call_completed: z.boolean().optional().default(false),
-	two_week_check_in_call_completed: z.boolean().optional().default(false),
-	vip_terms_signed: z.boolean().optional().default(false),
-	onboarding_notes: validationUtils.longText,
-	onboarding_completed_date: validationUtils.optionalDateString,
-	offboard_date: validationUtils.optionalDateString,
+	overallStatus: validationUtils.clientOverallStatus,
+	everfitAccess: validationUtils.everfitAccess,
+	onboardingCallCompleted: z.boolean().optional().default(false),
+	twoWeekCheckInCallCompleted: z.boolean().optional().default(false),
+	vipTermsSigned: z.boolean().optional().default(false),
+	onboardingNotes: validationUtils.longText,
+	onboardingCompletedDate: validationUtils.optionalDateString,
+	offboardDate: validationUtils.optionalDateString,
 });
 
 // Schema for client updates (all fields optional except id)
@@ -144,15 +146,14 @@ export const clientUpdateSchema = z.object({
 	name: validationUtils.name.optional(),
 	email: validationUtils.email.optional(),
 	phone: validationUtils.phone.optional(),
-	overall_status: validationUtils.clientOverallStatus,
-	everfit_access: validationUtils.everfitAccess,
-	team_ids: validationUtils.teamIds,
-	onboarding_call_completed: z.boolean().optional(),
-	two_week_check_in_call_completed: z.boolean().optional(),
-	vip_terms_signed: z.boolean().optional(),
-	onboarding_notes: validationUtils.longText,
-	onboarding_completed_date: validationUtils.optionalDateString,
-	offboard_date: validationUtils.optionalDateString,
+	overallStatus: validationUtils.clientOverallStatus,
+	everfitAccess: validationUtils.everfitAccess,
+	onboardingCallCompleted: z.boolean().optional(),
+	twoWeekCheckInCallCompleted: z.boolean().optional(),
+	vipTermsSigned: z.boolean().optional(),
+	onboardingNotes: validationUtils.longText,
+	onboardingCompletedDate: validationUtils.optionalDateString,
+	offboardDate: validationUtils.optionalDateString,
 });
 
 // Form schema for client creation (used in forms) - more lenient for better UX
@@ -168,7 +169,6 @@ export const clientFormSchema = z.object({
 		.enum(["new", "requested", "confirmed"])
 		.optional()
 		.default("new"),
-	team_ids: z.string().optional().default(""),
 	onboarding_call_completed: z.boolean().optional().default(false),
 	two_week_check_in_call_completed: z.boolean().optional().default(false),
 	vip_terms_signed: z.boolean().optional().default(false),
