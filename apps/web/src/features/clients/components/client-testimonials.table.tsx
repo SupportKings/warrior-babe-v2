@@ -95,7 +95,7 @@ const clientTestimonialTableColumns = [
       const type = row.getValue<string>("testimonial_type");
       return (
         <div className="flex items-center gap-1">
-          <TagIcon className="h-3 w-3 text-muted-foreground" />
+          <TagIcon className="h-4 w-4 text-muted-foreground" />
           <span>{type || "—"}</span>
         </div>
       );
@@ -116,8 +116,8 @@ const clientTestimonialTableColumns = [
           rel="noopener noreferrer"
           className="flex items-center gap-1 text-blue-600 hover:underline"
         >
-          <LinkIcon className="h-3 w-3" />
-          <span className="text-xs">View</span>
+          <LinkIcon className="h-4 w-4" />
+          <span className="text-sm">View</span>
         </a>
       );
     },
@@ -350,18 +350,20 @@ function ClientTestimonialsTableContent({
   };
 
   return (
-    <>
+    <div className="w-full">
       {/* Filters */}
-      {isLoading ? (
-        <UniversalTableFilterSkeleton />
-      ) : (
-        <DataTableFilter
-          filters={filterState}
-          columns={filterColumns}
-          actions={actions}
-          strategy={strategy}
-        />
-      )}
+      <div className="flex items-center gap-2 pb-4">
+        {isLoading ? (
+          <UniversalTableFilterSkeleton />
+        ) : (
+          <DataTableFilter
+            filters={filterState}
+            columns={filterColumns}
+            actions={actions}
+            strategy={strategy}
+          />
+        )}
+      </div>
 
       {/* Data Table */}
       {isLoading ? (
@@ -389,7 +391,7 @@ function ClientTestimonialsTableContent({
             : undefined
         }
       />
-    </>
+    </div>
   );
 }
 

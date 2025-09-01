@@ -278,18 +278,20 @@ function CoachPaymentsTableContent({
   };
 
   return (
-    <>
+    <div className="w-full">
       {/* Filters */}
-      {isLoading ? (
-        <UniversalTableFilterSkeleton />
-      ) : (
-        <DataTableFilter
-          filters={filterState}
-          columns={filterColumns}
-          actions={actions}
-          strategy={strategy}
-        />
-      )}
+      <div className="flex items-center gap-2 pb-4">
+        {isLoading ? (
+          <UniversalTableFilterSkeleton />
+        ) : (
+          <DataTableFilter
+            filters={filterState}
+            columns={filterColumns}
+            actions={actions}
+            strategy={strategy}
+          />
+        )}
+      </div>
 
       {/* Data Table */}
       {isLoading ? (
@@ -326,7 +328,7 @@ function CoachPaymentsTableContent({
             : undefined
         }
       />
-    </>
+    </div>
   );
 }
 

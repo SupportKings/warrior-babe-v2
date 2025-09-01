@@ -133,10 +133,6 @@ export function AppSidebar({
 						url: "/dashboard/clients/activity-periods",
 					},
 					{
-						title: "Call Feedback",
-						url: "/dashboard/clients/call-feedback",
-					},
-					{
 						title: "Testimonials",
 						url: "/dashboard/clients/testimonials",
 					},
@@ -192,10 +188,6 @@ export function AppSidebar({
 					{
 						title: "Financial Settings",
 						url: "/dashboard/system-config/financial-settings",
-					},
-					{
-						title: "Checklist Settings",
-						url: "/dashboard/system-config/checklist-settings",
 					},
 					{
 						title: "Client Win Tags",
