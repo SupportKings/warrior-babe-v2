@@ -130,7 +130,7 @@ const clientTestimonialTableColumns = [
     cell: ({ row }) => {
       const content = row.getValue<string>("content");
       return (
-        <div className="max-w-xs truncate text-sm text-muted-foreground">
+        <div className="max-w-[15ch] overflow-hidden text-ellipsis whitespace-nowrap text-sm text-muted-foreground">
           {content || "—"}
         </div>
       );
