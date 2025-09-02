@@ -29,9 +29,10 @@ import {
   UserIcon,
 } from "lucide-react";
 import { toast } from "sonner";
-import { deleteClientTestimonial } from "../actions/deleteClientTestimonial";
+import { deleteClientTestimonial } from "../../client-testimonials/actions/deleteClientTestimonial";
 import { useClientTestimonialsWithFaceted } from "../queries/useClientTestimonials";
 import { ClientTestimonialDeleteModal } from "./client-testimonial.delete.modal";
+import { useRouter } from "next/navigation";
 
 // Type for client testimonial row from Supabase
 type ClientTestimonialRow =
@@ -193,6 +194,7 @@ function ClientTestimonialsTableContent({
   filters: any;
   setFilters: any;
 }) {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [testimonialToDelete, setTestimonialToDelete] =
     useState<ClientTestimonialRow | null>(null);
@@ -276,17 +278,8 @@ function ClientTestimonialsTableContent({
     {
       label: "View Details",
       icon: EyeIcon,
-      onClick: () => {
-        // Placeholder for view action
-        toast.info("View functionality coming soon");
-      },
-    },
-    {
-      label: "Edit",
-      icon: EditIcon,
-      onClick: () => {
-        // Placeholder for edit action
-        toast.info("Edit functionality coming soon");
+      onClick: (row: any) => {
+        router.push(`/dashboard/clients/testimonials/${row.id}`);
       },
     },
     {
@@ -341,7 +334,7 @@ function ClientTestimonialsTableContent({
         setTestimonialToDelete(null);
       } else {
         toast.error(
-          result?.data?.error || "Failed to delete client testimonial"
+          result?.serverError || "Failed to delete client testimonial"
         );
       }
     } catch (error) {
