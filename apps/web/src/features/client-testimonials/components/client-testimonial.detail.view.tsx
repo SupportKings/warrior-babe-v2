@@ -132,7 +132,7 @@ export default function ClientTestimonialDetailView({ testimonialId }: ClientTes
 						</AvatarFallback>
 					</Avatar>
 					<div>
-						<h1 className="font-bold text-2xl">{displayName} - {testimonialType}</h1>
+						<h1 className="font-bold text-2xl">{displayName} - <span className="capitalize">{testimonialType}</span></h1>
 						<p className="text-muted-foreground">{testimonial.client_email}</p>
 					</div>
 				</div>

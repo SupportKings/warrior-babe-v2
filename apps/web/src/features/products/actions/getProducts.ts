@@ -164,10 +164,18 @@ export async function getProduct(id: string) {
 	try {
 		const supabase = await createClient();
 
-		// Fetch product with related data
+		// Fetch product with related payment plan templates
 		const { data: product, error } = await supabase
 			.from("products")
-			.select("*")
+			.select(`
+				*,
+				payment_plan_templates (
+					*,
+					payment_plan_template_slots (
+						*
+					)
+				)
+			`)
 			.eq("id", id)
 			.single();
 
