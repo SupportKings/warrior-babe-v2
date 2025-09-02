@@ -20,6 +20,7 @@ import { createUniversalColumnHelper } from "@/components/universal-data-table/u
 import { useQueryClient } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import {
+  CalendarIcon,
   EditIcon,
   EyeIcon,
   HashIcon,
@@ -34,6 +35,7 @@ import { useCoachPaymentsWithFaceted } from "../queries/useCoachPayments";
 import { CoachPaymentDeleteModal } from "./coach-payment.delete.modal";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
 
 // Type for coach payment row from Supabase view
 type CoachPaymentRow =
@@ -75,6 +77,17 @@ const coachPaymentTableColumns = [
     cell: ({ row }) => {
       const name = row.getValue<string>("coach_name");
       return <div className="font-medium">{name || "—"}</div>;
+    },
+  }),
+  columnHelper.accessor("date", {
+    id: "date",
+    header: "Payment Date",
+    enableColumnFilter: true,
+    enableSorting: true,
+    cell: ({ row }) => {
+      const date = row.getValue<string | null>("date");
+      if (!date) return "-";
+      return format(new Date(date), "MMM dd, yyyy");
     },
   }),
   columnHelper.accessor("status", {
@@ -121,6 +134,11 @@ const coachPaymentFilterConfig = [
     .option("status")
     .displayName("Status")
     .icon(TagIcon)
+    .build(),
+  universalColumnHelper
+    .date("date")
+    .displayName("Payment Date")
+    .icon(CalendarIcon)
     .build(),
   universalColumnHelper
     .number("number_of_activity_periods")
@@ -195,6 +213,11 @@ function CoachPaymentsTableContent({
         { value: "Not Paid", label: "Not Paid" },
       ],
     },
+    universalColumnHelper
+      .date("date")
+      .displayName("Payment Date")
+      .icon(CalendarIcon)
+      .build(),
     universalColumnHelper
       .number("number_of_activity_periods")
       .displayName("Number Of Activity Periods")

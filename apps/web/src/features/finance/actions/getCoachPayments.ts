@@ -150,6 +150,48 @@ export async function getCoachPaymentsWithFilters(
               query = query.not(columnId, "in", `(${values.join(",")})`);
             }
             break;
+          case "date": {
+            const formatDate = (dateStr: string) => {
+              // If the date string contains timezone info like "gmt+0200", remove it
+              // and ensure we have a proper ISO date string
+              try {
+                // Parse the date and convert to ISO string (UTC)
+                const date = new Date(dateStr);
+                return date.toISOString();
+              } catch {
+                // If parsing fails, return the original value
+                return dateStr;
+              }
+            };
+
+            const formattedValues = values.map(formatDate);
+            // Date fields - support various date operators
+            if (operator === "is") {
+              query = (query as any).eq(columnId, formattedValues[0]);
+            } else if (operator === "is not") {
+              query = (query as any).not(columnId, "eq", formattedValues[0]);
+            } else if (operator === "is before") {
+              query = (query as any).lt(columnId, formattedValues[0]);
+            } else if (operator === "is on or before") {
+              query = (query as any).lte(columnId, formattedValues[0]);
+            } else if (operator === "is after") {
+              query = (query as any).gt(columnId, formattedValues[0]);
+            } else if (operator === "is on or after") {
+              query = (query as any).gte(columnId, formattedValues[0]);
+            } else if (
+              operator === "is between" &&
+              formattedValues.length === 2
+            ) {
+              query = (query as any)
+                .gte(columnId, formattedValues[0])
+                .lte(columnId, formattedValues[1]);
+            } else if (operator === "is not between" && values.length === 2) {
+              query = (query as any).or(
+                `${columnId}.lt.${formattedValues[0]},${columnId}.gt.${formattedValues[1]}`
+              );
+            }
+            break;
+          }
         }
       }
     });
@@ -260,6 +302,48 @@ export async function getCoachPaymentsFaceted(
               query = query.not(columnId, "in", `(${values.join(",")})`);
             }
             break;
+          case "date": {
+            const formatDate = (dateStr: string) => {
+              // If the date string contains timezone info like "gmt+0200", remove it
+              // and ensure we have a proper ISO date string
+              try {
+                // Parse the date and convert to ISO string (UTC)
+                const date = new Date(dateStr);
+                return date.toISOString();
+              } catch {
+                // If parsing fails, return the original value
+                return dateStr;
+              }
+            };
+
+            const formattedValues = values.map(formatDate);
+            // Date fields - support various date operators
+            if (operator === "is") {
+              query = (query as any).eq(columnId, formattedValues[0]);
+            } else if (operator === "is not") {
+              query = (query as any).not(columnId, "eq", formattedValues[0]);
+            } else if (operator === "is before") {
+              query = (query as any).lt(columnId, formattedValues[0]);
+            } else if (operator === "is on or before") {
+              query = (query as any).lte(columnId, formattedValues[0]);
+            } else if (operator === "is after") {
+              query = (query as any).gt(columnId, formattedValues[0]);
+            } else if (operator === "is on or after") {
+              query = (query as any).gte(columnId, formattedValues[0]);
+            } else if (
+              operator === "is between" &&
+              formattedValues.length === 2
+            ) {
+              query = (query as any)
+                .gte(columnId, formattedValues[0])
+                .lte(columnId, formattedValues[1]);
+            } else if (operator === "is not between" && values.length === 2) {
+              query = (query as any).or(
+                `${columnId}.lt.${formattedValues[0]},${columnId}.gt.${formattedValues[1]}`
+              );
+            }
+            break;
+          }
         }
       }
     });
@@ -384,6 +468,52 @@ export async function getCoachPaymentsWithFaceted(
               );
             }
             break;
+          case "date": {
+            const formatDate = (dateStr: string) => {
+              // If the date string contains timezone info like "gmt+0200", remove it
+              // and ensure we have a proper ISO date string
+              try {
+                // Parse the date and convert to ISO string (UTC)
+                const date = new Date(dateStr);
+                return date.toISOString();
+              } catch {
+                // If parsing fails, return the original value
+                return dateStr;
+              }
+            };
+
+            const formattedValues = values.map(formatDate);
+            // Date fields - support various date operators
+            if (operator === "is") {
+              baseQuery = (baseQuery as any).eq(columnId, formattedValues[0]);
+            } else if (operator === "is not") {
+              baseQuery = (baseQuery as any).not(
+                columnId,
+                "eq",
+                formattedValues[0]
+              );
+            } else if (operator === "is before") {
+              baseQuery = (baseQuery as any).lt(columnId, formattedValues[0]);
+            } else if (operator === "is on or before") {
+              baseQuery = (baseQuery as any).lte(columnId, formattedValues[0]);
+            } else if (operator === "is after") {
+              baseQuery = (baseQuery as any).gt(columnId, formattedValues[0]);
+            } else if (operator === "is on or after") {
+              baseQuery = (baseQuery as any).gte(columnId, formattedValues[0]);
+            } else if (
+              operator === "is between" &&
+              formattedValues.length === 2
+            ) {
+              baseQuery = (baseQuery as any)
+                .gte(columnId, formattedValues[0])
+                .lte(columnId, formattedValues[1]);
+            } else if (operator === "is not between" && values.length === 2) {
+              baseQuery = (baseQuery as any).or(
+                `${columnId}.lt.${formattedValues[0]},${columnId}.gt.${formattedValues[1]}`
+              );
+            }
+            break;
+          }
         }
       }
     });
@@ -500,6 +630,66 @@ export async function getCoachPaymentsWithFaceted(
                   columnId,
                   "in",
                   `(${values.join(",")})`
+                );
+              }
+              break;
+            case "date":
+              const formatDate = (dateStr: string) => {
+                // If the date string contains timezone info like "gmt+0200", remove it
+                // and ensure we have a proper ISO date string
+                try {
+                  // Parse the date and convert to ISO string (UTC)
+                  const date = new Date(dateStr);
+                  return date.toISOString();
+                } catch {
+                  // If parsing fails, return the original value
+                  return dateStr;
+                }
+              };
+
+              const formattedValues = values.map(formatDate);
+              // Date fields - support various date operators
+              if (operator === "is") {
+                facetQuery = (facetQuery as any).eq(
+                  columnId,
+                  formattedValues[0]
+                );
+              } else if (operator === "is not") {
+                facetQuery = (facetQuery as any).not(
+                  columnId,
+                  "eq",
+                  formattedValues[0]
+                );
+              } else if (operator === "is before") {
+                facetQuery = (facetQuery as any).lt(
+                  columnId,
+                  formattedValues[0]
+                );
+              } else if (operator === "is on or before") {
+                facetQuery = (facetQuery as any).lte(
+                  columnId,
+                  formattedValues[0]
+                );
+              } else if (operator === "is after") {
+                facetQuery = (facetQuery as any).gt(
+                  columnId,
+                  formattedValues[0]
+                );
+              } else if (operator === "is on or after") {
+                facetQuery = (facetQuery as any).gte(
+                  columnId,
+                  formattedValues[0]
+                );
+              } else if (
+                operator === "is between" &&
+                formattedValues.length === 2
+              ) {
+                facetQuery = (facetQuery as any)
+                  .gte(columnId, formattedValues[0])
+                  .lte(columnId, formattedValues[1]);
+              } else if (operator === "is not between" && values.length === 2) {
+                facetQuery = (facetQuery as any).or(
+                  `${columnId}.lt.${formattedValues[0]},${columnId}.gt.${formattedValues[1]}`
                 );
               }
               break;
