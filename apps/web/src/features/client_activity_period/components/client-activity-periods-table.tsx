@@ -12,8 +12,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { useUniversalTable } from "@/components/universal-data-table/hooks/use-universal-table";
 import {
-	UniversalTableFilterSkeleton,
-	UniversalTableSkeleton,
+  UniversalTableFilterSkeleton,
+  UniversalTableSkeleton,
 } from "@/components/universal-data-table/table-skeleton";
 import { UniversalDataTable } from "@/components/universal-data-table/universal-data-table";
 import { UniversalDataTableWrapper } from "@/components/universal-data-table/universal-data-table-wrapper";
@@ -23,407 +23,400 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { format } from "date-fns";
 import {
-	CalendarIcon,
-	EditIcon,
-	EyeIcon,
-	PlusIcon,
-	TrashIcon,
-	UserIcon,
+  CalendarIcon,
+  EditIcon,
+  EyeIcon,
+  PlusIcon,
+  TrashIcon,
+  UserIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteClientActivityPeriod } from "../actions/deleteClientActivityPeriod";
 import { useClientActivityPeriodsWithFaceted } from "../queries/useClientActivityPeriod";
 import { ClientActivityPeriodDeleteModal } from "./client-activity-period-delete-modal";
+import { useRouter } from "next/navigation";
 
 // Type for client activity period row from the view
 type ClientActivityPeriodRow =
-	Database["public"]["Views"]["v_client_activity_period_core"]["Row"];
+  Database["public"]["Views"]["v_client_activity_period_core"]["Row"];
 
 // Create column helper for TanStack table
 const columnHelper = createColumnHelper<ClientActivityPeriodRow>();
 
 // TanStack table column definitions
 const clientActivityPeriodTableColumns = [
-	columnHelper.display({
-		id: "select",
-		header: ({ table }) => (
-			<Checkbox
-				checked={
-					table.getIsAllPageRowsSelected() ||
-					(table.getIsSomePageRowsSelected() && "indeterminate")
-				}
-				onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
-				aria-label="Select all"
-			/>
-		),
-		cell: ({ row }) => (
-			<Checkbox
-				checked={row.getIsSelected()}
-				onCheckedChange={(value) => row.toggleSelected(!!value)}
-				aria-label="Select row"
-			/>
-		),
-		enableSorting: false,
-		enableHiding: false,
-		enableColumnFilter: false,
-	}),
-	columnHelper.display({
-		id: "payment_plan",
-		header: "Client & Payment Plan",
-		enableColumnFilter: true,
-		cell: ({ row }) => {
-			const clientName = row.original.client_name;
-			const planName = row.original.ppt_name || "No payment plan";
-			const productName = row.original.product_name;
-			return (
-				<div>
-					<div className="font-medium">{clientName || "Unknown Client"}</div>
-					<div className="text-muted-foreground text-xs">
-						{planName}
-						{productName && <span className="block">{productName}</span>}
-					</div>
-				</div>
-			);
-		},
-	}),
-	columnHelper.accessor("start_date", {
-		id: "start_date",
-		header: "Start Date",
-		enableColumnFilter: true,
-		enableSorting: true,
-		cell: ({ row }) => {
-			const date = row.getValue<string>("start_date");
-			if (!date) return null;
-			return format(new Date(date), "MMM dd, yyyy");
-		},
-	}),
-	columnHelper.accessor("end_date", {
-		id: "end_date",
-		header: "End Date",
-		enableColumnFilter: true,
-		enableSorting: true,
-		cell: ({ row }) => {
-			const date = row.getValue<string | null>("end_date");
-			if (!date) return <span className="text-muted-foreground">Ongoing</span>;
-			return format(new Date(date), "MMM dd, yyyy");
-		},
-	}),
-	columnHelper.display({
-		id: "coach",
-		header: "Coach",
-		enableColumnFilter: true,
-		cell: ({ row }) => {
-			const coachName = row.original.coach_name;
-			return <div className="text-sm">{coachName || "No coach assigned"}</div>;
-		},
-	}),
-	columnHelper.display({
-		id: "activity",
-		header: "Activity",
-		enableColumnFilter: false,
-		cell: ({ row }) => {
-			const isActive = row.original.active;
-			return <StatusBadge>{isActive ? "Active" : "Inactive"}</StatusBadge>;
-		},
-	}),
+  columnHelper.display({
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+    enableColumnFilter: false,
+  }),
+  columnHelper.display({
+    id: "payment_plan",
+    header: "Client & Payment Plan",
+    enableColumnFilter: true,
+    cell: ({ row }) => {
+      const clientName = row.original.client_name;
+      const planName = row.original.ppt_name || "No payment plan";
+      const productName = row.original.product_name;
+      return (
+        <div>
+          <div className="font-medium">{clientName || "Unknown Client"}</div>
+          <div className="text-muted-foreground text-xs">
+            {planName}
+            {productName && <span className="block">{productName}</span>}
+          </div>
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor("start_date", {
+    id: "start_date",
+    header: "Start Date",
+    enableColumnFilter: true,
+    enableSorting: true,
+    cell: ({ row }) => {
+      const date = row.getValue<string>("start_date");
+      if (!date) return null;
+      return format(new Date(date), "MMM dd, yyyy");
+    },
+  }),
+  columnHelper.accessor("end_date", {
+    id: "end_date",
+    header: "End Date",
+    enableColumnFilter: true,
+    enableSorting: true,
+    cell: ({ row }) => {
+      const date = row.getValue<string | null>("end_date");
+      if (!date) return <span className="text-muted-foreground">Ongoing</span>;
+      return format(new Date(date), "MMM dd, yyyy");
+    },
+  }),
+  columnHelper.display({
+    id: "coach",
+    header: "Coach",
+    enableColumnFilter: true,
+    cell: ({ row }) => {
+      const coachName = row.original.coach_name;
+      return <div className="text-sm">{coachName || "No coach assigned"}</div>;
+    },
+  }),
+  columnHelper.display({
+    id: "activity",
+    header: "Activity",
+    enableColumnFilter: false,
+    cell: ({ row }) => {
+      const isActive = row.original.active;
+      return <StatusBadge>{isActive ? "Active" : "Inactive"}</StatusBadge>;
+    },
+  }),
 ];
 
 // Filter configuration using universal column helper
 const universalColumnHelper =
-	createUniversalColumnHelper<ClientActivityPeriodRow>();
+  createUniversalColumnHelper<ClientActivityPeriodRow>();
 
 const clientActivityPeriodFilterConfig = [
-	universalColumnHelper
-		.option("payment_plan")
-		.displayName("Payment Plan")
-		.icon(UserIcon)
-		.build(),
-	universalColumnHelper
-		.option("coach_id")
-		.displayName("Coach")
-		.icon(UserIcon)
-		.build(),
-	universalColumnHelper
-		.date("start_date")
-		.displayName("Start Date")
-		.icon(CalendarIcon)
-		.build(),
-	universalColumnHelper
-		.date("end_date")
-		.displayName("End Date")
-		.icon(CalendarIcon)
-		.build(),
+  universalColumnHelper
+    .option("payment_plan")
+    .displayName("Payment Plan")
+    .icon(UserIcon)
+    .build(),
+  universalColumnHelper
+    .option("coach_id")
+    .displayName("Coach")
+    .icon(UserIcon)
+    .build(),
+  universalColumnHelper
+    .date("start_date")
+    .displayName("Start Date")
+    .icon(CalendarIcon)
+    .build(),
+  universalColumnHelper
+    .date("end_date")
+    .displayName("End Date")
+    .icon(CalendarIcon)
+    .build(),
 ];
 
 function ClientActivityPeriodsTableContent({
-	filters,
-	setFilters,
+  filters,
+  setFilters,
 }: {
-	filters: any;
-	setFilters: any;
+  filters: any;
+  setFilters: any;
 }) {
-	const queryClient = useQueryClient();
-	const [activityPeriodToDelete, setActivityPeriodToDelete] =
-		useState<ClientActivityPeriodRow | null>(null);
-	const [currentPage, setCurrentPage] = useState(0);
-	const [sorting, setSorting] = useState<any[]>([]);
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [activityPeriodToDelete, setActivityPeriodToDelete] =
+    useState<ClientActivityPeriodRow | null>(null);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [sorting, setSorting] = useState<any[]>([]);
 
-	// Convert date strings back to Date objects for UI components
-	// This is needed because when filters are loaded from URL, dates become strings
-	// but the filter UI expects Date objects
-	const processedFilters = useMemo(() => {
-		return filters.map((filter: any) => {
-			if (filter.type === "date" && filter.values) {
-				const processedValues = filter.values.map((value: any) => {
-					if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-						// Convert YYYY-MM-DD string to Date object for UI
-						return new Date(value + "T00:00:00.000Z");
-					}
-					return value;
-				});
-				return { ...filter, values: processedValues };
-			}
-			return filter;
-		});
-	}, [filters]);
+  // Convert date strings back to Date objects for UI components
+  // This is needed because when filters are loaded from URL, dates become strings
+  // but the filter UI expects Date objects
+  const processedFilters = useMemo(() => {
+    return filters.map((filter: any) => {
+      if (filter.type === "date" && filter.values) {
+        const processedValues = filter.values.map((value: any) => {
+          if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+            // Convert YYYY-MM-DD string to Date object for UI
+            return new Date(value + "T00:00:00.000Z");
+          }
+          return value;
+        });
+        return { ...filter, values: processedValues };
+      }
+      return filter;
+    });
+  }, [filters]);
 
-	// Reset to first page when filters change
-	useEffect(() => {
-		setCurrentPage(0);
-	}, [filters]);
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [filters]);
 
-	// Fetch client activity periods data with faceted data in single optimized call
-	const {
-		data: clientActivityPeriodsWithFaceted,
-		isLoading,
-		isError,
-		error,
-	} = useClientActivityPeriodsWithFaceted(
-		filters,
-		currentPage,
-		25,
-		sorting,
-		["client", "product", "coach_id"], // faceted columns for dropdowns
-	);
+  // Fetch client activity periods data with faceted data in single optimized call
+  const {
+    data: clientActivityPeriodsWithFaceted,
+    isLoading,
+    isError,
+    error,
+  } = useClientActivityPeriodsWithFaceted(
+    filters,
+    currentPage,
+    25,
+    sorting,
+    ["client", "product", "coach_id"] // faceted columns for dropdowns
+  );
 
-	// Extract data from combined result
-	const clientActivityPeriodsData = clientActivityPeriodsWithFaceted
-		? {
-				data: clientActivityPeriodsWithFaceted.clientActivityPeriods,
-				count: clientActivityPeriodsWithFaceted.totalCount,
-			}
-		: { data: [], count: 0 };
+  // Extract data from combined result
+  const clientActivityPeriodsData = clientActivityPeriodsWithFaceted
+    ? {
+        data: clientActivityPeriodsWithFaceted.clientActivityPeriods,
+        count: clientActivityPeriodsWithFaceted.totalCount,
+      }
+    : { data: [], count: 0 };
 
-	// Extract faceted data for options with counts
-	const clientFaceted =
-		clientActivityPeriodsWithFaceted?.facetedData?.client || [];
-	const productFaceted =
-		clientActivityPeriodsWithFaceted?.facetedData?.product || [];
-	const coachFaceted =
-		clientActivityPeriodsWithFaceted?.facetedData?.coach_id || [];
+  // Extract faceted data for options with counts
+  const clientFaceted =
+    clientActivityPeriodsWithFaceted?.facetedData?.client || [];
+  const productFaceted =
+    clientActivityPeriodsWithFaceted?.facetedData?.product || [];
+  const coachFaceted =
+    clientActivityPeriodsWithFaceted?.facetedData?.coach_id || [];
 
-	// Create dynamic filter config with options from faceted data
-	const dynamicFilterConfig = [
-		{
-			id: "client",
-			type: "option" as const,
-			displayName: "Client",
-			icon: UserIcon,
-			accessor: (row: ClientActivityPeriodRow) => row.client_id,
-			options: clientFaceted.map((item: any) => ({
-				value: item.value,
-				label: item.label,
-				count: item.count,
-			})),
-		},
-		{
-			id: "product",
-			type: "option" as const,
-			displayName: "Product",
-			icon: UserIcon,
-			accessor: (row: ClientActivityPeriodRow) => row.product_id,
-			options: productFaceted.map((item: any) => ({
-				value: item.value,
-				label: item.label,
-				count: item.count,
-			})),
-		},
-		{
-			...universalColumnHelper
-				.option("coach_id")
-				.displayName("Coach")
-				.icon(UserIcon)
-				.build(),
-			options: coachFaceted.map((item: any) => ({
-				value: item.value,
-				label: item.label,
-				count: item.count,
-			})),
-		},
-		universalColumnHelper
-			.date("start_date")
-			.displayName("Start Date")
-			.icon(CalendarIcon)
-			.build(),
-		universalColumnHelper
-			.date("end_date")
-			.displayName("End Date")
-			.icon(CalendarIcon)
-			.build(),
-	];
+  // Create dynamic filter config with options from faceted data
+  const dynamicFilterConfig = [
+    {
+      id: "client",
+      type: "option" as const,
+      displayName: "Client",
+      icon: UserIcon,
+      accessor: (row: ClientActivityPeriodRow) => row.client_id,
+      options: clientFaceted.map((item: any) => ({
+        value: item.value,
+        label: item.label,
+        count: item.count,
+      })),
+    },
+    {
+      id: "product",
+      type: "option" as const,
+      displayName: "Product",
+      icon: UserIcon,
+      accessor: (row: ClientActivityPeriodRow) => row.product_id,
+      options: productFaceted.map((item: any) => ({
+        value: item.value,
+        label: item.label,
+        count: item.count,
+      })),
+    },
+    {
+      ...universalColumnHelper
+        .option("coach_id")
+        .displayName("Coach")
+        .icon(UserIcon)
+        .build(),
+      options: coachFaceted.map((item: any) => ({
+        value: item.value,
+        label: item.label,
+        count: item.count,
+      })),
+    },
+    universalColumnHelper
+      .date("start_date")
+      .displayName("Start Date")
+      .icon(CalendarIcon)
+      .build(),
+    universalColumnHelper
+      .date("end_date")
+      .displayName("End Date")
+      .icon(CalendarIcon)
+      .build(),
+  ];
 
-	const rowActions = [
-		{
-			label: "View Details",
-			icon: EyeIcon,
-			onClick: (activityPeriod: ClientActivityPeriodRow) => {
-				// Placeholder - just show alert for now
-				alert(`View activity period ${activityPeriod.id}`);
-			},
-		},
-		{
-			label: "Edit",
-			icon: EditIcon,
-			onClick: (activityPeriod: ClientActivityPeriodRow) => {
-				// Placeholder - just show alert for now
-				alert(`Edit activity period ${activityPeriod.id}`);
-			},
-		},
-		{
-			label: "Delete",
-			icon: TrashIcon,
-			variant: "destructive" as const,
-			onClick: (activityPeriod: ClientActivityPeriodRow) => {
-				setActivityPeriodToDelete(activityPeriod);
-			},
-		},
-	];
+  const rowActions = [
+    {
+      label: "View Details",
+      icon: EyeIcon,
+      onClick: (activityPeriod: ClientActivityPeriodRow) => {
+        router.push(`/dashboard/clients/activity-periods/${activityPeriod.id}`);
+      },
+    },
+    {
+      label: "Delete",
+      icon: TrashIcon,
+      variant: "destructive" as const,
+      onClick: (activityPeriod: ClientActivityPeriodRow) => {
+        setActivityPeriodToDelete(activityPeriod);
+      },
+    },
+  ];
 
-	const { table, filterColumns, filterState, actions, strategy, totalCount } =
-		useUniversalTable<ClientActivityPeriodRow>({
-			data: clientActivityPeriodsData?.data || [],
-			totalCount: clientActivityPeriodsData?.count || 0,
-			columns: clientActivityPeriodTableColumns,
-			columnsConfig: dynamicFilterConfig,
-			filters: processedFilters, // Use processed filters here too
-			onFiltersChange: setFilters,
-			faceted: {},
-			enableSelection: true,
-			pageSize: 25,
-			serverSide: true,
-			rowActions,
-			isLoading,
-			isError,
-			error,
-			onPaginationChange: (pageIndex) => {
-				setCurrentPage(pageIndex);
-			},
-			onSortingChange: setSorting,
-		});
+  const { table, filterColumns, filterState, actions, strategy, totalCount } =
+    useUniversalTable<ClientActivityPeriodRow>({
+      data: clientActivityPeriodsData?.data || [],
+      totalCount: clientActivityPeriodsData?.count || 0,
+      columns: clientActivityPeriodTableColumns,
+      columnsConfig: dynamicFilterConfig,
+      filters: processedFilters, // Use processed filters here too
+      onFiltersChange: setFilters,
+      faceted: {},
+      enableSelection: true,
+      pageSize: 25,
+      serverSide: true,
+      rowActions,
+      isLoading,
+      isError,
+      error,
+      onPaginationChange: (pageIndex) => {
+        setCurrentPage(pageIndex);
+      },
+      onSortingChange: setSorting,
+    });
 
-	// Check if filter options are still loading
-	const isFilterDataPending = false;
+  // Check if filter options are still loading
+  const isFilterDataPending = false;
 
-	if (isError) {
-		return (
-			<div className="w-full">
-				<div className="space-y-2 text-center">
-					<p className="text-red-600">
-						Error loading client activity periods: {error?.message}
-					</p>
-					<p className="text-muted-foreground text-sm">
-						Please check your database connection and try again.
-					</p>
-				</div>
-			</div>
-		);
-	}
+  if (isError) {
+    return (
+      <div className="w-full">
+        <div className="space-y-2 text-center">
+          <p className="text-red-600">
+            Error loading client activity periods: {error?.message}
+          </p>
+          <p className="text-muted-foreground text-sm">
+            Please check your database connection and try again.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
-	return (
-		<div className="w-full">
-			<div className="flex items-center gap-2 pb-4">
-				{isFilterDataPending ? (
-					<UniversalTableFilterSkeleton />
-				) : (
-					<DataTableFilter
-						filters={filterState}
-						columns={filterColumns}
-						actions={actions}
-						strategy={strategy}
-					/>
-				)}
-			</div>
+  return (
+    <div className="w-full">
+      <div className="flex items-center gap-2 pb-4">
+        {isFilterDataPending ? (
+          <UniversalTableFilterSkeleton />
+        ) : (
+          <DataTableFilter
+            filters={filterState}
+            columns={filterColumns}
+            actions={actions}
+            strategy={strategy}
+          />
+        )}
+      </div>
 
-			{isLoading ? (
-				<UniversalTableSkeleton
-					numCols={clientActivityPeriodTableColumns.length}
-					numRows={10}
-				/>
-			) : (
-				<UniversalDataTable
-					table={table}
-					actions={actions}
-					totalCount={totalCount}
-					rowActions={rowActions}
-					emptyStateMessage="No client activity periods found matching your filters"
-					emptyStateAction={
-						<Button size="sm" className="gap-2" asChild>
-							<Link href="">
-								<PlusIcon className="h-4 w-4" />
-								Add Client Activity Period
-							</Link>
-						</Button>
-					}
-				/>
-			)}
+      {isLoading ? (
+        <UniversalTableSkeleton
+          numCols={clientActivityPeriodTableColumns.length}
+          numRows={10}
+        />
+      ) : (
+        <UniversalDataTable
+          table={table}
+          actions={actions}
+          totalCount={totalCount}
+          rowActions={rowActions}
+          emptyStateMessage="No client activity periods found matching your filters"
+          emptyStateAction={
+            <Button size="sm" className="gap-2" asChild>
+              <Link href="">
+                <PlusIcon className="h-4 w-4" />
+                Add Client Activity Period
+              </Link>
+            </Button>
+          }
+        />
+      )}
 
-			{activityPeriodToDelete && (
-				<ClientActivityPeriodDeleteModal
-					clientActivityPeriod={activityPeriodToDelete}
-					open={!!activityPeriodToDelete}
-					onOpenChange={(open) => !open && setActivityPeriodToDelete(null)}
-					onConfirm={async () => {
-						const activityPeriodId = activityPeriodToDelete.id;
+      {activityPeriodToDelete && (
+        <ClientActivityPeriodDeleteModal
+          clientActivityPeriod={activityPeriodToDelete}
+          open={!!activityPeriodToDelete}
+          onOpenChange={(open) => !open && setActivityPeriodToDelete(null)}
+          onConfirm={async () => {
+            const activityPeriodId = activityPeriodToDelete.id;
 
-						if (!activityPeriodId) {
-							toast.error("Activity period ID is missing");
-							throw new Error("Activity period ID is missing");
-						}
+            if (!activityPeriodId) {
+              toast.error("Activity period ID is missing");
+              throw new Error("Activity period ID is missing");
+            }
 
-						try {
-							await deleteClientActivityPeriod({ id: activityPeriodId });
+            try {
+              await deleteClientActivityPeriod({ id: activityPeriodId });
 
-							// Refresh the table after successful deletion
-							queryClient.invalidateQueries({
-								queryKey: ["client_activity_periods"],
-							});
-							setActivityPeriodToDelete(null);
+              // Refresh the table after successful deletion
+              queryClient.invalidateQueries({
+                queryKey: ["client_activity_periods"],
+              });
+              setActivityPeriodToDelete(null);
 
-							// Show success toast
-							toast.success("Activity period has been deleted successfully");
-						} catch (error) {
-							// Show error toast
-							toast.error(
-								"Failed to delete activity period. Please try again.",
-							);
-							throw error;
-						}
-					}}
-				/>
-			)}
-		</div>
-	);
+              // Show success toast
+              toast.success("Activity period has been deleted successfully");
+            } catch (error) {
+              // Show error toast
+              toast.error(
+                "Failed to delete activity period. Please try again."
+              );
+              throw error;
+            }
+          }}
+        />
+      )}
+    </div>
+  );
 }
 
 export function ClientActivityPeriodsDataTable() {
-	return (
-		<UniversalDataTableWrapper<ClientActivityPeriodRow>
-			table="client_activity_periods"
-			columns={clientActivityPeriodTableColumns}
-			columnsConfig={clientActivityPeriodFilterConfig}
-			urlStateKey="clientActivityPeriodFilters"
-		>
-			{(state) => <ClientActivityPeriodsTableContent {...state} />}
-		</UniversalDataTableWrapper>
-	);
+  return (
+    <UniversalDataTableWrapper<ClientActivityPeriodRow>
+      table="client_activity_periods"
+      columns={clientActivityPeriodTableColumns}
+      columnsConfig={clientActivityPeriodFilterConfig}
+      urlStateKey="clientActivityPeriodFilters"
+    >
+      {(state) => <ClientActivityPeriodsTableContent {...state} />}
+    </UniversalDataTableWrapper>
+  );
 }
