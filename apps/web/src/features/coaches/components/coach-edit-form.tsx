@@ -196,6 +196,7 @@ export function CoachEditForm({ coach, onSuccess }: CoachEditFormProps) {
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
 									disabled={isLoading}
+									className="h-10"
 								/>
 								{field.state.meta.errors &&
 									field.state.meta.errors.length > 0 && (
@@ -233,6 +234,7 @@ export function CoachEditForm({ coach, onSuccess }: CoachEditFormProps) {
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
 									disabled={isLoading}
+									className="h-10"
 								/>
 								{field.state.meta.errors &&
 									field.state.meta.errors.length > 0 && (
@@ -250,7 +252,7 @@ export function CoachEditForm({ coach, onSuccess }: CoachEditFormProps) {
 			<div className="space-y-4">
 				<h3 className="font-medium text-lg">Employment Details</h3>
 
-				<div className="flex flex-row items-center gap-3">
+				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 					{/* Onboarding Date Field */}
 					<form.Field
 						name="onboarding_date"
@@ -260,7 +262,7 @@ export function CoachEditForm({ coach, onSuccess }: CoachEditFormProps) {
 						}}
 					>
 						{(field) => (
-							<div className="w-1/4 space-y-3">
+							<div className="space-y-2">
 								<Label htmlFor={field.name}>Onboarding Date *</Label>
 								<DatePicker
 									id={field.name}
@@ -268,6 +270,7 @@ export function CoachEditForm({ coach, onSuccess }: CoachEditFormProps) {
 									onChange={(value) => field.handleChange(value)}
 									placeholder="Select onboarding date"
 									disabled={isLoading}
+									className="h-10"
 								/>
 								{field.state.meta.errors &&
 									field.state.meta.errors.length > 0 && (
@@ -288,14 +291,14 @@ export function CoachEditForm({ coach, onSuccess }: CoachEditFormProps) {
 						}}
 					>
 						{(field) => (
-							<div className="space-y-3">
+							<div className="space-y-2">
 								<Label htmlFor={field.name}>Contract Type *</Label>
 								<Select
 									value={field.state.value || ""}
 									onValueChange={(value) => field.handleChange(value)}
 									disabled={isLoading}
 								>
-									<SelectTrigger id={field.name} className="m-0 min-w-[200px]">
+									<SelectTrigger id={field.name} className="h-10">
 										<SelectValue placeholder="Select contract type" />
 									</SelectTrigger>
 									<SelectContent>
@@ -323,8 +326,9 @@ export function CoachEditForm({ coach, onSuccess }: CoachEditFormProps) {
 				<h3 className="font-medium text-lg">Role & Team Assignment</h3>
 
 				{/* Roles Multi-Select Combobox */}
-				<div className="space-y-2">
-					<Label htmlFor="roles">Roles *</Label>
+				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+					<div className="space-y-2">
+						<Label htmlFor="roles">Roles *</Label>
 					<Popover
 						open={rolesSearchOpen}
 						onOpenChange={(open) => {
@@ -340,7 +344,7 @@ export function CoachEditForm({ coach, onSuccess }: CoachEditFormProps) {
 								variant="outline"
 								role="combobox"
 								aria-expanded={rolesSearchOpen}
-								className="w-1/2 justify-between font-normal"
+								className="w-full justify-between font-normal h-10"
 								disabled={isLoading || rolesLoading}
 							>
 								{selectedRoles.length > 0 ? (
@@ -392,15 +396,15 @@ export function CoachEditForm({ coach, onSuccess }: CoachEditFormProps) {
 							</Command>
 						</PopoverContent>
 					</Popover>
-					{rolesBlurred && selectedRoles.length === 0 && (
-						<p className="text-red-500 text-sm">
-							At least one role is required
-						</p>
-					)}
-				</div>
+						{rolesBlurred && selectedRoles.length === 0 && (
+							<p className="text-red-500 text-sm">
+								At least one role is required
+							</p>
+						)}
+					</div>
 
-				{/* Team Assignment Combobox */}
-				<form.Field name="team_id">
+					{/* Team Assignment Combobox */}
+					<form.Field name="team_id">
 					{(field) => (
 						<div className="space-y-2">
 							<Label htmlFor={field.name}>Team Assignment *</Label>
@@ -411,7 +415,7 @@ export function CoachEditForm({ coach, onSuccess }: CoachEditFormProps) {
 										variant="outline"
 										role="combobox"
 										aria-expanded={teamSearchOpen}
-										className="w-1/2 justify-between font-normal"
+										className="w-full justify-between font-normal h-10"
 										disabled={isLoading || teamLeadersLoading}
 									>
 										{field.state.value
@@ -478,8 +482,9 @@ export function CoachEditForm({ coach, onSuccess }: CoachEditFormProps) {
 									</p>
 								)}
 						</div>
-					)}
-				</form.Field>
+						)}
+					</form.Field>
+				</div>
 			</div>
 
 			{/* Form Actions */}
