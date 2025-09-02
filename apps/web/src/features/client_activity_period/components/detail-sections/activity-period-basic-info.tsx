@@ -60,9 +60,9 @@ export function ActivityPeriodBasicInfo({
     start_date: activityPeriod.start_date,
     end_date: activityPeriod.end_date || "",
     active: activityPeriod.active,
-    coach_id: activityPeriod.coach_id || "none",
-    coach_payment: activityPeriod.coach_payment || "none",
-    payment_plan: activityPeriod?.payment_plan_detail?.name || "none",
+    coach_id: activityPeriod.coach_id != null ? String(activityPeriod.coach_id) : "none",
+    coach_payment: activityPeriod.coach_payment != null ? String(activityPeriod.coach_payment) : "none",
+    payment_plan: activityPeriod.payment_plan != null ? String(activityPeriod.payment_plan) : "none"
   });
 
   // Fetch data for dropdowns when editing
@@ -76,9 +76,9 @@ export function ActivityPeriodBasicInfo({
       start_date: activityPeriod.start_date,
       end_date: activityPeriod.end_date || "",
       active: activityPeriod.active,
-      coach_id: activityPeriod.coach_id || "none",
-      coach_payment: activityPeriod.coach_payment || "none",
-      payment_plan: activityPeriod.payment_plan || "none",
+      coach_id: activityPeriod.coach_id != null ? String(activityPeriod.coach_id) : "none",
+      coach_payment:  activityPeriod.coach_payment != null ? String(activityPeriod.coach_payment) : "none",
+      payment_plan: activityPeriod.payment_plan != null ? String(activityPeriod.payment_plan) : "none",
     });
   }, [activityPeriod]);
 
@@ -160,18 +160,18 @@ export function ActivityPeriodBasicInfo({
         {/* Client Info (Read-only) */}
         {activityPeriod.client_name && (
           <div>
-            <label className="font-medium text-muted-foreground text-sm">
+            <span className="font-medium text-muted-foreground text-sm">
               Client
-            </label>
+            </span>
             <p className="text-sm">{activityPeriod.client_name}</p>
           </div>
         )}
 
         {/* Payment Plan */}
         <div>
-          <label className="font-medium text-muted-foreground text-sm">
+          <span className="font-medium text-muted-foreground text-sm">
             Payment Plan
-          </label>
+          </span>
           {isEditing ? (
             <Select
               value={formData.payment_plan || "none"}
@@ -185,7 +185,7 @@ export function ActivityPeriodBasicInfo({
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
                 {paymentPlans.map((plan: any) => (
-                  <SelectItem key={plan.id} value={plan.id}>
+                  <SelectItem key={plan.id} value={String(plan.id)}>
                     {plan.name} ({plan.client?.name})
                   </SelectItem>
                 ))}
@@ -193,16 +193,16 @@ export function ActivityPeriodBasicInfo({
             </Select>
           ) : (
             <p className="text-sm">
-              {activityPeriod.payment_plan_detail.name || "Not set"}
+              {activityPeriod.payment_plan_detail.name ?? "Not set"}
             </p>
           )}
         </div>
 
         {/* Start Date */}
         <div>
-          <label className="font-medium text-muted-foreground text-sm">
+          <span className="font-medium text-muted-foreground text-sm">
             Start Date
-          </label>
+          </span>
           {isEditing ? (
             <Popover>
               <PopoverTrigger asChild>
@@ -245,9 +245,9 @@ export function ActivityPeriodBasicInfo({
 
         {/* End Date */}
         <div>
-          <label className="font-medium text-muted-foreground text-sm">
+          <span className="font-medium text-muted-foreground text-sm">
             End Date
-          </label>
+          </span>
           {isEditing ? (
             <Popover>
               <PopoverTrigger asChild>
@@ -288,9 +288,9 @@ export function ActivityPeriodBasicInfo({
 
         {/* Coach */}
         <div>
-          <label className="font-medium text-muted-foreground text-sm">
+          <span className="font-medium text-muted-foreground text-sm">
             Coach
-          </label>
+          </span>
           {isEditing ? (
             <Select
               value={formData.coach_id || "none"}
@@ -304,7 +304,7 @@ export function ActivityPeriodBasicInfo({
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
                 {coaches.map((coach: any) => (
-                  <SelectItem key={coach.id} value={coach.id}>
+                  <SelectItem key={coach.id} value={String(coach.id)}>
                     {coach.name}
                   </SelectItem>
                 ))}
@@ -312,16 +312,16 @@ export function ActivityPeriodBasicInfo({
             </Select>
           ) : (
             <p className="text-sm">
-              {activityPeriod.coach.name || "Not assigned"}
+              {activityPeriod.coach.name ?? "Not assigned"}
             </p>
           )}
         </div>
 
         {/* Coach Payment */}
         <div>
-          <label className="font-medium text-muted-foreground text-sm">
+          <span className="font-medium text-muted-foreground text-sm">
             Coach Payment
-          </label>
+          </span>
           {isEditing ? (
             <Select
               value={formData.coach_payment || "none"}
@@ -335,7 +335,7 @@ export function ActivityPeriodBasicInfo({
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
                 {coachPayments.map((payment: any) => (
-                  <SelectItem key={payment.id} value={payment.id}>
+                  <SelectItem key={payment.id} value={String(payment.id)}>
                     ${payment.amount} - {payment.coach?.name} (
                     {formatDate(payment.date)})
                   </SelectItem>
@@ -353,9 +353,9 @@ export function ActivityPeriodBasicInfo({
 
         {/* Active Status */}
         <div>
-          <label className="font-medium text-muted-foreground text-sm">
+          <span className="font-medium text-muted-foreground text-sm">
             Status
-          </label>
+          </span>
           {isEditing ? (
             <div className="flex items-center space-x-2 mt-1">
               <Checkbox

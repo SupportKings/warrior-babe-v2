@@ -3,44 +3,48 @@ import { format } from "date-fns";
 import { Clock } from "lucide-react";
 
 const formatDate = (dateString: string | null) => {
-	if (!dateString) return "Not set";
-	try {
-		return format(new Date(dateString), "MMM dd, yyyy 'at' h:mm a");
-	} catch {
-		return "Invalid date";
-	}
+  if (!dateString) return "Not set";
+  try {
+    return format(new Date(dateString), "MMM dd, yyyy 'at' h:mm a");
+  } catch {
+    return "Invalid date";
+  }
 };
 
 interface ActivityPeriodSystemInfoProps {
-	activityPeriod: {
-		created_at: string;
-		updated_at: string;
-	};
+  activityPeriod: {
+    created_at: string;
+    updated_at: string;
+  };
 }
 
-export function ActivityPeriodSystemInfo({ activityPeriod }: ActivityPeriodSystemInfoProps) {
-	return (
-		<Card>
-			<CardHeader>
-				<CardTitle className="flex items-center gap-2">
-					<Clock className="h-5 w-5" />
-					System Information
-				</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-4">
-				<div>
-					<label className="font-medium text-muted-foreground text-sm">
-						Created At
-					</label>
-					<p className="text-sm">{formatDate(activityPeriod.created_at)}</p>
-				</div>
-				<div>
-					<label className="font-medium text-muted-foreground text-sm">
-						Last Updated
-					</label>
-					<p className="text-sm">{formatDate(activityPeriod.updated_at)}</p>
-				</div>
-			</CardContent>
-		</Card>
-	);
+export function ActivityPeriodSystemInfo({
+  activityPeriod,
+}: ActivityPeriodSystemInfoProps) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Clock className="h-5 w-5" />
+          System Information
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <dl className="grid gap-4">
+          <div>
+            <dt className="font-medium text-muted-foreground text-sm">
+              Created At
+            </dt>
+            <dd className="text-sm">{formatDate(activityPeriod.created_at)}</dd>
+          </div>
+          <div>
+            <dt className="font-medium text-muted-foreground text-sm">
+              Last Updated
+            </dt>
+            <dd className="text-sm">{formatDate(activityPeriod.updated_at)}</dd>
+          </div>
+        </dl>
+      </CardContent>
+    </Card>
+  );
 }
