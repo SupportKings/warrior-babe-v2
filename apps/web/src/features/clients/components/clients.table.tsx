@@ -34,6 +34,7 @@ import {
 import { toast } from "sonner";
 import { deleteClient } from "../actions/deleteClient";
 import { useClientsWithFaceted } from "../queries/useClients";
+import { CLIENT_OVERALL_STATUS_OPTIONS, EVERFIT_ACCESS_OPTIONS } from "../types/client";
 import { ClientDeleteModal } from "./client.delete.modal";
 
 // Type for client row from Supabase with relations
@@ -103,19 +104,23 @@ const clientTableColumns = [
 			<div className="text-muted-foreground">{row.getValue("email")}</div>
 		),
 	}),
-	columnHelper.display({
-		id: "coach",
-		header: "Coach",
-		enableColumnFilter: false,
+	columnHelper.accessor("phone", {
+		id: "phone",
+		header: "Phone",
+		enableColumnFilter: true,
+		enableSorting: true,
+		cell: ({ row }) => (
+			<div className="text-muted-foreground">{row.getValue("phone") || "—"}</div>
+		),
+	}),
+	columnHelper.accessor("everfit_access", {
+		id: "everfit_access",
+		header: "Everfit Status",
+		enableColumnFilter: true,
+		enableSorting: true,
 		cell: ({ row }) => {
-			const assignments = row.original.client_assignments;
-			const activeAssignment = assignments?.find((a) => !a.end_date);
-			const coach = activeAssignment?.coach;
-			return (
-				<div className="text-sm">
-					{coach?.user?.name || coach?.name || "No coach assigned"}
-				</div>
-			);
+			const status = row.getValue<string>("everfit_access");
+			return <StatusBadge>{status || "unknown"}</StatusBadge>;
 		},
 	}),
 	columnHelper.accessor("overall_status", {
@@ -201,7 +206,7 @@ function ClientsTableContent({
 		currentPage,
 		25,
 		sorting,
-		["overall_status"], // columns to get faceted data for
+		["overall_status", "everfit_access"], // columns to get faceted data for
 	);
 
 	// Extract data from combined result
@@ -237,18 +242,16 @@ function ClientsTableContent({
 				.displayName("Status")
 				.icon(TagIcon)
 				.build(),
-			options: [
-				{ value: "new", label: "New" },
-				{ value: "live", label: "Live" },
-				{ value: "paused", label: "Paused" },
-				{ value: "churned", label: "Churned" },
-			],
+			options: [...CLIENT_OVERALL_STATUS_OPTIONS],
 		},
-		universalColumnHelper
-			.option("everfit_access")
-			.displayName("Everfit Access")
-			.icon(PackageIcon)
-			.build(),
+		{
+			...universalColumnHelper
+				.option("everfit_access")
+				.displayName("Everfit Access")
+				.icon(PackageIcon)
+				.build(),
+			options: [...EVERFIT_ACCESS_OPTIONS],
+		},
 		universalColumnHelper
 			.date("created_at")
 			.displayName("Created Date")
@@ -282,7 +285,10 @@ function ClientsTableContent({
 			columnsConfig: dynamicFilterConfig,
 			filters,
 			onFiltersChange: setFilters,
-			faceted: { overall_status: overallStatusFaceted },
+			faceted: { 
+				overall_status: overallStatusFaceted,
+				everfit_access: clientsWithFaceted?.facetedData?.everfit_access 
+			},
 			enableSelection: true,
 			pageSize: 25,
 			serverSide: true,

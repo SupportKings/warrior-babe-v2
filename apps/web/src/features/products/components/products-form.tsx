@@ -12,10 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { createProductAction } from "@/features/products/actions/createProduct";
 import {
-	getAllValidationErrors,
-	type ProductFormRawInput,
-	validateSingleField,
-	validationUtils,
+	getAllValidationErrors, validateSingleField,
+	validationUtils
 } from "@/features/products/types/products";
 
 import { useForm } from "@tanstack/react-form";
@@ -211,7 +209,7 @@ export default function ProductsForm({ onSuccess }: ProductsFormProps) {
 							{(field) => (
 								<div>
 									<Label htmlFor={field.name} className="font-medium text-sm">
-										Default Duration (months)
+										Default Duration
 									</Label>
 									<Input
 										id={field.name}
