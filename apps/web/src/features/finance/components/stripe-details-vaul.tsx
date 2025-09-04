@@ -16,7 +16,13 @@ import {
 	InfoIcon,
 	XIcon,
 } from "lucide-react";
-import { Drawer } from "vaul";
+import {
+	Drawer,
+	DrawerContent,
+	DrawerDescription,
+	DrawerOverlay,
+	DrawerTitle,
+} from "@/components/ui/drawer";
 
 type StripeCharge = Database["stripe"]["Tables"]["charges"]["Row"];
 
@@ -48,86 +54,78 @@ export function StripeDetailsVaul({
 
 	if (isLoading) {
 		return (
-			<Drawer.Root open={open} onOpenChange={onOpenChange} direction="right">
-				<Drawer.Portal container={document.body}>
-					<Drawer.Overlay className="fixed inset-0 bg-black/40" />
-					<Drawer.Content
-						className="fixed top-2 right-2 bottom-2 z-10 flex w-[600px] outline-none"
-						style={
-							{
-								"--initial-transform": "calc(100% + 8px)",
-							} as React.CSSProperties
-						}
-					>
-						<div className="flex h-full w-full grow flex-col rounded-[16px] bg-white p-6 shadow-xl dark:bg-zinc-900">
-							<Drawer.Title className="mb-2 font-semibold text-foreground">
-								Loading Stripe Details...
-							</Drawer.Title>
-							<Drawer.Description className="mb-6 text-muted-foreground text-sm">
-								Please wait while we fetch the payment details.
-							</Drawer.Description>
-							<div className="flex items-center justify-center py-8">
-								<div className="h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
-							</div>
+			<Drawer open={open} onOpenChange={onOpenChange}>
+				<DrawerContent 
+					className="fixed top-2 right-2 bottom-2 z-50 flex w-[600px] outline-none"
+					style={
+						{
+							"--initial-transform": "calc(100% + 8px)",
+						} as React.CSSProperties
+					}
+				>
+					<div className="flex h-full w-full grow flex-col rounded-[16px] bg-white p-6 shadow-xl dark:bg-zinc-900">
+						<DrawerTitle className="mb-2 font-semibold text-foreground">
+							Loading Stripe Details...
+						</DrawerTitle>
+						<DrawerDescription className="mb-6 text-muted-foreground text-sm">
+							Please wait while we fetch the payment details.
+						</DrawerDescription>
+						<div className="flex items-center justify-center py-8">
+							<div className="h-8 w-8 animate-spin rounded-full border-primary border-b-2" />
 						</div>
-					</Drawer.Content>
-				</Drawer.Portal>
-			</Drawer.Root>
+					</div>
+				</DrawerContent>
+			</Drawer>
 		);
 	}
 
 	if (!stripeDetails) {
 		return (
-			<Drawer.Root open={open} onOpenChange={onOpenChange} direction="right">
-				<Drawer.Portal container={document.body}>
-					<Drawer.Overlay className="fixed inset-0 bg-black/40" />
-					<Drawer.Content
-						className="fixed top-2 right-2 bottom-2 z-10 flex w-[600px] outline-none"
-						style={
-							{
-								"--initial-transform": "calc(100% + 8px)",
-							} as React.CSSProperties
-						}
-					>
-						<div className="flex h-full w-full grow flex-col rounded-[16px] bg-white p-6 shadow-xl dark:bg-zinc-900">
-							<Drawer.Title className="mb-2 font-semibold text-foreground">
-								No Details Available
-							</Drawer.Title>
-							<Drawer.Description className="mb-6 text-muted-foreground text-sm">
-								Could not load Stripe payment details.
-							</Drawer.Description>
-							<div className="mt-auto">
-								<Button variant="outline" onClick={() => onOpenChange(false)}>
-									Close
-								</Button>
-							</div>
+			<Drawer open={open} onOpenChange={onOpenChange}>
+				<DrawerContent 
+					className="fixed top-2 right-2 bottom-2 z-50 flex w-[600px] outline-none"
+					style={
+						{
+							"--initial-transform": "calc(100% + 8px)",
+						} as React.CSSProperties
+					}
+				>
+					<div className="flex h-full w-full grow flex-col rounded-[16px] bg-white p-6 shadow-xl dark:bg-zinc-900">
+						<DrawerTitle className="mb-2 font-semibold text-foreground">
+							No Details Available
+						</DrawerTitle>
+						<DrawerDescription className="mb-6 text-muted-foreground text-sm">
+							Could not load Stripe payment details.
+						</DrawerDescription>
+						<div className="mt-auto">
+							<Button variant="outline" onClick={() => onOpenChange(false)}>
+								Close
+							</Button>
 						</div>
-					</Drawer.Content>
-				</Drawer.Portal>
-			</Drawer.Root>
+					</div>
+				</DrawerContent>
+			</Drawer>
 		);
 	}
 
 	return (
-		<Drawer.Root open={open} onOpenChange={onOpenChange} direction="right">
-			<Drawer.Portal container={document.body}>
-				<Drawer.Overlay className="fixed inset-0 bg-black/40" />
-				<Drawer.Content
-				className="fixed top-2 right-2 bottom-2 z-10 flex w-[600px] outline-none"
+		<Drawer open={open} onOpenChange={onOpenChange}>
+			<DrawerContent 
+				className="fixed top-2 right-2 bottom-2 z-50 flex w-[600px] outline-none"
 				style={
 					{ "--initial-transform": "calc(100% + 8px)" } as React.CSSProperties
 				}
 			>
-					<div className="flex h-full w-full grow flex-col rounded-[16px] bg-white shadow-xl dark:bg-zinc-900">
-						<div className="p-6">
-							<Drawer.Title className="mb-2 flex items-center gap-2 font-semibold text-foreground">
-								<CreditCardIcon className="h-5 w-5" />
-								Stripe Payment Details
-							</Drawer.Title>
-							<Drawer.Description className="text-muted-foreground text-sm">
-								Transaction ID: {stripeDetails.id}
-							</Drawer.Description>
-						</div>
+				<div className="flex h-full w-full grow flex-col rounded-[16px] bg-white shadow-xl dark:bg-zinc-900">
+					<div className="p-6">
+						<DrawerTitle className="mb-2 flex items-center gap-2 font-semibold text-foreground">
+							<CreditCardIcon className="h-5 w-5" />
+							Stripe Payment Details
+						</DrawerTitle>
+						<DrawerDescription className="text-muted-foreground text-sm">
+							Transaction ID: {stripeDetails.id}
+						</DrawerDescription>
+					</div>
 
 						<ScrollArea className="flex-1 px-6">
 							<div className="space-y-4 pb-4">
@@ -358,10 +356,9 @@ export function StripeDetailsVaul({
 								<XIcon className="mr-2 h-4 w-4" />
 								Close
 							</Button>
-						</div>
 					</div>
-				</Drawer.Content>
-			</Drawer.Portal>
-		</Drawer.Root>
+				</div>
+			</DrawerContent>
+		</Drawer>
 	);
 }
