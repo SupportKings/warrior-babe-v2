@@ -1,5 +1,6 @@
-import { createColumnHelper } from "@tanstack/react-table";
 import { StatusBadge } from "@/components/ui/status-badge";
+
+import { createColumnHelper } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Edit, Trash2 } from "lucide-react";
 
@@ -13,9 +14,9 @@ const formatDate = (dateString: string | null) => {
 };
 
 const formatCurrency = (amount: number) => {
-	return new Intl.NumberFormat('en-US', {
-		style: 'currency',
-		currency: 'USD',
+	return new Intl.NumberFormat("en-US", {
+		style: "currency",
+		currency: "USD",
 	}).format(amount);
 };
 
@@ -27,27 +28,27 @@ export const createPaymentPlanTemplateColumns = () => {
 			header: "Template Name",
 			cell: (info) => info.getValue() || "Unknown",
 		}),
-		
+
 		// Program length field column
 		paymentPlanTemplateColumnHelper.accessor("program_length_months", {
 			header: "Program Length",
 			cell: (info) => {
 				const months = info.getValue();
 				if (months === null || months === undefined) return "Not set";
-				return `${months} ${months === 1 ? 'month' : 'months'}`;
+				return `${months} ${months === 1 ? "month" : "months"}`;
 			},
 		}),
-		
+
 		// Number of payment slots
 		paymentPlanTemplateColumnHelper.accessor("payment_plan_template_slots", {
 			header: "Payment Slots",
 			cell: (info) => {
 				const slots = info.getValue() as any[];
 				if (!slots || !Array.isArray(slots)) return "0 slots";
-				return `${slots.length} ${slots.length === 1 ? 'slot' : 'slots'}`;
+				return `${slots.length} ${slots.length === 1 ? "slot" : "slots"}`;
 			},
 		}),
-		
+
 		// Total amount from all slots
 		paymentPlanTemplateColumnHelper.accessor("payment_plan_template_slots", {
 			id: "total_amount",
@@ -55,11 +56,14 @@ export const createPaymentPlanTemplateColumns = () => {
 			cell: (info) => {
 				const slots = info.getValue() as any[];
 				if (!slots || !Array.isArray(slots)) return formatCurrency(0);
-				const total = slots.reduce((sum, slot) => sum + (slot.amount_due || 0), 0);
+				const total = slots.reduce(
+					(sum, slot) => sum + (slot.amount_due || 0),
+					0,
+				);
 				return formatCurrency(total);
 			},
 		}),
-		
+
 		// Created date field
 		paymentPlanTemplateColumnHelper.accessor("created_at", {
 			header: "Created",

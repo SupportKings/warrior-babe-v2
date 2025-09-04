@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { CreditCard } from "lucide-react";
 import { ManagePaymentPlanTemplateModal } from "../manage-payment-plan-template-modal";
 
@@ -6,7 +7,9 @@ interface NoPaymentPlanTemplatesProps {
 	productId: string;
 }
 
-export function NoPaymentPlanTemplates({ productId }: NoPaymentPlanTemplatesProps) {
+export function NoPaymentPlanTemplates({
+	productId,
+}: NoPaymentPlanTemplatesProps) {
 	return (
 		<Card>
 			<CardHeader>

@@ -60,9 +60,14 @@ export function ManageTestimonialModal({
 	const [isLoading, setIsLoading] = useState(false);
 	const queryClient = useQueryClient();
 
-	const [formData, setFormData] = useState({
+	const [formData, setFormData] = useState<{
+		content: string;
+		testimonial_type: "written" | "email" | "video";
+		testimonial_url: string;
+		recorded_date: string;
+	}>({
 		content: "",
-		testimonial_type: "Written",
+		testimonial_type: "written",
 		testimonial_url: "",
 		recorded_date: format(new Date(), "yyyy-MM-dd"),
 	});
@@ -72,7 +77,7 @@ export function ManageTestimonialModal({
 		if (isEdit && testimonial) {
 			setFormData({
 				content: testimonial.content || "",
-				testimonial_type: testimonial.testimonial_type || "Written",
+				testimonial_type: testimonial.testimonial_type || "written",
 				testimonial_url: testimonial.testimonial_url || "",
 				recorded_date: testimonial.recorded_date
 					? format(new Date(testimonial.recorded_date), "yyyy-MM-dd")
@@ -82,7 +87,7 @@ export function ManageTestimonialModal({
 			// Reset form for add mode
 			setFormData({
 				content: "",
-				testimonial_type: "Written",
+				testimonial_type: "written",
 				testimonial_url: "",
 				recorded_date: format(new Date(), "yyyy-MM-dd"),
 			});
@@ -174,19 +179,16 @@ export function ManageTestimonialModal({
 						<Select
 							value={formData.testimonial_type}
 							onValueChange={(value) =>
-								setFormData({ ...formData, testimonial_type: value })
+								setFormData({ ...formData, testimonial_type: value as "written" | "email" | "video" })
 							}
 						>
 							<SelectTrigger>
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem value="Written">Written</SelectItem>
-								<SelectItem value="Video">Video</SelectItem>
-								<SelectItem value="Audio">Audio</SelectItem>
-								<SelectItem value="Email">Email</SelectItem>
-								<SelectItem value="Social Media">Social Media</SelectItem>
-								<SelectItem value="Review">Review</SelectItem>
+								<SelectItem value="written">Written</SelectItem>
+								<SelectItem value="video">Video</SelectItem>
+								<SelectItem value="email">Email</SelectItem>
 							</SelectContent>
 						</Select>
 					</div>

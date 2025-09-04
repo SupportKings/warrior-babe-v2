@@ -34,7 +34,7 @@ export const createWinColumns = () => {
 			header: "Tags",
 			cell: (info) => {
 				const winTags = info.getValue();
-				
+
 				if (!winTags || winTags.length === 0) {
 					return <span className="text-muted-foreground text-xs">No tags</span>;
 				}
@@ -44,15 +44,15 @@ export const createWinColumns = () => {
 						{winTags.map((winTag: any, index: number) => {
 							const tag = winTag.win_tags;
 							if (!tag) return null;
-							
+
 							return (
 								<Badge
 									key={tag.id || index}
 									variant="secondary"
-									style={{ 
-										backgroundColor: tag.color + "20", 
-										color: tag.color, 
-										borderColor: tag.color 
+									style={{
+										backgroundColor: tag.color + "20",
+										color: tag.color,
+										borderColor: tag.color,
 									}}
 									className="text-xs"
 								>

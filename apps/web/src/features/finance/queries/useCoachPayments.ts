@@ -82,7 +82,8 @@ export function useCoachPaymentsTableData(
 ) {
 	return useQuery({
 		queryKey: coachPaymentQueries.tableData(filters, page, pageSize, sorting),
-		queryFn: () => getCoachPaymentsWithFilters(filters, page, pageSize, sorting),
+		queryFn: () =>
+			getCoachPaymentsWithFilters(filters, page, pageSize, sorting),
 		staleTime: 2 * 60 * 1000, // 2 minutes
 	});
 }
@@ -116,7 +117,13 @@ export function useCoachPaymentsWithFaceted(
 			facetedColumns,
 		),
 		queryFn: () =>
-			getCoachPaymentsWithFaceted(filters, page, pageSize, sorting, facetedColumns),
+			getCoachPaymentsWithFaceted(
+				filters,
+				page,
+				pageSize,
+				sorting,
+				facetedColumns,
+			),
 		staleTime: 2 * 60 * 1000, // 2 minutes
 	});
 }
@@ -156,7 +163,8 @@ export function useUpdateCoachPayment() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (data: CoachPaymentEditFormInput) => updateCoachPaymentAction(data),
+		mutationFn: (data: CoachPaymentEditFormInput) =>
+			updateCoachPaymentAction(data),
 		onSuccess: (result, variables) => {
 			// Invalidate and refetch both the list and the specific coach payment
 			queryClient.invalidateQueries({ queryKey: coachPaymentQueries.lists() });
@@ -177,8 +185,12 @@ export function useDeleteCoachPayment() {
 		mutationFn: (id: string) => deleteCoachPayment({ id }),
 		onSuccess: (result, deletedId) => {
 			// Remove the deleted coach payment from the cache
-			queryClient.removeQueries({ queryKey: coachPaymentQueries.detail(deletedId) });
-			queryClient.removeQueries({ queryKey: coachPaymentQueries.basic(deletedId) });
+			queryClient.removeQueries({
+				queryKey: coachPaymentQueries.detail(deletedId),
+			});
+			queryClient.removeQueries({
+				queryKey: coachPaymentQueries.basic(deletedId),
+			});
 
 			// Invalidate the coach payments list to refetch
 			queryClient.invalidateQueries({ queryKey: coachPaymentQueries.lists() });

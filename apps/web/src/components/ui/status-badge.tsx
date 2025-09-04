@@ -67,7 +67,7 @@ const detectColorScheme = (
 
 	// Success/positive states
 	if (
-		/(active|live|completed?|success|granted|approved|done|finished|enabled|online|published|verified)/i.test(
+		/(active|live|succeeded|yes|completed?|success|granted|approved|done|finished|enabled|online|published|verified)/i.test(
 			normalizedStatus,
 		)
 	) {

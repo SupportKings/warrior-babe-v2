@@ -5,7 +5,9 @@ import ClientTestimonialsHeader from "@/features/clients/layout/client-testimoni
 
 export default function ClientTestimonialsLoading() {
 	return (
-		<MainLayout headers={[<ClientTestimonialsHeader key="client-testimonials-header" />]}>
+		<MainLayout
+			headers={[<ClientTestimonialsHeader key="client-testimonials-header" />]}
+		>
 			<div className="space-y-6 p-6">
 				<div className="space-y-4">
 					<Skeleton className="h-8 w-32" />

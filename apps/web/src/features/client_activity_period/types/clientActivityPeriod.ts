@@ -13,6 +13,7 @@ export type ClientActivityPeriodUpdate =
 export const clientActivityPeriodFormSchema = z
 	.object({
 		payment_plan: z.string().optional().nullable(),
+		payment_slot_id: z.string().optional().nullable(),
 		coach_id: z.string().optional().nullable(),
 		start_date: z.string(),
 		end_date: z.string().optional().nullable(),

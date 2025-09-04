@@ -3,6 +3,8 @@
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
+import { cn } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -42,10 +44,15 @@ import { useActiveProducts } from "@/features/system-config/queries/useProducts"
 
 import { useQueryClient } from "@tanstack/react-query";
 import { addMonths, format } from "date-fns";
-import { CalendarIcon, Clock, CreditCard, DollarSign, Edit, Plus } from "lucide-react";
+import {
+	CalendarIcon,
+	Clock,
+	CreditCard,
+	DollarSign,
+	Edit,
+	Plus,
+} from "lucide-react";
 import { toast } from "sonner";
-
-import { cn } from "@/lib/utils";
 
 interface ManagePaymentPlanModalProps {
 	clientId: string;
@@ -72,7 +79,9 @@ export function ManagePaymentPlanModal({
 	const setOpen = externalOnOpenChange || setInternalOpen;
 	const [isLoading, setIsLoading] = useState(false);
 	const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
-	const [customSlots, setCustomSlots] = useState<Array<{ amount_due: number; months_to_delay: number }>>([]);
+	const [customSlots, setCustomSlots] = useState<
+		Array<{ amount_due: number; months_to_delay: number }>
+	>([]);
 	const queryClient = useQueryClient();
 
 	// Queries for payment plan templates and products
@@ -147,19 +156,25 @@ export function ManagePaymentPlanModal({
 			const selectedTemplate = templates.find((t) => t.id === formData.type);
 			if (selectedTemplate) {
 				const updates: any = {};
-				
+
 				// Auto-prefill product
 				if (selectedTemplate.product_id) {
 					updates.product_id = selectedTemplate.product_id;
 				}
-				
+
 				// Auto-calculate term_end_date from program_length_months
-				if (selectedTemplate.program_length_months && formData.term_start_date) {
+				if (
+					selectedTemplate.program_length_months &&
+					formData.term_start_date
+				) {
 					const startDate = new Date(formData.term_start_date);
-					const endDate = addMonths(startDate, selectedTemplate.program_length_months);
+					const endDate = addMonths(
+						startDate,
+						selectedTemplate.program_length_months,
+					);
 					updates.term_end_date = format(endDate, "yyyy-MM-dd");
 				}
-				
+
 				if (Object.keys(updates).length > 0) {
 					setFormData((prev) => ({ ...prev, ...updates }));
 				}
@@ -170,7 +185,10 @@ export function ManagePaymentPlanModal({
 	// Auto-calculate total amount from template slots or custom slots
 	useEffect(() => {
 		if (formData.type === "custom" && customSlots.length > 0) {
-			const totalAmount = customSlots.reduce((sum, slot) => sum + slot.amount_due, 0);
+			const totalAmount = customSlots.reduce(
+				(sum, slot) => sum + slot.amount_due,
+				0,
+			);
 			if (formData.total_amount !== totalAmount) {
 				setFormData((prev) => ({
 					...prev,
@@ -178,7 +196,10 @@ export function ManagePaymentPlanModal({
 				}));
 			}
 		} else if (templateSlots.length > 0 && formData.type !== "custom") {
-			const totalAmount = templateSlots.reduce((sum, slot) => sum + slot.amount_due, 0);
+			const totalAmount = templateSlots.reduce(
+				(sum, slot) => sum + slot.amount_due,
+				0,
+			);
 			if (formData.total_amount !== totalAmount) {
 				setFormData((prev) => ({
 					...prev,
@@ -190,21 +211,16 @@ export function ManagePaymentPlanModal({
 
 	// Custom slot management functions
 	const addCustomSlot = () => {
-		setCustomSlots((prev) => [
-			...prev,
-			{ amount_due: 0, months_to_delay: 0 },
-		]);
+		setCustomSlots((prev) => [...prev, { amount_due: 0, months_to_delay: 0 }]);
 	};
 
 	const updateCustomSlot = (
 		index: number,
 		field: "amount_due" | "months_to_delay",
-		value: number
+		value: number,
 	) => {
 		setCustomSlots((prev) =>
-			prev.map((slot, i) =>
-				i === index ? { ...slot, [field]: value } : slot
-			)
+			prev.map((slot, i) => (i === index ? { ...slot, [field]: value } : slot)),
 		);
 	};
 
@@ -214,7 +230,6 @@ export function ManagePaymentPlanModal({
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-
 
 		if (!formData.term_end_date) {
 			toast.error("Term end date is required");
@@ -238,9 +253,8 @@ export function ManagePaymentPlanModal({
 				await updateClientPaymentPlan(paymentPlan.id, formData);
 				toast.success("Payment plan updated successfully!");
 			} else {
-				const dataToSubmit = formData.type === "custom" 
-					? { ...formData, customSlots } 
-					: formData;
+				const dataToSubmit =
+					formData.type === "custom" ? { ...formData, customSlots } : formData;
 				await createClientPaymentPlan(clientId, dataToSubmit);
 				toast.success("Payment plan added successfully!");
 			}
@@ -292,7 +306,6 @@ export function ManagePaymentPlanModal({
 				</DialogHeader>
 
 				<form onSubmit={handleSubmit} className="space-y-4">
-
 					<div>
 						<Label htmlFor="type">Payment Plan Template</Label>
 						<Select
@@ -324,7 +337,10 @@ export function ManagePaymentPlanModal({
 							onValueChange={(value: string) =>
 								setFormData({ ...formData, product_id: value })
 							}
-							disabled={productsLoading || (formData.type ? formData.type !== "custom" : false)}
+							disabled={
+								productsLoading ||
+								(formData.type ? formData.type !== "custom" : false)
+							}
 						>
 							<SelectTrigger>
 								<SelectValue placeholder="Select a product" />
@@ -348,8 +364,8 @@ export function ManagePaymentPlanModal({
 									<Button
 										variant="outline"
 										className={cn(
-											"w-full h-10 pl-3 text-left font-normal justify-start",
-											!formData.term_start_date && "text-muted-foreground"
+											"h-10 w-full justify-start pl-3 text-left font-normal",
+											!formData.term_start_date && "text-muted-foreground",
 										)}
 									>
 										{formData.term_start_date ? (
@@ -363,12 +379,16 @@ export function ManagePaymentPlanModal({
 								<PopoverContent className="w-auto p-0" align="start">
 									<Calendar
 										mode="single"
-										selected={formData.term_start_date ? new Date(formData.term_start_date) : undefined}
+										selected={
+											formData.term_start_date
+												? new Date(formData.term_start_date)
+												: undefined
+										}
 										onSelect={(date) => {
 											if (date) {
-												setFormData({ 
-													...formData, 
-													term_start_date: format(date, "yyyy-MM-dd")
+												setFormData({
+													...formData,
+													term_start_date: format(date, "yyyy-MM-dd"),
 												});
 											}
 										}}
@@ -384,10 +404,12 @@ export function ManagePaymentPlanModal({
 								<PopoverTrigger asChild>
 									<Button
 										variant="outline"
-										disabled={formData.type ? formData.type !== "custom" : false}
+										disabled={
+											formData.type ? formData.type !== "custom" : false
+										}
 										className={cn(
-											"w-full h-10 pl-3 text-left font-normal justify-start",
-											!formData.term_end_date && "text-muted-foreground"
+											"h-10 w-full justify-start pl-3 text-left font-normal",
+											!formData.term_end_date && "text-muted-foreground",
 										)}
 									>
 										{formData.term_end_date ? (
@@ -401,12 +423,16 @@ export function ManagePaymentPlanModal({
 								<PopoverContent className="w-auto p-0" align="start">
 									<Calendar
 										mode="single"
-										selected={formData.term_end_date ? new Date(formData.term_end_date) : undefined}
+										selected={
+											formData.term_end_date
+												? new Date(formData.term_end_date)
+												: undefined
+										}
 										onSelect={(date) => {
 											if (date) {
-												setFormData({ 
-													...formData, 
-													term_end_date: format(date, "yyyy-MM-dd")
+												setFormData({
+													...formData,
+													term_end_date: format(date, "yyyy-MM-dd"),
 												});
 											}
 										}}
@@ -417,7 +443,6 @@ export function ManagePaymentPlanModal({
 							</Popover>
 						</div>
 					</div>
-
 
 					<div>
 						<Label htmlFor="notes">Notes</Label>
@@ -440,8 +465,14 @@ export function ManagePaymentPlanModal({
 									<Clock className="h-4 w-4 text-muted-foreground" />
 									<h4 className="font-medium">Payment Schedule Preview</h4>
 								</div>
-								<div className="text-sm font-medium">
-									Total: ${templateSlots.reduce((sum, slot) => sum + slot.amount_due, 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+								<div className="font-medium text-sm">
+									Total: $
+									{templateSlots
+										.reduce((sum, slot) => sum + slot.amount_due, 0)
+										.toLocaleString("en-US", {
+											minimumFractionDigits: 2,
+											maximumFractionDigits: 2,
+										})}
 								</div>
 							</div>
 							<p className="text-muted-foreground text-sm">
@@ -465,7 +496,11 @@ export function ManagePaymentPlanModal({
 											<span>Payment #{index + 1}</span>
 											<div className="flex items-center gap-4">
 												<span className="font-medium">
-													${slot.amount_due.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+													$
+													{slot.amount_due.toLocaleString("en-US", {
+														minimumFractionDigits: 2,
+														maximumFractionDigits: 2,
+													})}
 												</span>
 												<span className="text-muted-foreground">
 													{dueDate
@@ -489,8 +524,14 @@ export function ManagePaymentPlanModal({
 									<h4 className="font-medium">Custom Payment Slots</h4>
 								</div>
 								<div className="flex items-center gap-3">
-									<div className="text-sm font-medium">
-										Total: ${customSlots.reduce((sum, slot) => sum + slot.amount_due, 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+									<div className="font-medium text-sm">
+										Total: $
+										{customSlots
+											.reduce((sum, slot) => sum + slot.amount_due, 0)
+											.toLocaleString("en-US", {
+												minimumFractionDigits: 2,
+												maximumFractionDigits: 2,
+											})}
 									</div>
 									<Button
 										type="button"
@@ -519,16 +560,18 @@ export function ManagePaymentPlanModal({
 									return (
 										<div
 											key={index}
-											className="rounded border bg-background p-3 space-y-3"
+											className="space-y-3 rounded border bg-background p-3"
 										>
 											<div className="flex items-center justify-between">
-												<span className="font-medium text-sm">Payment #{index + 1}</span>
+												<span className="font-medium text-sm">
+													Payment #{index + 1}
+												</span>
 												<Button
 													type="button"
 													variant="ghost"
 													size="sm"
 													onClick={() => removeCustomSlot(index)}
-													className="text-red-600 hover:text-red-700 h-auto p-1"
+													className="h-auto p-1 text-red-600 hover:text-red-700"
 												>
 													<Plus className="h-3 w-3 rotate-45" />
 												</Button>
@@ -537,7 +580,7 @@ export function ManagePaymentPlanModal({
 												<div>
 													<Label className="text-xs">Amount ($)</Label>
 													<div className="relative">
-														<DollarSign className="absolute left-2 top-2.5 h-3 w-3 text-muted-foreground" />
+														<DollarSign className="absolute top-2.5 left-2 h-3 w-3 text-muted-foreground" />
 														<Input
 															type="number"
 															step="0.01"
@@ -548,7 +591,7 @@ export function ManagePaymentPlanModal({
 																updateCustomSlot(
 																	index,
 																	"amount_due",
-																	Number.parseFloat(e.target.value) || 0
+																	Number.parseFloat(e.target.value) || 0,
 																)
 															}
 															className="pl-8 text-sm"
@@ -566,7 +609,7 @@ export function ManagePaymentPlanModal({
 															updateCustomSlot(
 																index,
 																"months_to_delay",
-																Number.parseInt(e.target.value) || 0
+																Number.parseInt(e.target.value) || 0,
 															)
 														}
 														className="text-sm"
@@ -574,7 +617,7 @@ export function ManagePaymentPlanModal({
 												</div>
 												<div>
 													<Label className="text-xs">Due Date</Label>
-													<div className="rounded border px-3 py-2 text-sm text-muted-foreground bg-muted/50">
+													<div className="rounded border bg-muted/50 px-3 py-2 text-muted-foreground text-sm">
 														{dueDate
 															? format(dueDate, "MMM dd, yyyy")
 															: "Set start date"}
@@ -587,7 +630,10 @@ export function ManagePaymentPlanModal({
 							</div>
 							{customSlots.length === 0 && (
 								<div className="py-4 text-center text-muted-foreground text-sm">
-									<p>No payment slots added yet. Click "Add Slot" to create your payment schedule.</p>
+									<p>
+										No payment slots added yet. Click "Add Slot" to create your
+										payment schedule.
+									</p>
 								</div>
 							)}
 						</div>

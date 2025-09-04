@@ -4,7 +4,8 @@ import { getActivityPeriod } from "../actions/getActivityPeriod";
 export const activityPeriodQueries = {
 	all: () => ["activity-periods"] as const,
 	lists: () => [...activityPeriodQueries.all(), "list"] as const,
-	detail: (id: string) => [...activityPeriodQueries.all(), "detail", id] as const,
+	detail: (id: string) =>
+		[...activityPeriodQueries.all(), "detail", id] as const,
 };
 
 export function useActivityPeriod(id: string) {

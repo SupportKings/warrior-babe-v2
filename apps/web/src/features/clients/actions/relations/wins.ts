@@ -89,14 +89,11 @@ export async function updateClientWin(
 	// Update tags if provided
 	if (tag_ids !== undefined) {
 		// First, delete all existing tags for this win
-		await supabase
-			.from("client_win_tags")
-			.delete()
-			.eq("win_id", winId);
+		await supabase.from("client_win_tags").delete().eq("win_id", winId);
 
 		// Then, create new tag entries if any
 		if (tag_ids.length > 0) {
-			const tagEntries = tag_ids.map(tagId => ({
+			const tagEntries = tag_ids.map((tagId) => ({
 				win_id: winId,
 				tag_id: tagId,
 			}));
@@ -161,7 +158,7 @@ export async function createClientWin(
 
 	// Create client_win_tags entries if tag_ids are provided
 	if (tag_ids && tag_ids.length > 0 && data) {
-		const tagEntries = tag_ids.map(tagId => ({
+		const tagEntries = tag_ids.map((tagId) => ({
 			win_id: data.id,
 			tag_id: tagId,
 		}));

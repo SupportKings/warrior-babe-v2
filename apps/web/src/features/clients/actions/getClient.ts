@@ -239,8 +239,10 @@ export async function getClientsWithFilters(
 	try {
 		const supabase = await createClient();
 
-		let query = supabase.from("clients").select(
-			`
+		let query = supabase
+			.from("clients")
+			.select(
+				`
 				*,
 				client_assignments (
 					id,
@@ -259,8 +261,9 @@ export async function getClientsWithFilters(
 					)
 				)
 			`,
-			{ count: "exact" },
-		).eq("is_deleted", false);
+				{ count: "exact" },
+			)
+			.eq("is_deleted", false);
 
 		// Apply filters with proper operator support
 		filters.forEach((filter) => {
@@ -556,7 +559,9 @@ export async function getClientsFaceted(columnId: string, filters: any[] = []) {
 	try {
 		const supabase = await createClient();
 
-		let query = supabase.from("clients").select(columnId, { count: "exact" })
+		let query = supabase
+			.from("clients")
+			.select(columnId, { count: "exact" })
 			.eq("is_deleted", false);
 
 		// Apply existing filters (excluding the column we're faceting) using same operator logic
