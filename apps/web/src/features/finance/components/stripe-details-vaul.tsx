@@ -20,7 +20,6 @@ import {
 	Drawer,
 	DrawerContent,
 	DrawerDescription,
-	DrawerOverlay,
 	DrawerTitle,
 } from "@/components/ui/drawer";
 
@@ -54,16 +53,9 @@ export function StripeDetailsVaul({
 
 	if (isLoading) {
 		return (
-			<Drawer open={open} onOpenChange={onOpenChange}>
-				<DrawerContent 
-					className="fixed top-2 right-2 bottom-2 z-50 flex w-[600px] outline-none"
-					style={
-						{
-							"--initial-transform": "calc(100% + 8px)",
-						} as React.CSSProperties
-					}
-				>
-					<div className="flex h-full w-full grow flex-col rounded-[16px] bg-white p-6 shadow-xl dark:bg-zinc-900">
+			<Drawer open={open} onOpenChange={onOpenChange} direction="right">
+				<DrawerContent className="w-[600px]">
+					<div className="flex h-full w-full grow flex-col p-6">
 						<DrawerTitle className="mb-2 font-semibold text-foreground">
 							Loading Stripe Details...
 						</DrawerTitle>
@@ -81,16 +73,9 @@ export function StripeDetailsVaul({
 
 	if (!stripeDetails) {
 		return (
-			<Drawer open={open} onOpenChange={onOpenChange}>
-				<DrawerContent 
-					className="fixed top-2 right-2 bottom-2 z-50 flex w-[600px] outline-none"
-					style={
-						{
-							"--initial-transform": "calc(100% + 8px)",
-						} as React.CSSProperties
-					}
-				>
-					<div className="flex h-full w-full grow flex-col rounded-[16px] bg-white p-6 shadow-xl dark:bg-zinc-900">
+			<Drawer open={open} onOpenChange={onOpenChange} direction="right">
+				<DrawerContent className="w-[600px]">
+					<div className="flex h-full w-full grow flex-col p-6">
 						<DrawerTitle className="mb-2 font-semibold text-foreground">
 							No Details Available
 						</DrawerTitle>
@@ -109,14 +94,9 @@ export function StripeDetailsVaul({
 	}
 
 	return (
-		<Drawer open={open} onOpenChange={onOpenChange}>
-			<DrawerContent 
-				className="fixed top-2 right-2 bottom-2 z-50 flex w-[600px] outline-none"
-				style={
-					{ "--initial-transform": "calc(100% + 8px)" } as React.CSSProperties
-				}
-			>
-				<div className="flex h-full w-full grow flex-col rounded-[16px] bg-white shadow-xl dark:bg-zinc-900">
+		<Drawer open={open} onOpenChange={onOpenChange} direction="right">
+			<DrawerContent className="w-[600px]">
+				<div className="flex h-full w-full grow flex-col">
 					<div className="p-6">
 						<DrawerTitle className="mb-2 flex items-center gap-2 font-semibold text-foreground">
 							<CreditCardIcon className="h-5 w-5" />
@@ -127,8 +107,8 @@ export function StripeDetailsVaul({
 						</DrawerDescription>
 					</div>
 
-						<ScrollArea className="flex-1 px-6">
-							<div className="space-y-4 pb-4">
+					<ScrollArea className="flex-1 px-6">
+						<div className="space-y-4 pb-4">
 								{/* Payment Overview */}
 								<Card>
 									<CardHeader>
@@ -343,19 +323,19 @@ export function StripeDetailsVaul({
 											</CardContent>
 										</Card>
 									)}
-							</div>
-						</ScrollArea>
+						</div>
+					</ScrollArea>
 
-						<Separator />
-						<div className="p-6">
-							<Button
-								variant="outline"
-								className="w-full"
-								onClick={() => onOpenChange(false)}
-							>
-								<XIcon className="mr-2 h-4 w-4" />
-								Close
-							</Button>
+					<Separator />
+					<div className="p-6">
+						<Button
+							variant="outline"
+							className="w-full"
+							onClick={() => onOpenChange(false)}
+						>
+							<XIcon className="mr-2 h-4 w-4" />
+							Close
+						</Button>
 					</div>
 				</div>
 			</DrawerContent>
