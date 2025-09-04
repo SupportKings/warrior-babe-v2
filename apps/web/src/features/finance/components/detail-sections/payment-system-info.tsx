@@ -18,8 +18,8 @@ const formatDate = (dateString: string | null) => {
 
 interface PaymentSystemInfoProps {
 	payment: {
-		created_at: string;
-		updated_at: string;
+		created_at: string | null;
+		updated_at: string | null;
 	};
 }
 

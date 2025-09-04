@@ -44,8 +44,8 @@ export default function PaymentDetailHeader({
 
   // Extract display name from payment data
   const customerName =
-    payment?.payment_slots?.[0]?.payment_plans?.clients?.name;
-  const planName = payment?.payment_slots?.[0]?.payment_plans?.name;
+    payment?.client_name;
+  const planName = payment?.payment_plan_name;
   const displayName = customerName || planName || "Payment";
 
   return (

@@ -125,13 +125,12 @@ export default function PaymentDetailView({ paymentId }: PaymentDetailViewProps)
 	if (isLoading) return <div>Loading...</div>;
 	if (error || !payment) return <div>Error loading payment</div>;
 
-	// Extract customer info from nested structure
-	const customerInfo = payment.payment_slots?.[0]?.payment_plans?.clients;
-	const paymentPlan = payment.payment_slots?.[0]?.payment_plans;
-	const paymentSlot = payment.payment_slots?.[0];
+	const customerInfo ={email: payment.client_email, name: payment.client_name};
+	const paymentPlan = {name: payment.payment_plan_name};
 
 	// Generate initials for avatar
-	const displayName = customerInfo?.name || paymentPlan?.name || "Payment";
+	const displayName = customerInfo.name || paymentPlan?.name || "Payment";
+	
 	const initials = displayName
 		.split(" ")
 		.map((n: string) => n[0])
@@ -164,8 +163,8 @@ export default function PaymentDetailView({ paymentId }: PaymentDetailViewProps)
 						customer_name: customerInfo?.name || null,
 						customer_billing_address: null, // Not available in current schema
 						payment_plan_name: paymentPlan?.name || null,
-						slot_amount_due: paymentSlot?.amount_due || null,
-						slot_amount_paid: paymentSlot?.amount_paid || null,
+						slot_amount_due: payment?.amount_due || null,
+						slot_amount_paid: payment?.amount_paid || null,
 					}}
 				/>
 			</div>
@@ -185,7 +184,7 @@ export default function PaymentDetailView({ paymentId }: PaymentDetailViewProps)
 			/>
 
 			{/* System Information */}
-			<PaymentSystemInfo payment={payment} />
+			<PaymentSystemInfo payment={{created_at: payment.created_at, updated_at: payment.updated_at}} />
 		</div>
 	);
 }
