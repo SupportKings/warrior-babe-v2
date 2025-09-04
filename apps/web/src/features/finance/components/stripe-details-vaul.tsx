@@ -49,8 +49,9 @@ export function StripeDetailsVaul({
 	if (isLoading) {
 		return (
 			<Drawer.Root open={open} onOpenChange={onOpenChange} direction="right">
-				<Drawer.Overlay className="fixed inset-0 bg-black/40" />
-				<Drawer.Content
+				<Drawer.Portal>
+					<Drawer.Overlay className="fixed inset-0 bg-black/40" />
+					<Drawer.Content
 						className="fixed top-2 right-2 bottom-2 z-10 flex w-[600px] outline-none"
 						style={
 							{
@@ -70,6 +71,7 @@ export function StripeDetailsVaul({
 							</div>
 						</div>
 					</Drawer.Content>
+				</Drawer.Portal>
 			</Drawer.Root>
 		);
 	}
@@ -77,8 +79,9 @@ export function StripeDetailsVaul({
 	if (!stripeDetails) {
 		return (
 			<Drawer.Root open={open} onOpenChange={onOpenChange} direction="right">
-				<Drawer.Overlay className="fixed inset-0 bg-black/40" />
-				<Drawer.Content
+				<Drawer.Portal>
+					<Drawer.Overlay className="fixed inset-0 bg-black/40" />
+					<Drawer.Content
 						className="fixed top-2 right-2 bottom-2 z-10 flex w-[600px] outline-none"
 						style={
 							{
@@ -100,14 +103,16 @@ export function StripeDetailsVaul({
 							</div>
 						</div>
 					</Drawer.Content>
+				</Drawer.Portal>
 			</Drawer.Root>
 		);
 	}
 
 	return (
 		<Drawer.Root open={open} onOpenChange={onOpenChange} direction="right">
-			<Drawer.Overlay className="fixed inset-0 bg-black/40" />
-			<Drawer.Content
+			<Drawer.Portal>
+				<Drawer.Overlay className="fixed inset-0 bg-black/40" />
+				<Drawer.Content
 				className="fixed top-2 right-2 bottom-2 z-10 flex w-[600px] outline-none"
 				style={
 					{ "--initial-transform": "calc(100% + 8px)" } as React.CSSProperties
@@ -355,7 +360,8 @@ export function StripeDetailsVaul({
 							</Button>
 						</div>
 					</div>
-			</Drawer.Content>
+				</Drawer.Content>
+			</Drawer.Portal>
 		</Drawer.Root>
 	);
 }
