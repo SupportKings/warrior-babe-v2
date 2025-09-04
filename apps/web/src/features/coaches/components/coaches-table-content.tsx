@@ -152,13 +152,6 @@ export function CoachesTableContent({
 			},
 		},
 		{
-			label: "Edit",
-			icon: EditIcon,
-			onClick: (coach: CoachRow) => {
-				window.location.href = `/dashboard/coaches/${coach.id}/edit`;
-			},
-		},
-		{
 			label: "Delete",
 			icon: TrashIcon,
 			variant: "destructive" as const,
