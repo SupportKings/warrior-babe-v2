@@ -82,6 +82,14 @@ export function CoachesTableContent({
 		}
 	});
 
+	// Extract unique team names from the data
+	const uniqueTeamNames = new Set<string>();
+	coachesData?.data?.forEach((coach: any) => {
+		if (coach.team?.team_name) {
+			uniqueTeamNames.add(coach.team.team_name);
+		}
+	});
+
 	// Create dynamic filter config with options
 	const dynamicFilterConfig = [
 		universalColumnHelper
@@ -94,6 +102,17 @@ export function CoachesTableContent({
 			.displayName("Email")
 			.icon(MailIcon)
 			.build(),
+		{
+			...universalColumnHelper
+				.option("team_name")
+				.displayName("Team Name")
+				.icon(UsersIcon)
+				.build(),
+			options: Array.from(uniqueTeamNames).sort().map((teamName) => ({
+				value: teamName,
+				label: teamName,
+			})),
+		},
 		{
 			...universalColumnHelper
 				.option("premier_coach_id")

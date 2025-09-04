@@ -80,6 +80,7 @@ export async function getCoaches(
         user:user!team_members_user_id_fkey ( id, email, role ),
         team:coach_teams!team_members_team_id_fkey (
           id,
+          team_name,
           premier_coach_id,
           premier_coach:team_members!coach_teams_premier_coach_id_fkey ( id, name )
         )
@@ -112,6 +113,34 @@ export async function getCoaches(
 						query = query.ilike("user.email", `%${values[0]}%`);
 					} else if (operator === "does not contain") {
 						query = query.not("user.email", "ilike", `%${values[0]}%`);
+					}
+					break;
+
+				case "team_name":
+					// Filter by team_name through the team relationship
+					// First ensure we have a team (exclude nulls)
+					query = query.not("team", "is", null);
+
+					if (operator === "is") {
+						// Single value exact match
+						query = query.eq("team.team_name", values[0]);
+					} else if (operator === "is not") {
+						// Single value not equal
+						query = query.neq("team.team_name", values[0]);
+					} else if (operator === "is any of") {
+						// Multiple values - match any
+						if (values.length > 1) {
+							query = query.in("team.team_name", values);
+						} else {
+							query = query.eq("team.team_name", values[0]);
+						}
+					} else if (operator === "is none of") {
+						// Multiple values - match none
+						if (values.length > 1) {
+							query = query.not("team.team_name", "in", values);
+						} else {
+							query = query.neq("team.team_name", values[0]);
+						}
 					}
 					break;
 
