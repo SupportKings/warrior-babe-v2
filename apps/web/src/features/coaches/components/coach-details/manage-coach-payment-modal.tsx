@@ -96,12 +96,6 @@ export function ManageCoachPaymentModal({
     try {
       const periods = await getCoachClientActivityPeriods(coachId);
       setActivityPeriods(periods);
-
-      if (periods.length === 0) {
-        toast.info(
-          "No activity periods found for this coach. Please ensure clients are assigned."
-        );
-      }
     } catch (error) {
       console.error("Error fetching activity periods:", error);
       toast.error("Failed to load activity periods");
