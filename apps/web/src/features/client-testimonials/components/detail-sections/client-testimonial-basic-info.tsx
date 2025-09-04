@@ -8,13 +8,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import { StatusBadge } from "@/components/ui/status-badge";
 
 import { useState, useEffect } from "react";
-import { Edit3, Save, X, MessageSquare } from "lucide-react";
+import { Edit3, Save, X, MessageSquare, Check, ChevronsUpDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/utils/supabase/client";
+import { cn } from "@/lib/utils";
 
 interface ClientTestimonialBasicInfoProps {
   testimonial: {
@@ -58,6 +72,9 @@ export function ClientTestimonialBasicInfo({
       : "none",
   });
 
+  const [clientSearchOpen, setClientSearchOpen] = useState(false);
+  const [teamMemberSearchOpen, setTeamMemberSearchOpen] = useState(false);
+
   // Fetch clients for dropdown
   const { data: clients = [] } = useQuery({
     queryKey: ["clients", "active"],
@@ -100,7 +117,7 @@ export function ClientTestimonialBasicInfo({
     },
     enabled: isEditing,
   });
-
+console.log(teamMembers)
   // Reset form data when testimonial changes
   useEffect(() => {
     setFormData({
@@ -195,27 +212,88 @@ export function ClientTestimonialBasicInfo({
             Client
           </label>
           {isEditing ? (
-            <Select
-              value={formData.client_id}
-              onValueChange={(value) => {
-                setFormData((prev) => ({
-                  ...prev,
-                  client_id: value,
-                }));
-              }}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Select a client" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No client selected</SelectItem>
-                {clients.map((client: any) => (
-                  <SelectItem key={client.id} value={String(client.id)}>
-                    {client.name} ({client.email})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={clientSearchOpen} onOpenChange={setClientSearchOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={clientSearchOpen}
+                  className="w-full justify-between font-normal h-10 mt-1"
+                >
+                  {formData.client_id !== "none"
+                    ? clients.find(
+                        (client: any) => String(client.id) === formData.client_id
+                      )?.name || "Select a client"
+                    : "No client selected"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="p-0"
+                align="start"
+                style={{ width: "var(--radix-popover-trigger-width)" }}
+              >
+                <Command>
+                  <CommandInput
+                    placeholder="Search clients..."
+                    className="h-9"
+                  />
+                  <CommandList>
+                    <CommandEmpty>No client found.</CommandEmpty>
+                    <CommandGroup>
+                      <CommandItem
+                        value="none"
+                        onSelect={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            client_id: "none",
+                          }));
+                          setClientSearchOpen(false);
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            formData.client_id === "none"
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                        No client selected
+                      </CommandItem>
+                      {clients.map((client: any) => (
+                        <CommandItem
+                          key={client.id}
+                          value={client.name}
+                          onSelect={() => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              client_id: String(client.id),
+                            }));
+                            setClientSearchOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              formData.client_id === String(client.id)
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                          <div className="flex flex-col">
+                            <span>{client.name}</span>
+                            <span className="text-muted-foreground text-xs">
+                              {client.email}
+                            </span>
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           ) : (
             <p className="text-sm">
               {testimonial.client_name || "No client assigned"}
@@ -240,6 +318,7 @@ export function ClientTestimonialBasicInfo({
               <SelectContent>
                 <SelectItem value="written">Written</SelectItem>
                 <SelectItem value="email">Email</SelectItem>
+                <SelectItem value="video">Video</SelectItem>
               </SelectContent>
             </Select>
           ) : (
@@ -331,30 +410,83 @@ export function ClientTestimonialBasicInfo({
             Recorded By
           </label>
           {isEditing ? (
-            <Select
-              value={formData.recorded_by}
-              onValueChange={(value) => {
-                setFormData((prev) => ({
-                  ...prev,
-                  recorded_by: value,
-                }));
-              }}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Select team member" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No team member selected</SelectItem>
-                {teamMembers.map((member: any) => (
-                  <SelectItem
-                    key={member.user_id}
-                    value={String(member.user_id)}
-                  >
-                    {member.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={teamMemberSearchOpen} onOpenChange={setTeamMemberSearchOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={teamMemberSearchOpen}
+                  className="w-full justify-between font-normal h-10 mt-1"
+                >
+                  {formData.recorded_by !== "none"
+                    ? teamMembers.find(
+                        (member: any) => String(member.user_id) === formData.recorded_by
+                      )?.name || "Select team member"
+                    : "No team member selected"}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="p-0"
+                align="start"
+                style={{ width: "var(--radix-popover-trigger-width)" }}
+              >
+                <Command>
+                  <CommandInput
+                    placeholder="Search team members..."
+                    className="h-9"
+                  />
+                  <CommandList>
+                    <CommandEmpty>No team member found.</CommandEmpty>
+                    <CommandGroup>
+                      <CommandItem
+                        value="none"
+                        onSelect={() => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            recorded_by: "none",
+                          }));
+                          setTeamMemberSearchOpen(false);
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            formData.recorded_by === "none"
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                        No team member selected
+                      </CommandItem>
+                      {teamMembers.map((member: any) => (
+                        <CommandItem
+                          key={member.user_id}
+                          value={member.name}
+                          onSelect={() => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              recorded_by: String(member.user_id),
+                            }));
+                            setTeamMemberSearchOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              formData.recorded_by === String(member.user_id)
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                          {member.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           ) : (
             <p className="text-sm">
               {testimonial.recorded_by_name || "Unknown"}

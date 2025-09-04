@@ -1,12 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { StatusBadge } from "@/components/ui/status-badge";
-
 import { useState } from "react";
-import { Edit3, Save, X, Package } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+
+import { Edit3, Package, Save, X } from "lucide-react";
 
 interface ProductBasicInfoProps {
 	product: {
@@ -26,7 +27,7 @@ export function ProductBasicInfo({
 	isEditing = false,
 	onEditToggle,
 	onSave,
-	onCancel
+	onCancel,
 }: ProductBasicInfoProps) {
 	const [formData, setFormData] = useState({
 		name: product.name,
@@ -97,7 +98,9 @@ export function ProductBasicInfo({
 					{isEditing ? (
 						<Input
 							value={formData.name}
-							onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+							onChange={(e) =>
+								setFormData((prev) => ({ ...prev, name: e.target.value }))
+							}
 							className="mt-1"
 						/>
 					) : (
@@ -111,13 +114,20 @@ export function ProductBasicInfo({
 					{isEditing ? (
 						<Textarea
 							value={formData.description}
-							onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+							onChange={(e) =>
+								setFormData((prev) => ({
+									...prev,
+									description: e.target.value,
+								}))
+							}
 							placeholder="Enter product description"
 							className="mt-1"
 							rows={3}
 						/>
 					) : (
-						<p className="text-sm">{product.description || "No description provided"}</p>
+						<p className="text-sm">
+							{product.description || "No description provided"}
+						</p>
 					)}
 				</div>
 				<div>
@@ -128,17 +138,21 @@ export function ProductBasicInfo({
 						<Input
 							type="number"
 							value={formData.default_duration_months}
-							onChange={(e) => setFormData(prev => ({ 
-								...prev, 
-								default_duration_months: parseInt(e.target.value) || 0 
-							}))}
+							onChange={(e) =>
+								setFormData((prev) => ({
+									...prev,
+									default_duration_months: Number.parseInt(e.target.value) || 0,
+								}))
+							}
 							className="mt-1"
 							min="0"
 							max="60"
 						/>
 					) : (
 						<p className="text-sm">
-							{product.default_duration_months ? `${product.default_duration_months} months` : "Not set"}
+							{product.default_duration_months
+								? `${product.default_duration_months} months`
+								: "Not set"}
 						</p>
 					)}
 				</div>
@@ -147,16 +161,22 @@ export function ProductBasicInfo({
 						Status
 					</label>
 					{isEditing ? (
-						<div className="flex items-center gap-2 mt-1">
+						<div className="mt-1 flex items-center gap-2">
 							<Switch
 								checked={formData.is_active}
-								onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
+								onCheckedChange={(checked) =>
+									setFormData((prev) => ({ ...prev, is_active: checked }))
+								}
 							/>
-							<span className="text-sm">{formData.is_active ? "Active" : "Inactive"}</span>
+							<span className="text-sm">
+								{formData.is_active ? "Active" : "Inactive"}
+							</span>
 						</div>
 					) : (
 						<div className="text-sm">
-							<StatusBadge>{product.is_active ? "Active" : "Inactive"}</StatusBadge>
+							<StatusBadge>
+								{product.is_active ? "Active" : "Inactive"}
+							</StatusBadge>
 						</div>
 					)}
 				</div>

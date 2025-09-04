@@ -191,7 +191,10 @@ export async function createClientPaymentPlan(
 
 	// Auto-create payment slots based on type
 	if (data && paymentPlanData.type) {
-		if (paymentPlanData.type === "custom" && (paymentPlanData as any).customSlots) {
+		if (
+			paymentPlanData.type === "custom" &&
+			(paymentPlanData as any).customSlots
+		) {
 			await createPaymentSlotsFromCustom(
 				data.id,
 				(paymentPlanData as any).customSlots,
@@ -312,7 +315,7 @@ export async function createPaymentSlotsFromTemplate(
 export async function createPaymentSlotsFromCustom(
 	planId: string,
 	customSlots: Array<{ amount_due: number; months_to_delay: number }>,
-	termStartDate: string
+	termStartDate: string,
 ) {
 	const supabase = await createClient();
 

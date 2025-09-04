@@ -1,16 +1,20 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+
+import { useRouter } from "next/navigation";
+
 import { BackButton } from "@/components/ui/back-button";
+import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useProduct } from "@/features/products/queries/useProducts";
+
 import { deleteProduct } from "@/features/products/actions/deleteProduct";
+import { useProduct } from "@/features/products/queries/useProducts";
+
+import { Trash2Icon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 import { ProductDeleteModal } from "../components/product.delete.modal";
-import { Button } from "@/components/ui/button";
-import { Trash2Icon } from "lucide-react";
 
 interface ProductDetailHeaderProps {
   productId: string;
@@ -43,7 +47,7 @@ export default function ProductDetailHeader({
   );
 
   const handleDeleteProduct = () => {
-	console.log(productId)
+    console.log(productId);
     executeDeleteProduct({ id: productId });
   };
 
@@ -64,7 +68,7 @@ export default function ProductDetailHeader({
         className="flex items-center gap-2"
       >
         <Trash2Icon className="mr-[6px] h-4 w-4" />
-        Delete Testimonial
+        Delete Product
       </Button>
       {isDeleteDialogOpen && (
         <ProductDeleteModal

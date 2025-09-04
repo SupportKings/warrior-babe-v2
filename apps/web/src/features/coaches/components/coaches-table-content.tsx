@@ -82,6 +82,14 @@ export function CoachesTableContent({
 		}
 	});
 
+	// Extract unique team names from the data
+	const uniqueTeamNames = new Set<string>();
+	coachesData?.data?.forEach((coach: any) => {
+		if (coach.team?.team_name) {
+			uniqueTeamNames.add(coach.team.team_name);
+		}
+	});
+
 	// Create dynamic filter config with options
 	const dynamicFilterConfig = [
 		universalColumnHelper
@@ -94,6 +102,17 @@ export function CoachesTableContent({
 			.displayName("Email")
 			.icon(MailIcon)
 			.build(),
+		{
+			...universalColumnHelper
+				.option("team_name")
+				.displayName("Team Name")
+				.icon(UsersIcon)
+				.build(),
+			options: Array.from(uniqueTeamNames).sort().map((teamName) => ({
+				value: teamName,
+				label: teamName,
+			})),
+		},
 		{
 			...universalColumnHelper
 				.option("premier_coach_id")
@@ -130,13 +149,6 @@ export function CoachesTableContent({
 			icon: EyeIcon,
 			onClick: (coach: CoachRow) => {
 				window.location.href = `/dashboard/coaches/${coach.id}`;
-			},
-		},
-		{
-			label: "Edit",
-			icon: EditIcon,
-			onClick: (coach: CoachRow) => {
-				window.location.href = `/dashboard/coaches/${coach.id}/edit`;
 			},
 		},
 		{
@@ -221,7 +233,7 @@ export function CoachesTableContent({
 
 			{coachToDelete && (
 				<CoachDeleteModal
-					coach={coachToDelete}
+					coach={coachToDelete.name}
 					open={!!coachToDelete}
 					onOpenChange={(open) => !open && setCoachToDelete(null)}
 					onConfirm={async () => {

@@ -14,7 +14,7 @@ import {
 import type { CoachRow } from "../types";
 
 interface CoachDeleteModalProps {
-	coach: CoachRow;
+	coach: string | null;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	onConfirm: () => Promise<void>;
@@ -33,7 +33,7 @@ export function CoachDeleteModal({
 					<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 					<AlertDialogDescription>
 						This action cannot be undone. This will permanently delete{" "}
-						<span className="font-semibold">{coach.name}</span> from the
+						<span className="font-semibold">{coach}</span> from the
 						database and remove all associated data.
 					</AlertDialogDescription>
 				</AlertDialogHeader>

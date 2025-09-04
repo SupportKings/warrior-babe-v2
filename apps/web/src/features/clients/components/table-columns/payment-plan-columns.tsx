@@ -1,4 +1,3 @@
-
 import { createColumnHelper } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Edit, Trash2 } from "lucide-react";
@@ -48,7 +47,10 @@ export const createPaymentPlanColumns = () => {
 				if (!slots || slots.length === 0) {
 					return "$0.00";
 				}
-				const totalAmount = slots.reduce((sum: number, slot: any) => sum + (slot.amount_due || 0), 0);
+				const totalAmount = slots.reduce(
+					(sum: number, slot: any) => sum + (slot.amount_due || 0),
+					0,
+				);
 				return `$${totalAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 			},
 		}),
@@ -75,7 +77,11 @@ export const createPaymentPlanRowActions = (
 		icon: Trash2,
 		variant: "destructive" as const,
 		onClick: (paymentPlan: any) => {
-			const planName = paymentPlan.payment_plan_templates?.name || paymentPlan.type === "custom" ? "Custom Plan" : "Payment Plan";
+			const planName =
+				paymentPlan.payment_plan_templates?.name ||
+				paymentPlan.type === "custom"
+					? "Custom Plan"
+					: "Payment Plan";
 			setDeleteModal({
 				isOpen: true,
 				type: "payment_plan",

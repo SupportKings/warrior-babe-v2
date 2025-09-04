@@ -1,12 +1,18 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { StatusBadge } from "@/components/ui/status-badge";
 
-import { useState } from "react";
-import { Edit3, Save, X } from "lucide-react";
-import { User } from "lucide-react";
+import { Edit3, Save, User, X } from "lucide-react";
 
 interface ClientBasicInfoProps {
 	client: {
@@ -22,12 +28,12 @@ interface ClientBasicInfoProps {
 	onCancel?: () => void;
 }
 
-export function ClientBasicInfo({ 
-	client, 
-	isEditing = false, 
-	onEditToggle, 
-	onSave, 
-	onCancel 
+export function ClientBasicInfo({
+	client,
+	isEditing = false,
+	onEditToggle,
+	onSave,
+	onCancel,
 }: ClientBasicInfoProps) {
 	const [formData, setFormData] = useState({
 		name: client.name,
@@ -100,7 +106,9 @@ export function ClientBasicInfo({
 					{isEditing ? (
 						<Input
 							value={formData.name}
-							onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+							onChange={(e) =>
+								setFormData((prev) => ({ ...prev, name: e.target.value }))
+							}
 							className="mt-1"
 						/>
 					) : (
@@ -115,7 +123,9 @@ export function ClientBasicInfo({
 						<Input
 							type="email"
 							value={formData.email}
-							onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+							onChange={(e) =>
+								setFormData((prev) => ({ ...prev, email: e.target.value }))
+							}
 							className="mt-1"
 						/>
 					) : (
@@ -129,7 +139,9 @@ export function ClientBasicInfo({
 					{isEditing ? (
 						<Input
 							value={formData.phone}
-							onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+							onChange={(e) =>
+								setFormData((prev) => ({ ...prev, phone: e.target.value }))
+							}
 							placeholder="Enter phone number"
 							className="mt-1"
 						/>
@@ -144,7 +156,9 @@ export function ClientBasicInfo({
 					{isEditing ? (
 						<Select
 							value={formData.overall_status}
-							onValueChange={(value) => setFormData(prev => ({ ...prev, overall_status: value }))}
+							onValueChange={(value) =>
+								setFormData((prev) => ({ ...prev, overall_status: value }))
+							}
 						>
 							<SelectTrigger className="mt-1">
 								<SelectValue />
@@ -169,7 +183,9 @@ export function ClientBasicInfo({
 					{isEditing ? (
 						<Select
 							value={formData.everfit_access}
-							onValueChange={(value) => setFormData(prev => ({ ...prev, everfit_access: value }))}
+							onValueChange={(value) =>
+								setFormData((prev) => ({ ...prev, everfit_access: value }))
+							}
 						>
 							<SelectTrigger className="mt-1">
 								<SelectValue />

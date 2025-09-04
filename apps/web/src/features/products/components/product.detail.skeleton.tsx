@@ -1,4 +1,5 @@
 import MainLayout from "@/components/layout/main-layout";
+
 import ProductDetailHeader from "../layout/product.detail.header";
 
 interface ProductDetailSkeletonProps {
@@ -11,7 +12,10 @@ export default function ProductDetailSkeleton({
 	return (
 		<MainLayout
 			headers={[
-				<ProductDetailHeader key="product-detail-header" productId={productId} />,
+				<ProductDetailHeader
+					key="product-detail-header"
+					productId={productId}
+				/>,
 			]}
 		>
 			<div className="animate-pulse space-y-6 p-6">

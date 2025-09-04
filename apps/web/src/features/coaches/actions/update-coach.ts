@@ -94,10 +94,13 @@ export async function updateCoach(input: UpdateCoachInput) {
 				name: input.name,
 				team_id: input.team_id ?? null,
 				contract_type:
-					input.contract_type === "W2" || input.contract_type === "Hourly"
+					input.contract_type && (input.contract_type === "W2" || input.contract_type === "Hourly")
 						? input.contract_type
 						: null,
-				onboarding_date: input.onboarding_date ?? null,
+				onboarding_date: input.onboarding_date && input.onboarding_date !== "" 
+					? input.onboarding_date 
+					: null,
+				updated_at: new Date().toISOString()
 			})
 			.eq("id", input.id)
 			.select(`

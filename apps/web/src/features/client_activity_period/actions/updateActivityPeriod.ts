@@ -1,10 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+
 import { actionClient } from "@/lib/safe-action";
+
 import { createClient } from "@/utils/supabase/server";
-import { z } from "zod";
+
 import { returnValidationErrors } from "next-safe-action";
+import { z } from "zod";
 
 const activityPeriodUpdateSchema = z.object({
 	id: z.string().uuid(),
@@ -40,12 +43,18 @@ export const updateActivityPeriodAction = actionClient
 			// 2. Prepare update data (remove undefined values)
 			const cleanUpdateData: any = {};
 
-			if (updateData.start_date !== undefined) cleanUpdateData.start_date = updateData.start_date;
-			if (updateData.end_date !== undefined) cleanUpdateData.end_date = updateData.end_date;
-			if (updateData.active !== undefined) cleanUpdateData.active = updateData.active;
-			if (updateData.coach_id !== undefined) cleanUpdateData.coach_id = updateData.coach_id;
-			if (updateData.coach_payment !== undefined) cleanUpdateData.coach_payment = updateData.coach_payment;
-			if (updateData.payment_plan !== undefined) cleanUpdateData.payment_plan = updateData.payment_plan;
+			if (updateData.start_date !== undefined)
+				cleanUpdateData.start_date = updateData.start_date;
+			if (updateData.end_date !== undefined)
+				cleanUpdateData.end_date = updateData.end_date;
+			if (updateData.active !== undefined)
+				cleanUpdateData.active = updateData.active;
+			if (updateData.coach_id !== undefined)
+				cleanUpdateData.coach_id = updateData.coach_id;
+			if (updateData.coach_payment !== undefined)
+				cleanUpdateData.coach_payment = updateData.coach_payment;
+			if (updateData.payment_plan !== undefined)
+				cleanUpdateData.payment_plan = updateData.payment_plan;
 
 			// 3. Update the activity period record
 			const { data: updatedPeriod, error: updateError } = await supabase

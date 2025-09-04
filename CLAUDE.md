@@ -29,7 +29,7 @@ bun check-types     # Check TypeScript types across all apps
 ```
 
 ### Build
-```bash
+```bash 
 bun build           # Build all applications for production
 ```
 
