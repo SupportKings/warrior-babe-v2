@@ -150,7 +150,7 @@ export function AppSidebar({
 					{
 						title: "Coach Teams",
 						url: "/dashboard/coaches/teams",
-					}
+					},
 				],
 			},
 			{

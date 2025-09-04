@@ -1,12 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-
 import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+
 import { format } from "date-fns";
-import { CheckCircle2, XCircle, Edit3, Save, X } from "lucide-react";
+import { CheckCircle2, Edit3, Save, X, XCircle } from "lucide-react";
 
 const formatDate = (dateString: string | null) => {
 	if (!dateString) return "Not set";
@@ -37,7 +38,7 @@ export function ClientOnboardingStatus({
 	isEditing = false,
 	onEditToggle,
 	onSave,
-	onCancel
+	onCancel,
 }: ClientOnboardingStatusProps) {
 	const [formData, setFormData] = useState({
 		onboarding_call_completed: client.onboarding_call_completed,
@@ -112,7 +113,12 @@ export function ClientOnboardingStatus({
 					{isEditing ? (
 						<Switch
 							checked={formData.onboarding_call_completed}
-							onCheckedChange={(checked) => setFormData(prev => ({ ...prev, onboarding_call_completed: checked }))}
+							onCheckedChange={(checked) =>
+								setFormData((prev) => ({
+									...prev,
+									onboarding_call_completed: checked,
+								}))
+							}
 						/>
 					) : (
 						<div className="flex items-center space-x-2">
@@ -122,7 +128,9 @@ export function ClientOnboardingStatus({
 								<XCircle className="h-4 w-4 text-red-600" />
 							)}
 							<span className="text-sm">
-								{client.onboarding_call_completed ? "Completed" : "Not Completed"}
+								{client.onboarding_call_completed
+									? "Completed"
+									: "Not Completed"}
 							</span>
 						</div>
 					)}
@@ -134,7 +142,12 @@ export function ClientOnboardingStatus({
 					{isEditing ? (
 						<Switch
 							checked={formData.two_week_check_in_call_completed}
-							onCheckedChange={(checked) => setFormData(prev => ({ ...prev, two_week_check_in_call_completed: checked }))}
+							onCheckedChange={(checked) =>
+								setFormData((prev) => ({
+									...prev,
+									two_week_check_in_call_completed: checked,
+								}))
+							}
 						/>
 					) : (
 						<div className="flex items-center space-x-2">
@@ -158,7 +171,9 @@ export function ClientOnboardingStatus({
 					{isEditing ? (
 						<Switch
 							checked={formData.vip_terms_signed}
-							onCheckedChange={(checked) => setFormData(prev => ({ ...prev, vip_terms_signed: checked }))}
+							onCheckedChange={(checked) =>
+								setFormData((prev) => ({ ...prev, vip_terms_signed: checked }))
+							}
 						/>
 					) : (
 						<div className="flex items-center space-x-2">
@@ -181,7 +196,12 @@ export function ClientOnboardingStatus({
 						<Input
 							type="date"
 							value={formData.onboarding_completed_date}
-							onChange={(e) => setFormData(prev => ({ ...prev, onboarding_completed_date: e.target.value }))}
+							onChange={(e) =>
+								setFormData((prev) => ({
+									...prev,
+									onboarding_completed_date: e.target.value,
+								}))
+							}
 							className="mt-1"
 						/>
 					) : (
@@ -198,11 +218,18 @@ export function ClientOnboardingStatus({
 						<Input
 							type="date"
 							value={formData.offboard_date}
-							onChange={(e) => setFormData(prev => ({ ...prev, offboard_date: e.target.value }))}
+							onChange={(e) =>
+								setFormData((prev) => ({
+									...prev,
+									offboard_date: e.target.value,
+								}))
+							}
 							className="mt-1"
 						/>
 					) : (
-						<p className="text-sm">{formatDate(client.offboard_date || null)}</p>
+						<p className="text-sm">
+							{formatDate(client.offboard_date || null)}
+						</p>
 					)}
 				</div>
 				<div>
@@ -212,7 +239,12 @@ export function ClientOnboardingStatus({
 					{isEditing ? (
 						<Textarea
 							value={formData.onboarding_notes}
-							onChange={(e) => setFormData(prev => ({ ...prev, onboarding_notes: e.target.value }))}
+							onChange={(e) =>
+								setFormData((prev) => ({
+									...prev,
+									onboarding_notes: e.target.value,
+								}))
+							}
 							placeholder="Enter onboarding notes..."
 							className="mt-1 min-h-[100px]"
 						/>

@@ -29,6 +29,7 @@ export const createClientActivityPeriodAction = actionClient
 			.from("client_activity_period")
 			.insert({
 				payment_plan: parsedInput.payment_plan,
+				payment_slot: parsedInput.payment_slot_id,
 				coach_id: parsedInput.coach_id,
 				start_date: parsedInput.start_date,
 				end_date: parsedInput.end_date,

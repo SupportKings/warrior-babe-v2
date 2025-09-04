@@ -329,73 +329,73 @@ export function CoachEditForm({ coach, onSuccess }: CoachEditFormProps) {
 				<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 					<div className="space-y-2">
 						<Label htmlFor="roles">Roles *</Label>
-					<Popover
-						open={rolesSearchOpen}
-						onOpenChange={(open) => {
-							setRolesSearchOpen(open);
-							if (!open) {
-								setRolesBlurred(true);
-							}
-						}}
-					>
-						<PopoverTrigger asChild>
-							<Button
-								id="roles"
-								variant="outline"
-								role="combobox"
-								aria-expanded={rolesSearchOpen}
-								className="w-full justify-between font-normal h-10"
-								disabled={isLoading || rolesLoading}
-							>
-								{selectedRoles.length > 0 ? (
-									<span className="truncate">
-										{selectedRoles
-											.map((roleName) => {
-												const role = roles.find((r) => r.name === roleName);
-												return role?.description || roleName;
-											})
-											.join(", ")}
-									</span>
-								) : (
-									"Select roles..."
-								)}
-								<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-							</Button>
-						</PopoverTrigger>
-						<PopoverContent
-							className="p-0"
-							align="start"
-							style={{ width: "var(--radix-popover-trigger-width)" }}
+						<Popover
+							open={rolesSearchOpen}
+							onOpenChange={(open) => {
+								setRolesSearchOpen(open);
+								if (!open) {
+									setRolesBlurred(true);
+								}
+							}}
 						>
-							<Command>
-								<CommandInput placeholder="Search roles..." className="h-9" />
-								<CommandList>
-									<CommandEmpty>No role found.</CommandEmpty>
-									<CommandGroup>
-										{roles.map((role) => (
-											<CommandItem
-												key={role.id}
-												value={role.name}
-												onSelect={() => {
-													toggleRole(role.name);
-												}}
-											>
-												<Check
-													className={cn(
-														"mr-2 h-4 w-4",
-														selectedRoles.includes(role.name)
-															? "opacity-100"
-															: "opacity-0",
-													)}
-												/>
-												{role.description || role.name}
-											</CommandItem>
-										))}
-									</CommandGroup>
-								</CommandList>
-							</Command>
-						</PopoverContent>
-					</Popover>
+							<PopoverTrigger asChild>
+								<Button
+									id="roles"
+									variant="outline"
+									role="combobox"
+									aria-expanded={rolesSearchOpen}
+									className="h-10 w-full justify-between font-normal"
+									disabled={isLoading || rolesLoading}
+								>
+									{selectedRoles.length > 0 ? (
+										<span className="truncate">
+											{selectedRoles
+												.map((roleName) => {
+													const role = roles.find((r) => r.name === roleName);
+													return role?.description || roleName;
+												})
+												.join(", ")}
+										</span>
+									) : (
+										"Select roles..."
+									)}
+									<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent
+								className="p-0"
+								align="start"
+								style={{ width: "var(--radix-popover-trigger-width)" }}
+							>
+								<Command>
+									<CommandInput placeholder="Search roles..." className="h-9" />
+									<CommandList>
+										<CommandEmpty>No role found.</CommandEmpty>
+										<CommandGroup>
+											{roles.map((role) => (
+												<CommandItem
+													key={role.id}
+													value={role.name}
+													onSelect={() => {
+														toggleRole(role.name);
+													}}
+												>
+													<Check
+														className={cn(
+															"mr-2 h-4 w-4",
+															selectedRoles.includes(role.name)
+																? "opacity-100"
+																: "opacity-0",
+														)}
+													/>
+													{role.description || role.name}
+												</CommandItem>
+											))}
+										</CommandGroup>
+									</CommandList>
+								</Command>
+							</PopoverContent>
+						</Popover>
 						{rolesBlurred && selectedRoles.length === 0 && (
 							<p className="text-red-500 text-sm">
 								At least one role is required
@@ -405,83 +405,83 @@ export function CoachEditForm({ coach, onSuccess }: CoachEditFormProps) {
 
 					{/* Team Assignment Combobox */}
 					<form.Field name="team_id">
-					{(field) => (
-						<div className="space-y-2">
-							<Label htmlFor={field.name}>Team Assignment *</Label>
-							<Popover open={teamSearchOpen} onOpenChange={setTeamSearchOpen}>
-								<PopoverTrigger asChild>
-									<Button
-										id={field.name}
-										variant="outline"
-										role="combobox"
-										aria-expanded={teamSearchOpen}
-										className="w-full justify-between font-normal h-10"
-										disabled={isLoading || teamLeadersLoading}
+						{(field) => (
+							<div className="space-y-2">
+								<Label htmlFor={field.name}>Team Assignment *</Label>
+								<Popover open={teamSearchOpen} onOpenChange={setTeamSearchOpen}>
+									<PopoverTrigger asChild>
+										<Button
+											id={field.name}
+											variant="outline"
+											role="combobox"
+											aria-expanded={teamSearchOpen}
+											className="h-10 w-full justify-between font-normal"
+											disabled={isLoading || teamLeadersLoading}
+										>
+											{field.state.value
+												? teamLeaders.find(
+														(leader) => leader.id === field.state.value,
+													)?.name || "Select team..."
+												: "Select team..."}
+											<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+										</Button>
+									</PopoverTrigger>
+									<PopoverContent
+										className="p-0"
+										align="start"
+										style={{ width: "var(--radix-popover-trigger-width)" }}
 									>
-										{field.state.value
-											? teamLeaders.find(
-													(leader) => leader.id === field.state.value,
-												)?.name || "Select team..."
-											: "Select team..."}
-										<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-									</Button>
-								</PopoverTrigger>
-								<PopoverContent
-									className="p-0"
-									align="start"
-									style={{ width: "var(--radix-popover-trigger-width)" }}
-								>
-									<Command>
-										<CommandInput
-											placeholder="Search premier coach or team leader..."
-											className="h-9"
-										/>
-										<CommandList>
-											<CommandEmpty>No premier coach found.</CommandEmpty>
-											<CommandGroup>
-												{teamLeaders.map((leader) => (
-													<CommandItem
-														key={leader.id}
-														value={leader.name}
-														onSelect={() => {
-															field.handleChange(
-																leader.id === field.state.value
-																	? null
-																	: leader.id,
-															);
-															setTeamSearchOpen(false);
-														}}
-													>
-														<Check
-															className={cn(
-																"mr-2 h-4 w-4",
-																field.state.value === leader.id
-																	? "opacity-100"
-																	: "opacity-0",
-															)}
-														/>
-														<div className="flex flex-col">
-															<span>{leader.name}</span>
-															{leader.email && (
-																<span className="text-muted-foreground text-xs">
-																	{leader.email}
-																</span>
-															)}
-														</div>
-													</CommandItem>
-												))}
-											</CommandGroup>
-										</CommandList>
-									</Command>
-								</PopoverContent>
-							</Popover>
-							{field.state.meta.errors &&
-								field.state.meta.errors.length > 0 && (
-									<p className="text-red-500 text-sm">
-										{String(field.state.meta.errors[0] || "")}
-									</p>
-								)}
-						</div>
+										<Command>
+											<CommandInput
+												placeholder="Search premier coach or team leader..."
+												className="h-9"
+											/>
+											<CommandList>
+												<CommandEmpty>No premier coach found.</CommandEmpty>
+												<CommandGroup>
+													{teamLeaders.map((leader) => (
+														<CommandItem
+															key={leader.id}
+															value={leader.name}
+															onSelect={() => {
+																field.handleChange(
+																	leader.id === field.state.value
+																		? null
+																		: leader.id,
+																);
+																setTeamSearchOpen(false);
+															}}
+														>
+															<Check
+																className={cn(
+																	"mr-2 h-4 w-4",
+																	field.state.value === leader.id
+																		? "opacity-100"
+																		: "opacity-0",
+																)}
+															/>
+															<div className="flex flex-col">
+																<span>{leader.name}</span>
+																{leader.email && (
+																	<span className="text-muted-foreground text-xs">
+																		{leader.email}
+																	</span>
+																)}
+															</div>
+														</CommandItem>
+													))}
+												</CommandGroup>
+											</CommandList>
+										</Command>
+									</PopoverContent>
+								</Popover>
+								{field.state.meta.errors &&
+									field.state.meta.errors.length > 0 && (
+										<p className="text-red-500 text-sm">
+											{String(field.state.meta.errors[0] || "")}
+										</p>
+									)}
+							</div>
 						)}
 					</form.Field>
 				</div>

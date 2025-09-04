@@ -464,7 +464,6 @@ export default function ClientForm({ onSuccess }: ClientFormProps) {
 				</form.Field>
 			</div>
 
-
 			{/* Client Relations */}
 			<ClientAssignmentsForm
 				assignments={assignments}

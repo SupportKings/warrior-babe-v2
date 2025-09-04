@@ -7,7 +7,7 @@ import { getUser } from "@/queries/getUser";
 interface ClientTestimonial {
 	id?: string;
 	content: string;
-	testimonial_type: string;
+	testimonial_type: "written" | "email" | "video";
 	testimonial_url: string;
 	recorded_date: string;
 }

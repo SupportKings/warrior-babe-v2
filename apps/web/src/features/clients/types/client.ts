@@ -85,10 +85,11 @@ export const validationUtils = {
 		.string()
 		.optional()
 		.nullable()
-		.transform((val) => val === undefined ? undefined : (val?.trim() || null))
+		.transform((val) => (val === undefined ? undefined : val?.trim() || null))
 		.refine(
 			(val) =>
-				val === undefined || !val ||
+				val === undefined ||
+				!val ||
 				(/^\d{4}-\d{2}-\d{2}$/.test(val) && !isNaN(new Date(val).getTime())),
 			"Date must be in YYYY-MM-DD format or empty",
 		),
@@ -101,7 +102,7 @@ export const validationUtils = {
 		.string()
 		.optional()
 		.nullable()
-		.transform((val) => val === undefined ? undefined : (val?.trim() || null))
+		.transform((val) => (val === undefined ? undefined : val?.trim() || null))
 		.refine(
 			(val) => val === undefined || !val || val.length <= 2000,
 			"Must be less than 2000 characters",
@@ -122,7 +123,6 @@ export const validationUtils = {
 		})
 		.nullable()
 		.optional(),
-
 };
 
 // Base client schema for creation (matches database schema)

@@ -54,7 +54,8 @@ export const updateClientAction = actionClient
 
 			// Map camelCase to snake_case and handle data transformations
 			if (updateData.name !== undefined) cleanUpdateData.name = updateData.name;
-			if (updateData.email !== undefined) cleanUpdateData.email = updateData.email;
+			if (updateData.email !== undefined)
+				cleanUpdateData.email = updateData.email;
 			if (updateData.phone !== undefined) {
 				cleanUpdateData.phone = updateData.phone;
 			}
@@ -65,22 +66,29 @@ export const updateClientAction = actionClient
 				cleanUpdateData.everfit_access = updateData.everfitAccess;
 			}
 			if (updateData.onboardingCallCompleted !== undefined) {
-				cleanUpdateData.onboarding_call_completed = updateData.onboardingCallCompleted;
+				cleanUpdateData.onboarding_call_completed =
+					updateData.onboardingCallCompleted;
 			}
 			if (updateData.twoWeekCheckInCallCompleted !== undefined) {
-				cleanUpdateData.two_week_check_in_call_completed = updateData.twoWeekCheckInCallCompleted;
+				cleanUpdateData.two_week_check_in_call_completed =
+					updateData.twoWeekCheckInCallCompleted;
 			}
 			if (updateData.vipTermsSigned !== undefined) {
 				cleanUpdateData.vip_terms_signed = updateData.vipTermsSigned;
 			}
 			if (updateData.onboardingNotes !== undefined) {
-				cleanUpdateData.onboarding_notes = updateData.onboardingNotes === "" ? null : updateData.onboardingNotes;
+				cleanUpdateData.onboarding_notes =
+					updateData.onboardingNotes === "" ? null : updateData.onboardingNotes;
 			}
 			if (updateData.onboardingCompletedDate !== undefined) {
-				cleanUpdateData.onboarding_completed_date = updateData.onboardingCompletedDate === "" ? null : updateData.onboardingCompletedDate;
+				cleanUpdateData.onboarding_completed_date =
+					updateData.onboardingCompletedDate === ""
+						? null
+						: updateData.onboardingCompletedDate;
 			}
 			if (updateData.offboardDate !== undefined) {
-				cleanUpdateData.offboard_date = updateData.offboardDate === "" ? null : updateData.offboardDate;
+				cleanUpdateData.offboard_date =
+					updateData.offboardDate === "" ? null : updateData.offboardDate;
 			}
 
 			// 4. Update the client record

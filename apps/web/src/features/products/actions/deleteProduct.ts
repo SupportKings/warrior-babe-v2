@@ -1,10 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+
 import { actionClient } from "@/lib/safe-action";
+
 import { createClient } from "@/utils/supabase/server";
-import { z } from "zod";
+
 import { returnValidationErrors } from "next-safe-action";
+import { z } from "zod";
 
 const deleteProductSchema = z.object({
 	id: z.string().uuid("Invalid product ID format"),

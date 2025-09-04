@@ -44,13 +44,15 @@ export async function getActivityPeriod(id: string) {
 	const flattenedData = {
 		...data,
 		client: data?.payment_plan_detail?.client || null,
-		payment_plan_detail: data?.payment_plan_detail ? {
-			id: data.payment_plan_detail.id,
-			name: data.payment_plan_detail.name,
-			term_start_date: data.payment_plan_detail.term_start_date,
-			term_end_date: data.payment_plan_detail.term_end_date,
-			total_amount: data.payment_plan_detail.total_amount,
-		} : null,
+		payment_plan_detail: data?.payment_plan_detail
+			? {
+					id: data.payment_plan_detail.id,
+					name: data.payment_plan_detail.name,
+					term_start_date: data.payment_plan_detail.term_start_date,
+					term_end_date: data.payment_plan_detail.term_end_date,
+					total_amount: data.payment_plan_detail.total_amount,
+				}
+			: null,
 	};
 
 	return flattenedData;

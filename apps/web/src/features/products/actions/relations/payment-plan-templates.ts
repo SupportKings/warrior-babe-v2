@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+
 import { getUser } from "@/queries/getUser";
 
 export async function deleteProductPaymentPlanTemplate(templateId: string) {
@@ -18,12 +19,14 @@ export async function deleteProductPaymentPlanTemplate(templateId: string) {
 		.eq("type", templateId);
 
 	if (checkError) {
-		throw new Error(`Failed to check payment plan usage: ${checkError.message}`);
+		throw new Error(
+			`Failed to check payment plan usage: ${checkError.message}`,
+		);
 	}
 
 	if (planCount && planCount > 0) {
 		throw new Error(
-			`Cannot delete this payment plan template. It is currently being used by ${planCount} payment plan${planCount > 1 ? 's' : ''}. Please remove or update those payment plans first.`
+			`Cannot delete this payment plan template. It is currently being used by ${planCount} payment plan${planCount > 1 ? "s" : ""}. Please remove or update those payment plans first.`,
 		);
 	}
 
@@ -34,7 +37,9 @@ export async function deleteProductPaymentPlanTemplate(templateId: string) {
 		.eq("payment_plan_template_id", templateId);
 
 	if (slotsError) {
-		throw new Error(`Failed to delete payment plan template slots: ${slotsError.message}`);
+		throw new Error(
+			`Failed to delete payment plan template slots: ${slotsError.message}`,
+		);
 	}
 
 	// Then delete the payment plan template
@@ -76,7 +81,9 @@ export async function createProductPaymentPlanTemplate(
 		.single();
 
 	if (templateError) {
-		throw new Error(`Failed to create payment plan template: ${templateError.message}`);
+		throw new Error(
+			`Failed to create payment plan template: ${templateError.message}`,
+		);
 	}
 
 	// Create payment plan template slots if provided
@@ -97,8 +104,10 @@ export async function createProductPaymentPlanTemplate(
 				.from("payment_plan_templates")
 				.delete()
 				.eq("id", template.id);
-			
-			throw new Error(`Failed to create payment plan template slots: ${slotsError.message}`);
+
+			throw new Error(
+				`Failed to create payment plan template slots: ${slotsError.message}`,
+			);
 		}
 	}
 
@@ -130,7 +139,9 @@ export async function updateProductPaymentPlanTemplate(
 		.eq("id", templateId);
 
 	if (updateError) {
-		throw new Error(`Failed to update payment plan template: ${updateError.message}`);
+		throw new Error(
+			`Failed to update payment plan template: ${updateError.message}`,
+		);
 	}
 
 	// Delete existing slots and recreate them
@@ -142,7 +153,9 @@ export async function updateProductPaymentPlanTemplate(
 			.eq("payment_plan_template_id", templateId);
 
 		if (deleteError) {
-			throw new Error(`Failed to delete existing slots: ${deleteError.message}`);
+			throw new Error(
+				`Failed to delete existing slots: ${deleteError.message}`,
+			);
 		}
 
 		// Create new slots
@@ -158,7 +171,9 @@ export async function updateProductPaymentPlanTemplate(
 				.insert(slotsToInsert);
 
 			if (slotsError) {
-				throw new Error(`Failed to create payment plan template slots: ${slotsError.message}`);
+				throw new Error(
+					`Failed to create payment plan template slots: ${slotsError.message}`,
+				);
 			}
 		}
 	}

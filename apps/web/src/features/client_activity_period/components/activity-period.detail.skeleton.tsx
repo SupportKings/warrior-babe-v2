@@ -1,4 +1,5 @@
 import MainLayout from "@/components/layout/main-layout";
+
 import ActivityPeriodDetailHeader from "../layout/activity-period.detail.header";
 
 interface ActivityPeriodDetailSkeletonProps {
@@ -11,7 +12,10 @@ export default function ActivityPeriodDetailSkeleton({
 	return (
 		<MainLayout
 			headers={[
-				<ActivityPeriodDetailHeader key="activity-period-detail-header" activityPeriodId={activityPeriodId} />,
+				<ActivityPeriodDetailHeader
+					key="activity-period-detail-header"
+					activityPeriodId={activityPeriodId}
+				/>,
 			]}
 		>
 			<div className="animate-pulse space-y-6 p-6">

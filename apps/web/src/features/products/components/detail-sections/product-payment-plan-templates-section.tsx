@@ -1,6 +1,8 @@
 import { useState } from "react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UniversalDataTable } from "@/components/universal-data-table/universal-data-table";
+
 import {
 	getCoreRowModel,
 	getSortedRowModel,
@@ -59,7 +61,7 @@ export function ProductPaymentPlanTemplatesSection({
 					<CardTitle className="flex items-center gap-2">
 						<CreditCard className="h-5 w-5" />
 						Payment Plan Templates
-					</CardTitle> 
+					</CardTitle>
 					<ManagePaymentPlanTemplateModal productId={productId} mode="add" />
 				</div>
 			</CardHeader>

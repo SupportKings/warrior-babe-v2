@@ -1,14 +1,17 @@
 import { Suspense } from "react";
 
 import MainLayout from "@/components/layout/main-layout";
+
+import { getWinTagsWithFaceted } from "@/features/system-config/actions/getWinTags";
 import { WinTagsContent } from "@/features/system-config/components/win-tags.content";
 import { WinTagsHeader } from "@/features/system-config/layout/win-tags.header";
-import { getWinTagsWithFaceted } from "@/features/system-config/actions/getWinTags";
+
 import { getUser } from "@/queries/getUser";
+
 import {
+	dehydrate,
 	HydrationBoundary,
 	QueryClient,
-	dehydrate,
 } from "@tanstack/react-query";
 
 async function WinTagsPageContent() {
@@ -23,12 +26,12 @@ async function WinTagsPageContent() {
 			queryKey: [
 				"win-tags",
 				"table-with-faceted",
-				{ 
-					filters: [], 
-					page: 0, 
-					pageSize: 25, 
-					sorting: [], 
-					facetedColumns: ["color"] 
+				{
+					filters: [],
+					page: 0,
+					pageSize: 25,
+					sorting: [],
+					facetedColumns: ["color"],
 				},
 			],
 			queryFn: () => getWinTagsWithFaceted([], 0, 25, [], ["color"]),

@@ -1,11 +1,16 @@
 import { Suspense } from "react";
+
 import { notFound, redirect } from "next/navigation";
+
 import MainLayout from "@/components/layout/main-layout";
+
 import { getClientTestimonial } from "@/features/client-testimonials/actions/getClientTestimonial";
 import ClientTestimonialDetailSkeleton from "@/features/client-testimonials/components/client-testimonial.detail.skeleton";
 import ClientTestimonialDetailView from "@/features/client-testimonials/components/client-testimonial.detail.view";
 import ClientTestimonialDetailHeader from "@/features/client-testimonials/layout/client-testimonial.detail.header";
+
 import { getUser } from "@/queries/getUser";
+
 import {
 	dehydrate,
 	HydrationBoundary,
@@ -18,7 +23,9 @@ interface ClientTestimonialDetailPageProps {
 	}>;
 }
 
-export default function ClientTestimonialDetailPage({ params }: ClientTestimonialDetailPageProps) {
+export default function ClientTestimonialDetailPage({
+	params,
+}: ClientTestimonialDetailPageProps) {
 	return (
 		<Suspense fallback={<ClientTestimonialDetailSkeleton testimonialId="" />}>
 			<ClientTestimonialDetailPageAsync params={params} />
@@ -26,7 +33,9 @@ export default function ClientTestimonialDetailPage({ params }: ClientTestimonia
 	);
 }
 
-async function ClientTestimonialDetailPageAsync({ params }: ClientTestimonialDetailPageProps) {
+async function ClientTestimonialDetailPageAsync({
+	params,
+}: ClientTestimonialDetailPageProps) {
 	const { id } = await params;
 
 	// Validate that id is provided
@@ -51,7 +60,10 @@ async function ClientTestimonialDetailPageAsync({ params }: ClientTestimonialDet
 		<HydrationBoundary state={dehydrate(queryClient)}>
 			<MainLayout
 				headers={[
-					<ClientTestimonialDetailHeader key="client-testimonial-detail-header" testimonialId={id} />,
+					<ClientTestimonialDetailHeader
+						key="client-testimonial-detail-header"
+						testimonialId={id}
+					/>,
 				]}
 			>
 				<ClientTestimonialDetailView testimonialId={id} />
