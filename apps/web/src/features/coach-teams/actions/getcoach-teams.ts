@@ -6,21 +6,12 @@ export async function getCoachTeam(id: string) {
 	try {
 		const supabase = await createClient();
 
-		// Fetch coach team with related data
+		// Fetch coach team with premier coach and count of team members
 		const { data: coachTeam, error } = await supabase
 			.from("coach_teams")
 			.select(`
 				*,
 				premier_coach:team_members!coach_teams_premier_coach_id_fkey (
-					id,
-					name,
-					user:user!team_members_user_id_fkey (
-						id,
-						name,
-						email
-					)
-				),
-				coach:team_members!coach_teams_coach_id_fkey (
 					id,
 					name,
 					user:user!team_members_user_id_fkey (
@@ -38,7 +29,20 @@ export async function getCoachTeam(id: string) {
 			return null;
 		}
 
-		return coachTeam;
+		// Get count of team members (coaches) for this team
+		const { count: coachCount, error: countError } = await supabase
+			.from("team_members")
+			.select("*", { count: "exact", head: true })
+			.eq("team_id", id);
+
+		if (countError) {
+			console.error("Error fetching coach count:", countError);
+		}
+
+		return {
+			...coachTeam,
+			coach_count: coachCount || 0
+		};
 	} catch (error) {
 		console.error("Unexpected error in getCoachTeam:", error);
 		return null;
@@ -83,15 +87,6 @@ export async function getAllCoachTeams() {
 						name,
 						email
 					)
-				),
-				coach:team_members!coach_teams_coach_id_fkey (
-					id,
-					name,
-					user:user!team_members_user_id_fkey (
-						id,
-						name,
-						email
-					)
 				)
 			`)
 			.order("created_at", { ascending: false });
@@ -101,7 +96,26 @@ export async function getAllCoachTeams() {
 			return [];
 		}
 
-		return coachTeams || [];
+		// Get coach counts for each team
+		const teamsWithCounts = await Promise.all(
+			(coachTeams || []).map(async (team) => {
+				const { count: coachCount, error: countError } = await supabase
+					.from("team_members")
+					.select("*", { count: "exact", head: true })
+					.eq("team_id", team.id);
+
+				if (countError) {
+					console.error(`Error fetching coach count for team ${team.id}:`, countError);
+				}
+
+				return {
+					...team,
+					coach_count: coachCount || 0
+				};
+			})
+		);
+
+		return teamsWithCounts;
 	} catch (error) {
 		console.error("Unexpected error in getAllCoachTeams:", error);
 		return [];
@@ -128,15 +142,6 @@ export async function getCoachTeamsWithFilters(
 						name,
 						email
 					)
-				),
-				coach:team_members!coach_teams_coach_id_fkey (
-					id,
-					name,
-					user:user!team_members_user_id_fkey (
-						id,
-						name,
-						email
-					)
 				)
 			`,
 			{ count: "exact" },
@@ -152,7 +157,6 @@ export async function getCoachTeamsWithFilters(
 				// Apply filter based on column type and operator
 				switch (columnId) {
 					case "premier_coach_id":
-					case "coach_id":
 						// Foreign key filters
 						if (operator === "is") {
 							query = query.eq(columnId, values[0]);
@@ -212,7 +216,26 @@ export async function getCoachTeamsWithFilters(
 			return { data: [], count: 0 };
 		}
 
-		return { data: data || [], count: count || 0 };
+		// Get coach counts for each team
+		const teamsWithCounts = await Promise.all(
+			(data || []).map(async (team) => {
+				const { count: coachCount, error: countError } = await supabase
+					.from("team_members")
+					.select("*", { count: "exact", head: true })
+					.eq("team_id", team.id);
+
+				if (countError) {
+					console.error(`Error fetching coach count for team ${team.id}:`, countError);
+				}
+
+				return {
+					...team,
+					coach_count: coachCount || 0
+				};
+			})
+		);
+
+		return { data: teamsWithCounts, count: count || 0 };
 	} catch (error) {
 		console.error("Unexpected error in getCoachTeamsWithFilters:", error);
 		return { data: [], count: 0 };
@@ -260,7 +283,6 @@ export async function getCoachTeamsWithFaceted(
 							// Apply same operator logic as main query
 							switch (filterColumnId) {
 								case "premier_coach_id":
-								case "coach_id":
 									// Foreign key filters
 									if (operator === "is") {
 										facetQuery = facetQuery.eq(filterColumnId, values[0]);
@@ -380,7 +402,6 @@ export async function getCoachTeamsFaceted(
 					// Apply same operator logic as main query
 					switch (filterColumnId) {
 						case "premier_coach_id":
-						case "coach_id":
 							// Foreign key filters
 							if (operator === "is") {
 								query = query.eq(filterColumnId, values[0]);
