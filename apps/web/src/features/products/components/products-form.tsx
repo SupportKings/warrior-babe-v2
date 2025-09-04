@@ -12,8 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 
 import { createProductAction } from "@/features/products/actions/createProduct";
 import {
-	getAllValidationErrors, validateSingleField,
-	validationUtils
+	getAllValidationErrors,
+	validateSingleField,
+	validationUtils,
 } from "@/features/products/types/products";
 
 import { useForm } from "@tanstack/react-form";

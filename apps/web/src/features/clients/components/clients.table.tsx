@@ -23,18 +23,22 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { format } from "date-fns";
 import {
-	CalendarIcon, EyeIcon,
+	CalendarIcon,
+	EyeIcon,
 	MailIcon,
 	PackageIcon,
 	PlusIcon,
 	TagIcon,
 	TrashIcon,
-	UserIcon
+	UserIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { deleteClient } from "../actions/deleteClient";
 import { useClientsWithFaceted } from "../queries/useClients";
-import { CLIENT_OVERALL_STATUS_OPTIONS, EVERFIT_ACCESS_OPTIONS } from "../types/client";
+import {
+	CLIENT_OVERALL_STATUS_OPTIONS,
+	EVERFIT_ACCESS_OPTIONS,
+} from "../types/client";
 import { ClientDeleteModal } from "./client.delete.modal";
 
 // Type for client row from Supabase with relations
@@ -110,7 +114,9 @@ const clientTableColumns = [
 		enableColumnFilter: true,
 		enableSorting: true,
 		cell: ({ row }) => (
-			<div className="text-muted-foreground">{row.getValue("phone") || "—"}</div>
+			<div className="text-muted-foreground">
+				{row.getValue("phone") || "—"}
+			</div>
 		),
 	}),
 	columnHelper.accessor("everfit_access", {
@@ -285,9 +291,9 @@ function ClientsTableContent({
 			columnsConfig: dynamicFilterConfig,
 			filters,
 			onFiltersChange: setFilters,
-			faceted: { 
+			faceted: {
 				overall_status: overallStatusFaceted,
-				everfit_access: clientsWithFaceted?.facetedData?.everfit_access 
+				everfit_access: clientsWithFaceted?.facetedData?.everfit_access,
 			},
 			enableSelection: true,
 			pageSize: 25,

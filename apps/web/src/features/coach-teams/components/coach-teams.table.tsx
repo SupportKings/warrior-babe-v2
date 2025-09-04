@@ -69,15 +69,7 @@ type CoachTeamRow = Database["public"]["Tables"]["coach_teams"]["Row"] & {
 			email: string;
 		} | null;
 	} | null;
-	coach?: {
-		id: string;
-		name: string | null;
-		user: {
-			id: string;
-			name: string;
-			email: string;
-		} | null;
-	} | null;
+	coach_count?: number;
 };
 
 // Create column helper for TanStack table
@@ -108,6 +100,13 @@ const coachTeamTableColumns = [
 		enableHiding: false,
 		enableColumnFilter: false,
 	}),
+	columnHelper.accessor("team_name", {
+		header: "Team Name",
+		enableColumnFilter: false,
+		cell: ({ getValue }) => (
+			<div className="font-medium">{getValue() || "Unnamed Team"}</div>
+		),
+	}),
 	columnHelper.display({
 		id: "premier_coach",
 		header: "Premier Coach",
@@ -122,12 +121,18 @@ const coachTeamTableColumns = [
 		},
 	}),
 	columnHelper.display({
-		id: "coach",
-		header: "Coach",
+		id: "coach_count",
+		header: "Number of Coaches",
 		enableColumnFilter: false,
 		cell: ({ row }) => {
-			const coach = row.original.coach;
-			return <div className="text-sm">{coach?.name || "No coach"}</div>;
+			const coachCount = row.original.coach_count || 0;
+			return (
+				<div className="text-sm">
+					<span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+						{coachCount} {coachCount === 1 ? "coach" : "coaches"}
+					</span>
+				</div>
+			);
 		},
 	}),
 ];
@@ -139,11 +144,6 @@ const coachTeamFilterConfig = [
 	universalColumnHelper
 		.option("premier_coach_id")
 		.displayName("Premier Coach")
-		.icon(UserIcon)
-		.build(),
-	universalColumnHelper
-		.option("coach_id")
-		.displayName("Coach")
 		.icon(UserIcon)
 		.build(),
 ];
@@ -202,14 +202,6 @@ function CoachTeamsTableContent({
 			...universalColumnHelper
 				.option("premier_coach_id")
 				.displayName("Premier Coach")
-				.icon(UserIcon)
-				.build(),
-			options: teamMemberOptions,
-		},
-		{
-			...universalColumnHelper
-				.option("coach_id")
-				.displayName("Coach")
 				.icon(UserIcon)
 				.build(),
 			options: teamMemberOptions,

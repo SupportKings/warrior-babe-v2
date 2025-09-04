@@ -58,10 +58,16 @@ export const clientTestimonialQueries = {
 			facetedColumns,
 		] as const,
 	faceted: (columnId: string, filters: FiltersState) =>
-		[...clientTestimonialQueries.lists(), "faceted", columnId, filters] as const,
+		[
+			...clientTestimonialQueries.lists(),
+			"faceted",
+			columnId,
+			filters,
+		] as const,
 	details: () => [...clientTestimonialQueries.all, "detail"] as const,
 	detail: (id: string) => [...clientTestimonialQueries.details(), id] as const,
-	basic: (id: string) => [...clientTestimonialQueries.all, "basic", id] as const,
+	basic: (id: string) =>
+		[...clientTestimonialQueries.all, "basic", id] as const,
 };
 
 // Query hooks
@@ -81,8 +87,14 @@ export function useClientTestimonialsTableData(
 	sorting: SortingState = [],
 ) {
 	return useQuery({
-		queryKey: clientTestimonialQueries.tableData(filters, page, pageSize, sorting),
-		queryFn: () => getClientTestimonialsWithFilters(filters, page, pageSize, sorting),
+		queryKey: clientTestimonialQueries.tableData(
+			filters,
+			page,
+			pageSize,
+			sorting,
+		),
+		queryFn: () =>
+			getClientTestimonialsWithFilters(filters, page, pageSize, sorting),
 		staleTime: 2 * 60 * 1000, // 2 minutes
 	});
 }
@@ -116,7 +128,13 @@ export function useClientTestimonialsWithFaceted(
 			facetedColumns,
 		),
 		queryFn: () =>
-			getClientTestimonialsWithFaceted(filters, page, pageSize, sorting, facetedColumns),
+			getClientTestimonialsWithFaceted(
+				filters,
+				page,
+				pageSize,
+				sorting,
+				facetedColumns,
+			),
 		staleTime: 2 * 60 * 1000, // 2 minutes
 	});
 }
@@ -144,10 +162,13 @@ export function useCreateClientTestimonial() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (data: ClientTestimonialFormInput) => createClientTestimonialAction(data),
+		mutationFn: (data: ClientTestimonialFormInput) =>
+			createClientTestimonialAction(data),
 		onSuccess: () => {
 			// Invalidate and refetch client testimonials list
-			queryClient.invalidateQueries({ queryKey: clientTestimonialQueries.lists() });
+			queryClient.invalidateQueries({
+				queryKey: clientTestimonialQueries.lists(),
+			});
 		},
 	});
 }
@@ -156,10 +177,13 @@ export function useUpdateClientTestimonial() {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn: (data: ClientTestimonialEditFormInput) => updateClientTestimonialAction(data),
+		mutationFn: (data: ClientTestimonialEditFormInput) =>
+			updateClientTestimonialAction(data),
 		onSuccess: (result, variables) => {
 			// Invalidate and refetch both the list and the specific testimonial
-			queryClient.invalidateQueries({ queryKey: clientTestimonialQueries.lists() });
+			queryClient.invalidateQueries({
+				queryKey: clientTestimonialQueries.lists(),
+			});
 			queryClient.invalidateQueries({
 				queryKey: clientTestimonialQueries.detail(variables.id),
 			});
@@ -177,11 +201,17 @@ export function useDeleteClientTestimonial() {
 		mutationFn: (id: string) => deleteClientTestimonial({ id }),
 		onSuccess: (result, deletedId) => {
 			// Remove the deleted testimonial from the cache
-			queryClient.removeQueries({ queryKey: clientTestimonialQueries.detail(deletedId) });
-			queryClient.removeQueries({ queryKey: clientTestimonialQueries.basic(deletedId) });
+			queryClient.removeQueries({
+				queryKey: clientTestimonialQueries.detail(deletedId),
+			});
+			queryClient.removeQueries({
+				queryKey: clientTestimonialQueries.basic(deletedId),
+			});
 
 			// Invalidate the testimonials list to refetch
-			queryClient.invalidateQueries({ queryKey: clientTestimonialQueries.lists() });
+			queryClient.invalidateQueries({
+				queryKey: clientTestimonialQueries.lists(),
+			});
 		},
 	});
 }

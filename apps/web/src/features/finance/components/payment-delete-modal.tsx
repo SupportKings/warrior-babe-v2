@@ -13,7 +13,7 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-type PaymentRow = Database["public"]["Tables"]["payments"]["Row"];
+type PaymentRow = Database["public"]["Views"]["payments_with_details"]["Row"];
 
 interface PaymentDeleteModalProps {
 	payment: PaymentRow;

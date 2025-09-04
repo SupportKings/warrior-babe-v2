@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-
 // Import update action
 import { updateActivityPeriodAction } from "../actions/updateActivityPeriod";
-
 // Import queries
-import { activityPeriodQueries, useActivityPeriod } from "../queries/useActivityPeriods";
-
+import {
+	activityPeriodQueries,
+	useActivityPeriod,
+} from "../queries/useActivityPeriods";
 // Import section components
 import { ActivityPeriodBasicInfo } from "./detail-sections/activity-period-basic-info";
 import { ActivityPeriodSystemInfo } from "./detail-sections/activity-period-system-info";
@@ -19,8 +21,14 @@ interface ActivityPeriodDetailViewProps {
 	activityPeriodId: string;
 }
 
-export default function ActivityPeriodDetailView({ activityPeriodId }: ActivityPeriodDetailViewProps) {
-	const { data: activityPeriod, isLoading, error } = useActivityPeriod(activityPeriodId);
+export default function ActivityPeriodDetailView({
+	activityPeriodId,
+}: ActivityPeriodDetailViewProps) {
+	const {
+		data: activityPeriod,
+		isLoading,
+		error,
+	} = useActivityPeriod(activityPeriodId);
 	const queryClient = useQueryClient();
 
 	// Edit state for basic info sections
@@ -48,12 +56,15 @@ export default function ActivityPeriodDetailView({ activityPeriodId }: ActivityP
 
 			// Only include fields from the section being edited
 			if (editState.section === "basic") {
-				if (data.start_date !== undefined) updateData.start_date = data.start_date;
+				if (data.start_date !== undefined)
+					updateData.start_date = data.start_date;
 				if (data.end_date !== undefined) updateData.end_date = data.end_date;
 				if (data.active !== undefined) updateData.active = data.active;
 				if (data.coach_id !== undefined) updateData.coach_id = data.coach_id;
-				if (data.coach_payment !== undefined) updateData.coach_payment = data.coach_payment;
-				if (data.payment_plan !== undefined) updateData.payment_plan = data.payment_plan;
+				if (data.coach_payment !== undefined)
+					updateData.coach_payment = data.coach_payment;
+				if (data.payment_plan !== undefined)
+					updateData.payment_plan = data.payment_plan;
 			}
 
 			// Execute the update action
@@ -96,7 +107,7 @@ export default function ActivityPeriodDetailView({ activityPeriodId }: ActivityP
 	if (!activityPeriod) {
 		return <div>Activity period not found</div>;
 	}
-console.log(activityPeriod)
+	console.log(activityPeriod);
 	// Get client initials for avatar
 	const getInitials = (name: string | null | undefined): string => {
 		if (!name) return "??";
@@ -112,15 +123,15 @@ console.log(activityPeriod)
 			{/* Header with client info */}
 			<div className="flex items-start space-x-4">
 				<Avatar className="h-16 w-16">
-					<AvatarFallback className="text-lg font-medium">
+					<AvatarFallback className="font-medium text-lg">
 						{getInitials(activityPeriod.client?.name)}
 					</AvatarFallback>
 				</Avatar>
-				<div className="flex-1 min-w-0">
-					<h1 className="text-2xl font-bold text-foreground truncate">
+				<div className="min-w-0 flex-1">
+					<h1 className="truncate font-bold text-2xl text-foreground">
 						{activityPeriod.client?.name || "Unknown Client"}
 					</h1>
-					<p className="text-muted-foreground truncate">
+					<p className="truncate text-muted-foreground">
 						{activityPeriod.payment_plan_detail?.name || "No payment plan"}
 					</p>
 				</div>

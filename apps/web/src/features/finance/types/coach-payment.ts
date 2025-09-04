@@ -18,4 +18,6 @@ export const coachPaymentEditFormSchema = z.object({
 	date: z.string(),
 });
 
-export type CoachPaymentEditFormInput = z.infer<typeof coachPaymentEditFormSchema>;
+export type CoachPaymentEditFormInput = z.infer<
+	typeof coachPaymentEditFormSchema
+>;

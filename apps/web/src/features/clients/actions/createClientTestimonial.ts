@@ -1,6 +1,7 @@
 "use server";
 
 import { actionClient } from "@/lib/safe-action";
+
 import { createClient } from "@/utils/supabase/server";
 
 import { z } from "zod";
@@ -8,7 +9,7 @@ import { z } from "zod";
 const createClientTestimonialSchema = z.object({
 	client_id: z.string().uuid("Invalid client ID"),
 	content: z.string().min(1, "Content is required"),
-	testimonial_type: z.string().min(1, "Type is required"),
+	testimonial_type: z.enum(["written", "email", "video"], "Type is required"),
 	testimonial_url: z.string().url().optional().or(z.literal("")),
 	recorded_by: z.string().uuid("Invalid user ID").optional(),
 	recorded_date: z.string(),

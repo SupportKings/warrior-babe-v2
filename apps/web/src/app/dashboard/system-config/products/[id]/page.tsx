@@ -1,11 +1,16 @@
 import { Suspense } from "react";
+
 import { notFound, redirect } from "next/navigation";
+
 import MainLayout from "@/components/layout/main-layout";
+
 import { getProduct } from "@/features/products/actions/getProducts";
 import ProductDetailSkeleton from "@/features/products/components/product.detail.skeleton";
 import ProductDetailView from "@/features/products/components/product.detail.view";
 import ProductDetailHeader from "@/features/products/layout/product.detail.header";
+
 import { getUser } from "@/queries/getUser";
+
 import {
 	dehydrate,
 	HydrationBoundary,

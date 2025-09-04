@@ -2,7 +2,16 @@
 
 import { type ReactNode, useEffect, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button, Button as UIButton } from "@/components/ui/button";
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from "@/components/ui/command";
 import {
 	Dialog,
 	DialogContent,
@@ -13,22 +22,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Button as UIButton } from "@/components/ui/button";
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList,
-} from "@/components/ui/command";
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 
 import {
 	createClientWin,
@@ -39,7 +38,14 @@ import { useAllWinTags } from "@/features/system-config/queries/useWinTags";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { CheckCircle2, Edit, Plus, ChevronsUpDown, Check, X } from "lucide-react";
+import {
+	Check,
+	CheckCircle2,
+	ChevronsUpDown,
+	Edit,
+	Plus,
+	X,
+} from "lucide-react";
 import { toast } from "sonner";
 
 interface ManageWinModalProps {
@@ -204,11 +210,13 @@ export function ManageWinModal({
 					<div>
 						<Label>Win Tags</Label>
 						{isLoadingTags ? (
-							<p className="text-sm text-muted-foreground">Loading tags...</p>
+							<p className="text-muted-foreground text-sm">Loading tags...</p>
 						) : winTags.length === 0 ? (
-							<p className="text-sm text-muted-foreground">No win tags available</p>
+							<p className="text-muted-foreground text-sm">
+								No win tags available
+							</p>
 						) : (
-							<div className="space-y-2 mt-2">
+							<div className="mt-2 space-y-2">
 								{/* Selected Tags Display */}
 								{formData.tag_ids.length > 0 && (
 									<div className="flex flex-wrap gap-1">
@@ -219,17 +227,23 @@ export function ManageWinModal({
 												<Badge
 													key={tagId}
 													variant="secondary"
-													style={{ backgroundColor: tag.color + "20", color: tag.color, borderColor: tag.color }}
+													style={{
+														backgroundColor: tag.color + "20",
+														color: tag.color,
+														borderColor: tag.color,
+													}}
 													className="text-xs"
 												>
 													{tag.name}
 													<button
 														type="button"
-														className="ml-1 hover:bg-black/10 rounded-full p-0.5"
+														className="ml-1 rounded-full p-0.5 hover:bg-black/10"
 														onClick={() => {
 															setFormData({
 																...formData,
-																tag_ids: formData.tag_ids.filter((id) => id !== tagId),
+																tag_ids: formData.tag_ids.filter(
+																	(id) => id !== tagId,
+																),
 															});
 														}}
 													>
@@ -240,7 +254,7 @@ export function ManageWinModal({
 										})}
 									</div>
 								)}
-								
+
 								{/* Combobox */}
 								<Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
 									<PopoverTrigger asChild>
@@ -248,7 +262,7 @@ export function ManageWinModal({
 											variant="outline"
 											role="combobox"
 											aria-expanded={comboboxOpen}
-											className="w-full justify-between h-10"
+											className="h-10 w-full justify-between"
 											type="button"
 										>
 											Select tags...
@@ -266,11 +280,15 @@ export function ManageWinModal({
 															key={tag.id}
 															value={tag.name}
 															onSelect={() => {
-																const isSelected = formData.tag_ids.includes(tag.id);
+																const isSelected = formData.tag_ids.includes(
+																	tag.id,
+																);
 																if (isSelected) {
 																	setFormData({
 																		...formData,
-																		tag_ids: formData.tag_ids.filter((id) => id !== tag.id),
+																		tag_ids: formData.tag_ids.filter(
+																			(id) => id !== tag.id,
+																		),
 																	});
 																} else {
 																	setFormData({
@@ -288,7 +306,10 @@ export function ManageWinModal({
 																		: "opacity-0"
 																}`}
 															/>
-															<span style={{ color: tag.color }} className="font-medium">
+															<span
+																style={{ color: tag.color }}
+																className="font-medium"
+															>
 																{tag.name}
 															</span>
 														</CommandItem>

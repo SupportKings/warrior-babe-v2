@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-
 import {
 	deleteWinTag as deleteWinTagAction,
 	getAllWinTags,
@@ -26,7 +25,7 @@ export const winTagsQueries = {
 		page?: number,
 		pageSize?: number,
 		sorting?: any[],
-		facetedColumns?: string[]
+		facetedColumns?: string[],
 	) =>
 		[
 			...winTagsQueries.all,
@@ -41,7 +40,7 @@ export function useWinTagsWithFaceted(
 	page = 0,
 	pageSize = 25,
 	sorting: any[] = [],
-	facetedColumns: string[] = ["color"]
+	facetedColumns: string[] = ["color"],
 ) {
 	return useQuery({
 		queryKey: winTagsQueries.tableDataWithFaceted(
@@ -49,7 +48,7 @@ export function useWinTagsWithFaceted(
 			page,
 			pageSize,
 			sorting,
-			facetedColumns
+			facetedColumns,
 		),
 		queryFn: () =>
 			getWinTagsWithFaceted(filters, page, pageSize, sorting, facetedColumns),
@@ -61,7 +60,7 @@ export function useWinTags(
 	filters: any[] = [],
 	page = 0,
 	pageSize = 25,
-	sorting: any[] = []
+	sorting: any[] = [],
 ) {
 	return useQuery({
 		queryKey: winTagsQueries.list(filters, page, pageSize, sorting),
@@ -110,7 +109,7 @@ export async function prefetchWinTagsTableData(
 	filters: any[] = [],
 	page = 0,
 	pageSize = 25,
-	sorting: any[] = []
+	sorting: any[] = [],
 ) {
 	return await getWinTagsWithFilters(filters, page, pageSize, sorting);
 }
@@ -120,13 +119,13 @@ export async function prefetchWinTagsWithFaceted(
 	page = 0,
 	pageSize = 25,
 	sorting: any[] = [],
-	facetedColumns: string[] = ["color"]
+	facetedColumns: string[] = ["color"],
 ) {
 	return await getWinTagsWithFaceted(
 		filters,
 		page,
 		pageSize,
 		sorting,
-		facetedColumns
+		facetedColumns,
 	);
 }

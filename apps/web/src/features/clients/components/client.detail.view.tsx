@@ -3,11 +3,10 @@
 import { useState } from "react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { updateClientAction } from "../actions/updateClient";
 import { deleteClientActivityPeriod } from "../actions/relations/activity-periods";
 import { deleteClientAssignment } from "../actions/relations/assignments";
 import { deleteClientGoal } from "../actions/relations/goals";
@@ -15,6 +14,7 @@ import { deleteClientNPSScore } from "../actions/relations/nps-scores";
 import { deleteClientPaymentPlan } from "../actions/relations/payment-plans";
 import { deleteClientTestimonial } from "../actions/relations/testimonials";
 import { deleteClientWin } from "../actions/relations/wins";
+import { updateClientAction } from "../actions/updateClient";
 import { clientQueries, useClient } from "../queries/useClients";
 import { ClientActivityPeriodsSection } from "./detail-sections/client-activity-periods-section";
 import { ClientAssignmentsSection } from "./detail-sections/client-assignments-section";
@@ -69,15 +69,26 @@ export default function ClientDetailView({ clientId }: ClientDetailViewProps) {
 				updateData.name = data.name;
 				updateData.email = data.email;
 				updateData.phone = data.phone || null;
-				updateData.overallStatus = data.overall_status as "new" | "live" | "paused" | "churned" | null;
-				updateData.everfitAccess = data.everfit_access as "new" | "requested" | "confirmed" | null;
+				updateData.overallStatus = data.overall_status as
+					| "new"
+					| "live"
+					| "paused"
+					| "churned"
+					| null;
+				updateData.everfitAccess = data.everfit_access as
+					| "new"
+					| "requested"
+					| "confirmed"
+					| null;
 			} else if (editState.section === "onboarding") {
 				// Onboarding fields
 				updateData.onboardingCallCompleted = data.onboarding_call_completed;
-				updateData.twoWeekCheckInCallCompleted = data.two_week_check_in_call_completed;
+				updateData.twoWeekCheckInCallCompleted =
+					data.two_week_check_in_call_completed;
 				updateData.vipTermsSigned = data.vip_terms_signed;
 				updateData.onboardingNotes = data.onboarding_notes || null;
-				updateData.onboardingCompletedDate = data.onboarding_completed_date || null;
+				updateData.onboardingCompletedDate =
+					data.onboarding_completed_date || null;
 				updateData.offboardDate = data.offboard_date || null;
 			}
 
@@ -87,24 +98,29 @@ export default function ClientDetailView({ clientId }: ClientDetailViewProps) {
 			if (result?.validationErrors) {
 				// Handle validation errors
 				const errorMessages: string[] = [];
-				
+
 				if (result.validationErrors._errors) {
 					errorMessages.push(...result.validationErrors._errors);
 				}
-				
+
 				// Handle field-specific errors
 				Object.entries(result.validationErrors).forEach(([field, errors]) => {
 					if (field !== "_errors" && errors) {
 						if (Array.isArray(errors)) {
 							errorMessages.push(...errors);
-						} else if (errors && typeof errors === "object" && "_errors" in errors && Array.isArray(errors._errors)) {
+						} else if (
+							errors &&
+							typeof errors === "object" &&
+							"_errors" in errors &&
+							Array.isArray(errors._errors)
+						) {
 							errorMessages.push(...errors._errors);
 						}
 					}
 				});
 
 				if (errorMessages.length > 0) {
-					errorMessages.forEach(error => toast.error(error));
+					errorMessages.forEach((error) => toast.error(error));
 				} else {
 					toast.error("Failed to update client");
 				}
@@ -114,7 +130,7 @@ export default function ClientDetailView({ clientId }: ClientDetailViewProps) {
 			if (result?.data?.success) {
 				toast.success("Client updated successfully");
 				setEditState({ isEditing: false, section: null });
-				
+
 				// Invalidate queries to refresh data
 				await queryClient.invalidateQueries({
 					queryKey: clientQueries.detail(clientId),
@@ -122,7 +138,6 @@ export default function ClientDetailView({ clientId }: ClientDetailViewProps) {
 			} else {
 				toast.error("Failed to update client");
 			}
-
 		} catch (error) {
 			console.error("Error updating client:", error);
 			toast.error("Failed to update client");
@@ -221,7 +236,7 @@ export default function ClientDetailView({ clientId }: ClientDetailViewProps) {
 					onSave={handleSave}
 					onCancel={handleCancel}
 				/>
-				<ClientOnboardingStatus 
+				<ClientOnboardingStatus
 					client={client}
 					isEditing={editState.isEditing && editState.section === "onboarding"}
 					onEditToggle={() => handleEditToggle("onboarding")}
@@ -229,7 +244,6 @@ export default function ClientDetailView({ clientId }: ClientDetailViewProps) {
 					onCancel={handleCancel}
 				/>
 			</div>
-			
 
 			{/* Children Level Info Sections */}
 			<Tabs defaultValue="assignments" className="w-full">

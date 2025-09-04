@@ -3,21 +3,18 @@
 import { createClient } from "@/utils/supabase/server";
 
 /**
- * IMPORTANT: This file is configured to use a database view called 'payments_with_details'
- * which needs to be created in Supabase first. Run the SQL in payments_view.sql
- * to create the view. Until then, the code uses 'as any' to bypass TypeScript checks.
- *
- * The view simplifies filtering by client_id and product_id by flattening the
- * payment -> payment_slots -> payment_plans -> clients/products relationship.
+ * Uses the 'payments_with_details' database view to fetch payments with client information
+ * through the client_emails table relationship. The view joins:
+ * payments -> client_emails -> clients to get client names properly.
  */
 
 export async function getPayment(id: string) {
 	try {
 		const supabase = await createClient();
 
-		// Fetch payment with related data from view
+		// Fetch payment with related data from view - return raw view data
 		const { data: row, error } = await supabase
-			.from("payments_with_details") // Using 'as any' temporarily until view is created
+			.from("payments_with_details")
 			.select("*")
 			.eq("id", id)
 			.single();
@@ -27,61 +24,7 @@ export async function getPayment(id: string) {
 			return null;
 		}
 
-		if (!row) return null;
-
-		// Transform to nested structure
-		const payment = {
-			id: row.id,
-			amount: row.amount,
-			payment_date: row.payment_date,
-			payment_method: row.payment_method,
-			stripe_transaction_id: row.stripe_transaction_id,
-			status: row.status,
-			platform: row.platform,
-			declined_at: row.declined_at,
-			disputed_status: row.disputed_status,
-			dispute_fee: row.dispute_fee,
-			created_at: row.created_at,
-			updated_at: row.updated_at,
-			payment_slots: row.payment_slot_id
-				? [
-						{
-							id: row.payment_slot_id,
-							amount_due: row.amount_due,
-							amount_paid: row.amount_paid,
-							due_date: row.slot_due_date,
-							notes: row.slot_notes,
-							plan_id: row.payment_plan_id,
-							payment_plans: row.payment_plan_id
-								? {
-										id: row.payment_plan_id,
-										name: row.payment_plan_name,
-										platform: row.plan_platform,
-										product_id: row.product_id,
-										client_id: row.client_id,
-										total_amount: row.plan_total_amount,
-										type: row.plan_type,
-										clients: row.client_id
-											? {
-													id: row.client_id,
-													name: row.client_name,
-													email: row.client_email,
-												}
-											: null,
-										products: row.product_id
-											? {
-													id: row.product_id,
-													name: row.product_name,
-												}
-											: null,
-									}
-								: null,
-						},
-					]
-				: [],
-		};
-
-		return payment;
+		return row;
 	} catch (error) {
 		console.error("Unexpected error in getPayment:", error);
 		return null;
@@ -93,7 +36,7 @@ export async function getAllPayments() {
 		const supabase = await createClient();
 
 		const { data, error } = await supabase
-			.from("payments_with_details" as any) // Using 'as any' temporarily until view is created
+			.from("payments_with_details")
 			.select("*")
 			.order("created_at", { ascending: false });
 
@@ -102,58 +45,8 @@ export async function getAllPayments() {
 			return [];
 		}
 
-		// Transform the flat view data back to nested structure
-		const payments =
-			data?.map((row: any) => ({
-				id: row.id,
-				amount: row.amount,
-				payment_date: row.payment_date,
-				payment_method: row.payment_method,
-				stripe_transaction_id: row.stripe_transaction_id,
-				status: row.status,
-				platform: row.platform,
-				declined_at: row.declined_at,
-				disputed_status: row.disputed_status,
-				dispute_fee: row.dispute_fee,
-				created_at: row.created_at,
-				updated_at: row.updated_at,
-				payment_slots: row.payment_slot_id
-					? [
-							{
-								id: row.payment_slot_id,
-								amount_due: row.amount_due,
-								amount_paid: row.amount_paid,
-								due_date: row.slot_due_date,
-								notes: row.slot_notes,
-								plan_id: row.payment_plan_id,
-								payment_plans: row.payment_plan_id
-									? {
-											id: row.payment_plan_id,
-											name: row.payment_plan_name,
-											platform: row.plan_platform,
-											product_id: row.product_id,
-											client_id: row.client_id,
-											clients: row.client_id
-												? {
-														id: row.client_id,
-														name: row.client_name,
-														email: row.client_email,
-													}
-												: null,
-											products: row.product_id
-												? {
-														id: row.product_id,
-														name: row.product_name,
-													}
-												: null,
-										}
-									: null,
-							},
-						]
-					: [],
-			})) || [];
-
-		return payments;
+		// Return raw view data directly
+		return data || [];
 	} catch (error) {
 		console.error("Unexpected error in getAllPayments:", error);
 		return [];
@@ -184,6 +77,26 @@ export async function getPaymentsWithFilters(
 				// Apply filter based on column type and operator
 				switch (columnId) {
 					case "client_id":
+						// Client filtering now works with client_id
+						if (operator === "contains") {
+							query = (query as any).ilike(columnId, `%${values[0]}%`);
+						} else if (operator === "does not contain") {
+							query = (query as any).not(columnId, "ilike", `%${values[0]}%`);
+						} else if (operator === "is") {
+							query = (query as any).eq(columnId, values[0]);
+						} else if (operator === "is not") {
+							query = (query as any).not(columnId, "eq", values[0]);
+						} else if (operator === "is any of") {
+							query = (query as any).in(columnId, values);
+						} else if (operator === "is none of") {
+							query = (query as any).not(
+								columnId,
+								"in",
+								`(${values.join(",")})`,
+							);
+						}
+						break;
+
 					case "product_id":
 						if (operator === "is") {
 							query = (query as any).eq(columnId, values[0]);
@@ -332,63 +245,8 @@ export async function getPaymentsWithFilters(
 			return { data: [], count: 0 };
 		}
 
-		// Transform the flat view data back to nested structure
-		const transformedData =
-			data?.map((row: any) => ({
-				// Base payment fields
-				id: row.id,
-				amount: row.amount,
-				payment_date: row.payment_date,
-				payment_method: row.payment_method,
-				stripe_transaction_id: row.stripe_transaction_id,
-				status: row.status,
-				platform: row.platform,
-				declined_at: row.declined_at,
-				disputed_status: row.disputed_status,
-				dispute_fee: row.dispute_fee,
-				created_at: row.created_at,
-				updated_at: row.updated_at,
-
-				// Nested structure for compatibility with existing UI
-				payment_slots: row.payment_slot_id
-					? [
-							{
-								id: row.payment_slot_id,
-								amount_due: row.amount_due,
-								amount_paid: row.amount_paid,
-								due_date: row.slot_due_date,
-								notes: row.slot_notes,
-								plan_id: row.payment_plan_id,
-								payment_plans: row.payment_plan_id
-									? {
-											id: row.payment_plan_id,
-											name: row.payment_plan_name,
-											platform: row.plan_platform,
-											product_id: row.product_id,
-											client_id: row.client_id,
-											total_amount: row.plan_total_amount,
-											type: row.plan_type,
-											clients: row.client_id
-												? {
-														id: row.client_id,
-														name: row.client_name,
-														email: row.client_email,
-													}
-												: null,
-											products: row.product_id
-												? {
-														id: row.product_id,
-														name: row.product_name,
-													}
-												: null,
-										}
-									: null,
-							},
-						]
-					: [],
-			})) || [];
-
-		return { data: transformedData, count: count || 0 };
+		// Return raw view data directly
+		return { data: data || [], count: count || 0 };
 	} catch (error) {
 		console.error("Unexpected error in getPaymentsWithFilters:", error);
 		return { data: [], count: 0 };

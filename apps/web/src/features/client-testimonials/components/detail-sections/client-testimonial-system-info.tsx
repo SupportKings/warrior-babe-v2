@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { format } from "date-fns";
 import { Clock } from "lucide-react";
 
@@ -18,7 +19,9 @@ interface ClientTestimonialSystemInfoProps {
 	};
 }
 
-export function ClientTestimonialSystemInfo({ testimonial }: ClientTestimonialSystemInfoProps) {
+export function ClientTestimonialSystemInfo({
+	testimonial,
+}: ClientTestimonialSystemInfoProps) {
 	return (
 		<Card>
 			<CardHeader>

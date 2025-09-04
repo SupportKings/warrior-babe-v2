@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
+
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-
 // Import update action
 import { updateClientTestimonialAction } from "../actions/updateClientTestimonial";
-
 // Import queries
-import { clientTestimonialQueries, useClientTestimonial } from "../queries/useClientTestimonials";
-
+import {
+	clientTestimonialQueries,
+	useClientTestimonial,
+} from "../queries/useClientTestimonials";
 // Import section components
 import { ClientTestimonialBasicInfo } from "./detail-sections/client-testimonial-basic-info";
 import { ClientTestimonialSystemInfo } from "./detail-sections/client-testimonial-system-info";
@@ -19,8 +21,14 @@ interface ClientTestimonialDetailViewProps {
 	testimonialId: string;
 }
 
-export default function ClientTestimonialDetailView({ testimonialId }: ClientTestimonialDetailViewProps) {
-	const { data: testimonial, isLoading, error } = useClientTestimonial(testimonialId);
+export default function ClientTestimonialDetailView({
+	testimonialId,
+}: ClientTestimonialDetailViewProps) {
+	const {
+		data: testimonial,
+		isLoading,
+		error,
+	} = useClientTestimonial(testimonialId);
 	const queryClient = useQueryClient();
 
 	// Edit state for basic info sections
@@ -63,24 +71,29 @@ export default function ClientTestimonialDetailView({ testimonialId }: ClientTes
 			if (result?.validationErrors) {
 				// Handle validation errors
 				const errorMessages: string[] = [];
-				
+
 				if (result.validationErrors._errors) {
 					errorMessages.push(...result.validationErrors._errors);
 				}
-				
+
 				// Handle field-specific errors
 				Object.entries(result.validationErrors).forEach(([field, errors]) => {
 					if (field !== "_errors" && errors) {
 						if (Array.isArray(errors)) {
 							errorMessages.push(...errors);
-						} else if (errors && typeof errors === "object" && "_errors" in errors && Array.isArray(errors._errors)) {
+						} else if (
+							errors &&
+							typeof errors === "object" &&
+							"_errors" in errors &&
+							Array.isArray(errors._errors)
+						) {
 							errorMessages.push(...errors._errors);
 						}
 					}
 				});
 
 				if (errorMessages.length > 0) {
-					errorMessages.forEach(error => toast.error(error));
+					errorMessages.forEach((error) => toast.error(error));
 				} else {
 					toast.error("Failed to update testimonial");
 				}
@@ -90,7 +103,7 @@ export default function ClientTestimonialDetailView({ testimonialId }: ClientTes
 			if (result?.data?.success) {
 				toast.success("Testimonial updated successfully");
 				setEditState({ isEditing: false, section: null });
-				
+
 				// Invalidate queries to refresh data
 				await queryClient.invalidateQueries({
 					queryKey: clientTestimonialQueries.detail(testimonialId).queryKey,
@@ -98,7 +111,6 @@ export default function ClientTestimonialDetailView({ testimonialId }: ClientTes
 			} else {
 				toast.error("Failed to update testimonial");
 			}
-
 		} catch (error) {
 			console.error("Error updating testimonial:", error);
 			toast.error("Failed to update testimonial");
@@ -132,7 +144,10 @@ export default function ClientTestimonialDetailView({ testimonialId }: ClientTes
 						</AvatarFallback>
 					</Avatar>
 					<div>
-						<h1 className="font-bold text-2xl">{displayName} - <span className="capitalize">{testimonialType}</span></h1>
+						<h1 className="font-bold text-2xl">
+							{displayName} -{" "}
+							<span className="capitalize">{testimonialType}</span>
+						</h1>
 						<p className="text-muted-foreground">{testimonial.client_email}</p>
 					</div>
 				</div>

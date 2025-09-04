@@ -1,9 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+
 import { actionClient } from "@/lib/safe-action";
+
 import { createClient } from "@/utils/supabase/server";
+
 import { productUpdateSchema } from "@/features/products/types/products";
+
 import { returnValidationErrors } from "next-safe-action";
 
 export const updateProductAction = actionClient
@@ -53,7 +57,8 @@ export const updateProductAction = actionClient
 				cleanUpdateData.description = updateData.description;
 			}
 			if (updateData.default_duration_months !== undefined) {
-				cleanUpdateData.default_duration_months = updateData.default_duration_months;
+				cleanUpdateData.default_duration_months =
+					updateData.default_duration_months;
 			}
 			if (updateData.is_active !== undefined) {
 				cleanUpdateData.is_active = updateData.is_active;

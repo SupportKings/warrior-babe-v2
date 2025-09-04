@@ -58,7 +58,9 @@ async function ClientTestimonialsPageAsync() {
 	return (
 		<HydrationBoundary state={dehydrate(queryClient)}>
 			<MainLayout
-				headers={[<ClientTestimonialsHeader key="client-testimonials-header" />]}
+				headers={[
+					<ClientTestimonialsHeader key="client-testimonials-header" />,
+				]}
 			>
 				<ClientTestimonialsContent />
 			</MainLayout>
