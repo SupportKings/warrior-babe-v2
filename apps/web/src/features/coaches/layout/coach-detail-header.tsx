@@ -70,14 +70,7 @@ export default function CoachDetailHeader({ coachId }: CoachDetailHeaderProps) {
 
 			{coach && (
 				<CoachDeleteModal
-					coach={{
-						id: coach.id,
-						name: coach.name,
-						user: coach.user,
-						team_id: coach.team_id,
-						contract_type: coach.contract_type,
-						onboarding_date: coach.onboarding_date,
-					}}
+					coach={coach.name}
 					open={isDeleteModalOpen}
 					onOpenChange={setIsDeleteModalOpen}
 					onConfirm={handleDelete}

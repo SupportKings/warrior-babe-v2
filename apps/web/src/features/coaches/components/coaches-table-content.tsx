@@ -233,7 +233,7 @@ export function CoachesTableContent({
 
 			{coachToDelete && (
 				<CoachDeleteModal
-					coach={coachToDelete}
+					coach={coachToDelete.name}
 					open={!!coachToDelete}
 					onOpenChange={(open) => !open && setCoachToDelete(null)}
 					onConfirm={async () => {
