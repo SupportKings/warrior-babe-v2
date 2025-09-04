@@ -43,7 +43,7 @@ export default function ProductDetailHeader({
   );
 
   const handleDeleteProduct = () => {
-	console.log(productId)
+    console.log(productId);
     executeDeleteProduct({ id: productId });
   };
 
@@ -64,7 +64,7 @@ export default function ProductDetailHeader({
         className="flex items-center gap-2"
       >
         <Trash2Icon className="mr-[6px] h-4 w-4" />
-        Delete Testimonial
+        Delete Product
       </Button>
       {isDeleteDialogOpen && (
         <ProductDeleteModal
