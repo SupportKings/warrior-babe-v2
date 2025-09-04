@@ -89,6 +89,21 @@ export const coachesTableColumns = [
 			);
 		},
 	}),
+	columnHelper.accessor((row) => row.team?.team_name, {
+		id: "team_name",
+		header: "Team Name",
+		enableColumnFilter: true,
+		enableSorting: true,
+		cell: ({ row }) => {
+			const teamName = row.original.team?.team_name;
+
+			if (teamName) {
+				return <div className="font-medium text-sm">{teamName}</div>;
+			}
+
+			return <span className="text-muted-foreground text-sm">No team</span>;
+		},
+	}),
 	columnHelper.accessor((row) => row.team?.premier_coach?.name, {
 		id: "premier_coach",
 		header: "Assigned Premier Coach",

@@ -259,14 +259,14 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "client_assignments_assigned_by_user_id_fk"
+            foreignKeyName: "client_assignments_assigned_by_fkey"
             columns: ["assigned_by"]
             isOneToOne: false
             referencedRelation: "coach_payments_list_view"
             referencedColumns: ["user_id"]
           },
           {
-            foreignKeyName: "client_assignments_assigned_by_user_id_fk"
+            foreignKeyName: "client_assignments_assigned_by_fkey"
             columns: ["assigned_by"]
             isOneToOne: false
             referencedRelation: "user"
@@ -915,7 +915,6 @@ export type Database = {
       }
       coach_teams: {
         Row: {
-          coach_id: string | null
           created_at: string
           id: string
           premier_coach_id: string | null
@@ -923,7 +922,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          coach_id?: string | null
           created_at?: string
           id?: string
           premier_coach_id?: string | null
@@ -931,7 +929,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          coach_id?: string | null
           created_at?: string
           id?: string
           premier_coach_id?: string | null
@@ -939,20 +936,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "coach_teams_coach_id_fkey"
-            columns: ["coach_id"]
-            isOneToOne: false
-            referencedRelation: "coach_payments_list_view"
-            referencedColumns: ["coach_id"]
-          },
-          {
-            foreignKeyName: "coach_teams_coach_id_fkey"
-            columns: ["coach_id"]
-            isOneToOne: false
-            referencedRelation: "team_members"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "coach_teams_premier_coach_id_fkey"
             columns: ["premier_coach_id"]
@@ -1610,6 +1593,7 @@ export type Database = {
           id: string
           name: string | null
           onboarding_date: string | null
+          onboarding_link: string | null
           team_id: string | null
           user_id: string | null
         }
@@ -1622,6 +1606,7 @@ export type Database = {
           id?: string
           name?: string | null
           onboarding_date?: string | null
+          onboarding_link?: string | null
           team_id?: string | null
           user_id?: string | null
         }
@@ -1634,6 +1619,7 @@ export type Database = {
           id?: string
           name?: string | null
           onboarding_date?: string | null
+          onboarding_link?: string | null
           team_id?: string | null
           user_id?: string | null
         }
@@ -1660,6 +1646,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      team_members_temp: {
+        Row: {
+          "Coach Team Name": string | null
+          email: string | null
+          "First Name": string | null
+          "Full Name": string | null
+          id: string
+          "Last Name": string | null
+          "OB Link": string | null
+          photo: string | null
+          Role: string | null
+          "unique id": string | null
+        }
+        Insert: {
+          "Coach Team Name"?: string | null
+          email?: string | null
+          "First Name"?: string | null
+          "Full Name"?: string | null
+          id: string
+          "Last Name"?: string | null
+          "OB Link"?: string | null
+          photo?: string | null
+          Role?: string | null
+          "unique id"?: string | null
+        }
+        Update: {
+          "Coach Team Name"?: string | null
+          email?: string | null
+          "First Name"?: string | null
+          "Full Name"?: string | null
+          id?: string
+          "Last Name"?: string | null
+          "OB Link"?: string | null
+          photo?: string | null
+          Role?: string | null
+          "unique id"?: string | null
+        }
+        Relationships: []
       }
       user: {
         Row: {

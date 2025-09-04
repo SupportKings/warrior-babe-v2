@@ -79,6 +79,7 @@ export default function ProductDetailHeader({
 						const productId = product?.id;
 						const productName = product?.name;
 
+
 						if (!productId) {
 							toast.error("Product ID is missing");
 							throw new Error("Product ID is missing");
