@@ -100,6 +100,7 @@ export async function updateCoach(input: UpdateCoachInput) {
 				onboarding_date: input.onboarding_date && input.onboarding_date !== "" 
 					? input.onboarding_date 
 					: null,
+				updated_at: new Date().toISOString()
 			})
 			.eq("id", input.id)
 			.select(`

@@ -10,10 +10,10 @@ import {
 } from "@/features/coaches/queries/useCoachDetails";
 
 import {
-	CoachAssignmentsTable,
 	CoachGeneralInfo,
-	CoachPaymentsTable,
 } from "./coach-details";
+import { CoachActivitiesTabs } from "./coach-details/coach-activities-tabs";
+import { CoachSystemInfo } from "./coach-details/coach-system-info";
 
 interface CoachDetailViewProps {
 	coachId: string;
@@ -71,11 +71,15 @@ export default function CoachDetailView({ coachId }: CoachDetailViewProps) {
 				onCancel={() => setIsEditingGeneral(false)}
 			/>
 
-			{/* Client Assignments */}
-			<CoachAssignmentsTable assignments={clientAssignments || []} />
+			{/* Activities Tabs - Client Assignments and Payments */}
+			<CoachActivitiesTabs
+				assignments={clientAssignments || []}
+				payments={coachPayments || []}
+				coachId={coachId}
+			/>
 
-			{/* Coach Payments */}
-			<CoachPaymentsTable payments={coachPayments || []} coachId={coachId} />
+			{/* System Information */}
+			<CoachSystemInfo coach={coach} />
 		</div>
 	);
 }
