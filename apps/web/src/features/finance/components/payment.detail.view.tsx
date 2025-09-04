@@ -141,25 +141,6 @@ export default function PaymentDetailView({ paymentId }: PaymentDetailViewProps)
 
 	return (
 		<div className="space-y-6 p-6">
-			{/* Header Section */}
-			<div className="flex items-start justify-between">
-				<div className="flex items-center space-x-4">
-					<Avatar className="h-16 w-16">
-						<AvatarFallback className="font-semibold text-lg">
-							{initials}
-						</AvatarFallback>
-					</Avatar>
-					<div>
-						<h1 className="font-bold text-2xl">{displayName}</h1>
-						{customerInfo?.email && (
-							<p className="text-muted-foreground text-sm">{customerInfo.email}</p>
-						)}
-						{payment.payment_method && (
-							<p className="text-muted-foreground text-sm">Payment Method: {payment.payment_method}</p>
-						)}
-					</div>
-				</div>
-			</div>
 
 			{/* Basic Information Grid */}
 			<div className="grid gap-6 md:grid-cols-2">
