@@ -49,9 +49,8 @@ export function StripeDetailsVaul({
 	if (isLoading) {
 		return (
 			<Drawer.Root open={open} onOpenChange={onOpenChange} direction="right">
-				<Drawer.Portal>
-					<Drawer.Overlay className="fixed inset-0 bg-black/40" />
-					<Drawer.Content
+				<Drawer.Overlay className="fixed inset-0 bg-black/40" />
+				<Drawer.Content
 						className="fixed top-2 right-2 bottom-2 z-10 flex w-[600px] outline-none"
 						style={
 							{
@@ -71,7 +70,6 @@ export function StripeDetailsVaul({
 							</div>
 						</div>
 					</Drawer.Content>
-				</Drawer.Portal>
 			</Drawer.Root>
 		);
 	}
@@ -79,9 +77,8 @@ export function StripeDetailsVaul({
 	if (!stripeDetails) {
 		return (
 			<Drawer.Root open={open} onOpenChange={onOpenChange} direction="right">
-				<Drawer.Portal>
-					<Drawer.Overlay className="fixed inset-0 bg-black/40" />
-					<Drawer.Content
+				<Drawer.Overlay className="fixed inset-0 bg-black/40" />
+				<Drawer.Content
 						className="fixed top-2 right-2 bottom-2 z-10 flex w-[600px] outline-none"
 						style={
 							{
@@ -103,21 +100,19 @@ export function StripeDetailsVaul({
 							</div>
 						</div>
 					</Drawer.Content>
-				</Drawer.Portal>
 			</Drawer.Root>
 		);
 	}
 
 	return (
 		<Drawer.Root open={open} onOpenChange={onOpenChange} direction="right">
-			<Drawer.Portal>
-				<Drawer.Overlay className="fixed inset-0 bg-black/40" />
-				<Drawer.Content
-					className="fixed top-2 right-2 bottom-2 z-10 flex w-[600px] outline-none"
-					style={
-						{ "--initial-transform": "calc(100% + 8px)" } as React.CSSProperties
-					}
-				>
+			<Drawer.Overlay className="fixed inset-0 bg-black/40" />
+			<Drawer.Content
+				className="fixed top-2 right-2 bottom-2 z-10 flex w-[600px] outline-none"
+				style={
+					{ "--initial-transform": "calc(100% + 8px)" } as React.CSSProperties
+				}
+			>
 					<div className="flex h-full w-full grow flex-col rounded-[16px] bg-white shadow-xl dark:bg-zinc-900">
 						<div className="p-6">
 							<Drawer.Title className="mb-2 flex items-center gap-2 font-semibold text-foreground">
@@ -360,8 +355,7 @@ export function StripeDetailsVaul({
 							</Button>
 						</div>
 					</div>
-				</Drawer.Content>
-			</Drawer.Portal>
+			</Drawer.Content>
 		</Drawer.Root>
 	);
 }
