@@ -33,8 +33,8 @@ export function CoachDeleteModal({
 					<AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
 					<AlertDialogDescription>
 						This action cannot be undone. This will permanently delete{" "}
-						<span className="font-semibold">{coach}</span> from the
-						database and remove all associated data.
+						<span className="font-semibold">{coach}</span> from the database and
+						remove all associated data.
 					</AlertDialogDescription>
 				</AlertDialogHeader>
 				<AlertDialogFooter>

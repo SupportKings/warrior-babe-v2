@@ -1,16 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { toast } from "sonner";
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 // Import update action
 import { updatePaymentAction } from "../actions/updatePaymentDetail";
-
 // Import queries
 import { paymentQueries, usePayment } from "../queries/usePayments";
-import { useQueryClient } from "@tanstack/react-query";
-
 // Import section components
 import { PaymentBasicInfo } from "./detail-sections/payment-basic-info";
 import { PaymentCustomerDetails } from "./detail-sections/payment-customer-details";
@@ -21,7 +20,9 @@ interface PaymentDetailViewProps {
 	paymentId: string;
 }
 
-export default function PaymentDetailView({ paymentId }: PaymentDetailViewProps) {
+export default function PaymentDetailView({
+	paymentId,
+}: PaymentDetailViewProps) {
 	const { data: payment, isLoading, error } = usePayment(paymentId);
 	const queryClient = useQueryClient();
 
@@ -50,11 +51,14 @@ export default function PaymentDetailView({ paymentId }: PaymentDetailViewProps)
 
 			// Only include fields from the section being edited
 			if (editState.section === "basic") {
-				// Basic info fields  
+				// Basic info fields
 				if (data.amount !== undefined) updateData.amount = data.amount;
-				if (data.payment_date !== undefined) updateData.payment_date = data.payment_date;
-				if (data.payment_method !== undefined) updateData.payment_method = data.payment_method;
-				if (data.stripe_transaction_id !== undefined) updateData.stripe_transaction_id = data.stripe_transaction_id;
+				if (data.payment_date !== undefined)
+					updateData.payment_date = data.payment_date;
+				if (data.payment_method !== undefined)
+					updateData.payment_method = data.payment_method;
+				if (data.stripe_transaction_id !== undefined)
+					updateData.stripe_transaction_id = data.stripe_transaction_id;
 				if (data.status !== undefined) updateData.status = data.status;
 				if (data.platform !== undefined) updateData.platform = data.platform;
 			} else if (editState.section === "customer") {
@@ -65,9 +69,12 @@ export default function PaymentDetailView({ paymentId }: PaymentDetailViewProps)
 				return;
 			} else if (editState.section === "dispute") {
 				// Dispute info fields
-				if (data.declined_at !== undefined) updateData.declined_at = data.declined_at || null;
-				if (data.disputed_status !== undefined) updateData.disputed_status = data.disputed_status;
-				if (data.dispute_fee !== undefined) updateData.dispute_fee = data.dispute_fee;
+				if (data.declined_at !== undefined)
+					updateData.declined_at = data.declined_at || null;
+				if (data.disputed_status !== undefined)
+					updateData.disputed_status = data.disputed_status;
+				if (data.dispute_fee !== undefined)
+					updateData.dispute_fee = data.dispute_fee;
 			}
 
 			// Call the update action
@@ -76,24 +83,29 @@ export default function PaymentDetailView({ paymentId }: PaymentDetailViewProps)
 			if (result?.validationErrors) {
 				// Handle validation errors
 				const errorMessages: string[] = [];
-			   
+
 				if (result.validationErrors._errors) {
 					errorMessages.push(...result.validationErrors._errors);
 				}
-			   
+
 				// Handle field-specific errors
 				Object.entries(result.validationErrors).forEach(([field, errors]) => {
 					if (field !== "_errors" && errors) {
 						if (Array.isArray(errors)) {
 							errorMessages.push(...errors);
-						} else if (errors && typeof errors === "object" && "_errors" in errors && Array.isArray(errors._errors)) {
+						} else if (
+							errors &&
+							typeof errors === "object" &&
+							"_errors" in errors &&
+							Array.isArray(errors._errors)
+						) {
 							errorMessages.push(...errors._errors);
 						}
 					}
 				});
 
 				if (errorMessages.length > 0) {
-					errorMessages.forEach(error => toast.error(error));
+					errorMessages.forEach((error) => toast.error(error));
 				} else {
 					toast.error("Failed to update payment");
 				}
@@ -103,7 +115,7 @@ export default function PaymentDetailView({ paymentId }: PaymentDetailViewProps)
 			if (result?.data?.success) {
 				toast.success("Payment updated successfully");
 				setEditState({ isEditing: false, section: null });
-			   
+
 				// Invalidate queries to refresh data
 				await queryClient.invalidateQueries({
 					queryKey: paymentQueries.detail(paymentId),
@@ -111,7 +123,6 @@ export default function PaymentDetailView({ paymentId }: PaymentDetailViewProps)
 			} else {
 				toast.error("Failed to update payment");
 			}
-
 		} catch (error) {
 			console.error("Error updating payment:", error);
 			toast.error("Failed to update payment");
@@ -125,12 +136,15 @@ export default function PaymentDetailView({ paymentId }: PaymentDetailViewProps)
 	if (isLoading) return <div>Loading...</div>;
 	if (error || !payment) return <div>Error loading payment</div>;
 
-	const customerInfo ={email: payment.client_email, name: payment.client_name};
-	const paymentPlan = {name: payment.payment_plan_name};
+	const customerInfo = {
+		email: payment.client_email,
+		name: payment.client_name,
+	};
+	const paymentPlan = { name: payment.payment_plan_name };
 
 	// Generate initials for avatar
 	const displayName = customerInfo.name || paymentPlan?.name || "Payment";
-	
+
 	const initials = displayName
 		.split(" ")
 		.map((n: string) => n[0])
@@ -140,7 +154,6 @@ export default function PaymentDetailView({ paymentId }: PaymentDetailViewProps)
 
 	return (
 		<div className="space-y-6 p-6">
-
 			{/* Basic Information Grid */}
 			<div className="grid gap-6 md:grid-cols-2">
 				<PaymentBasicInfo
@@ -184,7 +197,12 @@ export default function PaymentDetailView({ paymentId }: PaymentDetailViewProps)
 			/>
 
 			{/* System Information */}
-			<PaymentSystemInfo payment={{created_at: payment.created_at, updated_at: payment.updated_at}} />
+			<PaymentSystemInfo
+				payment={{
+					created_at: payment.created_at,
+					updated_at: payment.updated_at,
+				}}
+			/>
 		</div>
 	);
 }

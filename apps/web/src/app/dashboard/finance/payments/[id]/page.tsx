@@ -1,11 +1,16 @@
 import { Suspense } from "react";
+
 import { notFound, redirect } from "next/navigation";
+
 import MainLayout from "@/components/layout/main-layout";
+
 import { getPayment } from "@/features/finance/actions/getPayments";
 import PaymentDetailSkeleton from "@/features/finance/components/payment.detail.skeleton";
 import PaymentDetailView from "@/features/finance/components/payment.detail.view";
 import PaymentDetailHeader from "@/features/finance/layout/payment.detail.header";
+
 import { getUser } from "@/queries/getUser";
+
 import {
 	dehydrate,
 	HydrationBoundary,

@@ -1,4 +1,5 @@
 import MainLayout from "@/components/layout/main-layout";
+
 import PaymentDetailHeader from "../layout/payment.detail.header";
 
 interface PaymentDetailSkeletonProps {
@@ -11,7 +12,10 @@ export default function PaymentDetailSkeleton({
 	return (
 		<MainLayout
 			headers={[
-				<PaymentDetailHeader key="payment-detail-header" paymentId={paymentId} />,
+				<PaymentDetailHeader
+					key="payment-detail-header"
+					paymentId={paymentId}
+				/>,
 			]}
 		>
 			<div className="animate-pulse space-y-6 p-6">

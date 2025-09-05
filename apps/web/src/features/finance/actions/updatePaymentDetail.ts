@@ -1,9 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+
 import { actionClient } from "@/lib/safe-action";
+
 import { createClient } from "@/utils/supabase/server";
+
 import { paymentUpdateSchema } from "@/features/finance/types/payment";
+
 import { returnValidationErrors } from "next-safe-action";
 
 export const updatePaymentAction = actionClient
@@ -30,15 +34,25 @@ export const updatePaymentAction = actionClient
 			// 2. Prepare update data (remove undefined values)
 			const cleanUpdateData: any = {};
 
-			if (updateData.amount !== undefined) cleanUpdateData.amount = updateData.amount;
-			if (updateData.payment_date !== undefined) cleanUpdateData.payment_date = updateData.payment_date;
-			if (updateData.payment_method !== undefined) cleanUpdateData.payment_method = updateData.payment_method;
-			if (updateData.stripe_transaction_id !== undefined) cleanUpdateData.stripe_transaction_id = updateData.stripe_transaction_id;
-			if (updateData.status !== undefined) cleanUpdateData.status = updateData.status;
-			if (updateData.platform !== undefined) cleanUpdateData.platform = updateData.platform;
-			if (updateData.declined_at !== undefined) cleanUpdateData.declined_at = updateData.declined_at;
-			if (updateData.disputed_status !== undefined) cleanUpdateData.disputed_status = updateData.disputed_status;
-			if (updateData.dispute_fee !== undefined) cleanUpdateData.dispute_fee = updateData.dispute_fee;
+			if (updateData.amount !== undefined)
+				cleanUpdateData.amount = updateData.amount;
+			if (updateData.payment_date !== undefined)
+				cleanUpdateData.payment_date = updateData.payment_date;
+			if (updateData.payment_method !== undefined)
+				cleanUpdateData.payment_method = updateData.payment_method;
+			if (updateData.stripe_transaction_id !== undefined)
+				cleanUpdateData.stripe_transaction_id =
+					updateData.stripe_transaction_id;
+			if (updateData.status !== undefined)
+				cleanUpdateData.status = updateData.status;
+			if (updateData.platform !== undefined)
+				cleanUpdateData.platform = updateData.platform;
+			if (updateData.declined_at !== undefined)
+				cleanUpdateData.declined_at = updateData.declined_at;
+			if (updateData.disputed_status !== undefined)
+				cleanUpdateData.disputed_status = updateData.disputed_status;
+			if (updateData.dispute_fee !== undefined)
+				cleanUpdateData.dispute_fee = updateData.dispute_fee;
 
 			// 3. Update the payment record
 			const { data: updatedPayment, error: updateError } = await supabase
