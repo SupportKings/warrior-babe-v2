@@ -29,7 +29,7 @@ export const updatePayment = actionClient
 		// Update payment in database
 		const { data: payment, error } = await supabase
 			.from("payments")
-			.update(updateData)
+			.update(updateData as any)
 			.eq("id", id)
 			.select()
 			.single();
