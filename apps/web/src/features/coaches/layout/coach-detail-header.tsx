@@ -8,9 +8,9 @@ import { BackButton } from "@/components/ui/back-button";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
+import { deleteCoach } from "@/features/coaches/actions/delete-coach";
 import { CoachDeleteModal } from "@/features/coaches/components/coach-delete-modal";
 import { useCoachBasicInfo } from "@/features/coaches/queries/useCoachDetails";
-import { deleteCoach } from "@/features/coaches/actions/delete-coach";
 
 import { useQueryClient } from "@tanstack/react-query";
 import { Trash2Icon } from "lucide-react";

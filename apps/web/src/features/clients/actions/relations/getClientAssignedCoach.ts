@@ -8,7 +8,7 @@ import { createClient } from "@/utils/supabase/server";
  */
 export async function getClientAssignedCoach(clientId: string) {
 	const supabase = await createClient();
-	
+
 	const { data: assignment, error } = await supabase
 		.from("client_assignments")
 		.select("coach_id")

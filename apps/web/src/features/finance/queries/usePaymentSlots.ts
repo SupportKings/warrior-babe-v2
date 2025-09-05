@@ -1,13 +1,16 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getPaymentSlotsForClient, getAllAvailablePaymentSlots } from "../actions/getPaymentSlots";
+import {
+	getAllAvailablePaymentSlots,
+	getPaymentSlotsForClient,
+} from "../actions/getPaymentSlots";
 
 // React Query hook for client-specific payment slots
 export function usePaymentSlotsForClient(clientId?: string) {
 	return useQuery({
 		queryKey: ["payment-slots", "client", clientId],
-		queryFn: () => clientId ? getPaymentSlotsForClient(clientId) : [],
+		queryFn: () => (clientId ? getPaymentSlotsForClient(clientId) : []),
 		enabled: !!clientId,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 	});

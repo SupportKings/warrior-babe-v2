@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+
 import { useRouter } from "next/navigation";
+
 import { updateCoach } from "@/features/coaches/actions/update-coach";
 import {
 	useCoachBasicInfo,
@@ -9,9 +11,7 @@ import {
 	useCoachPayments,
 } from "@/features/coaches/queries/useCoachDetails";
 
-import {
-	CoachGeneralInfo,
-} from "./coach-details";
+import { CoachGeneralInfo } from "./coach-details";
 import { CoachActivitiesTabs } from "./coach-details/coach-activities-tabs";
 import { CoachSystemInfo } from "./coach-details/coach-system-info";
 
@@ -20,10 +20,14 @@ interface CoachDetailViewProps {
 }
 
 export default function CoachDetailView({ coachId }: CoachDetailViewProps) {
-	const { data: coach, isLoading: isLoadingCoach, refetch } = useCoachBasicInfo(coachId);
+	const {
+		data: coach,
+		isLoading: isLoadingCoach,
+		refetch,
+	} = useCoachBasicInfo(coachId);
 	const { data: clientAssignments } = useCoachClientAssignments(coachId);
 	const { data: coachPayments } = useCoachPayments(coachId);
-	
+
 	const [isEditingGeneral, setIsEditingGeneral] = useState(false);
 	const router = useRouter();
 
@@ -63,7 +67,7 @@ export default function CoachDetailView({ coachId }: CoachDetailViewProps) {
 	return (
 		<div className="space-y-6 p-6">
 			{/* General Information */}
-			<CoachGeneralInfo 
+			<CoachGeneralInfo
 				coach={coach}
 				isEditing={isEditingGeneral}
 				onEditToggle={() => setIsEditingGeneral(!isEditingGeneral)}

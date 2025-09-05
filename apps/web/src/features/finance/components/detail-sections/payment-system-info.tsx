@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { format } from "date-fns";
 import { Clock } from "lucide-react";
 
 const formatDate = (dateString: string | null) => {
@@ -18,14 +17,14 @@ const formatDate = (dateString: string | null) => {
 	}
 };
 
-interface CoachSystemInfoProps {
-	coach: {
-		created_at: string;
-		updated_at?: string;
+interface PaymentSystemInfoProps {
+	payment: {
+		created_at: string | null;
+		updated_at: string | null;
 	};
 }
 
-export function CoachSystemInfo({ coach }: CoachSystemInfoProps) {
+export function PaymentSystemInfo({ payment }: PaymentSystemInfoProps) {
 	return (
 		<Card>
 			<CardHeader>
@@ -39,16 +38,14 @@ export function CoachSystemInfo({ coach }: CoachSystemInfoProps) {
 					<label className="font-medium text-muted-foreground text-sm">
 						Created At
 					</label>
-					<p className="text-sm">{formatDate(coach.created_at)}</p>
+					<p className="text-sm">{formatDate(payment.created_at)}</p>
 				</div>
-				{coach.updated_at && (
-					<div>
-						<label className="font-medium text-muted-foreground text-sm">
-							Last Updated
-						</label>
-						<p className="text-sm">{formatDate(coach.updated_at)}</p>
-					</div>
-				)}
+				<div>
+					<label className="font-medium text-muted-foreground text-sm">
+						Last Updated
+					</label>
+					<p className="text-sm">{formatDate(payment.updated_at)}</p>
+				</div>
 			</CardContent>
 		</Card>
 	);
