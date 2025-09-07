@@ -13,7 +13,10 @@ export default function PaymentsHeader() {
 				<h1 className="font-medium text-[13px]">Payments</h1>
 			</div>
 			<Button asChild>
-				<Link href="#" className="flex items-center gap-2">
+				<Link
+					href="/dashboard/finance/payments/add"
+					className="flex items-center gap-2"
+				>
 					<PlusIcon className="mr-[6px] h-4 w-4" />
 					Add Payment
 				</Link>

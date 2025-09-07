@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import type { Database } from "@/utils/supabase/database.types";
 
@@ -94,7 +95,7 @@ const paymentTableColumns = [
 			return (
 				<div className="font-medium">
 					$
-					{(amount / 100).toLocaleString("en-US", {
+					{(amount).toLocaleString("en-US", {
 						minimumFractionDigits: 2,
 						maximumFractionDigits: 2,
 					})}
@@ -211,6 +212,7 @@ function PaymentsTableContent({
 	filters: any;
 	setFilters: any;
 }) {
+	const router = useRouter();
 	const queryClient = useQueryClient();
 	const [paymentToDelete, setPaymentToDelete] = useState<PaymentRow | null>(
 		null,
@@ -531,16 +533,7 @@ function PaymentsTableContent({
 			label: "View Details",
 			icon: EyeIcon,
 			onClick: (_payment: PaymentRow) => {
-				// Placeholder for view action
-				toast.info("View payment details - Coming soon");
-			},
-		},
-		{
-			label: "Edit",
-			icon: EditIcon,
-			onClick: (_payment: PaymentRow) => {
-				// Placeholder for edit action
-				toast.info("Edit payment - Coming soon");
+				router.push(`/dashboard/finance/payments/${_payment.id}`);
 			},
 		},
 		{
@@ -658,7 +651,10 @@ function PaymentsTableContent({
 
 							// Show success toast
 							toast.success(
-								`Payment of $${(amount / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} has been deleted successfully`,
+								`Payment of $${(amount / 100).toLocaleString("en-US", {
+									minimumFractionDigits: 2,
+									maximumFractionDigits: 2,
+								})} has been deleted successfully`,
 							);
 						} catch (error) {
 							// Show error toast
