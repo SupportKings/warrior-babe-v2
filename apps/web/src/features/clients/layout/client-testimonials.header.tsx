@@ -14,7 +14,7 @@ export default function ClientTestimonialsHeader() {
 			</div>
 
 			<Button asChild>
-				<Link href="#" className="flex items-center gap-2">
+				<Link href="/dashboard/clients/testimonials/add" className="flex items-center gap-2">
 					<PlusIcon className="mr-[6px] h-4 w-4" />
 					Add Client Testimonial
 				</Link>
