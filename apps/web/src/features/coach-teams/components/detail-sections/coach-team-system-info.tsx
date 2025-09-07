@@ -6,20 +6,20 @@ import { Clock } from "lucide-react";
 const formatDate = (dateString: string | null) => {
 	if (!dateString) return "Not set";
 	try {
-		return format(new Date(dateString), "MMM dd, yyyy");
+		return format(new Date(dateString), "MMM dd, yyyy 'at' h:mm a");
 	} catch {
 		return "Invalid date";
 	}
 };
 
-interface CoachSystemInfoProps {
-	coach: {
+interface CoachTeamSystemInfoProps {
+	coachTeam: {
 		created_at: string;
-		updated_at?: string;
+		updated_at: string;
 	};
 }
 
-export function CoachSystemInfo({ coach }: CoachSystemInfoProps) {
+export function CoachTeamSystemInfo({ coachTeam }: CoachTeamSystemInfoProps) {
 	return (
 		<Card>
 			<CardHeader>
@@ -33,16 +33,14 @@ export function CoachSystemInfo({ coach }: CoachSystemInfoProps) {
 					<label className="font-medium text-muted-foreground text-sm">
 						Created At
 					</label>
-					<p className="text-sm">{formatDate(coach.created_at)}</p>
+					<p className="text-sm">{formatDate(coachTeam.created_at)}</p>
 				</div>
-				{coach.updated_at && (
-					<div>
-						<label className="font-medium text-muted-foreground text-sm">
-							Last Updated
-						</label>
-						<p className="text-sm">{formatDate(coach.updated_at)}</p>
-					</div>
-				)}
+				<div>
+					<label className="font-medium text-muted-foreground text-sm">
+						Last Updated
+					</label>
+					<p className="text-sm">{formatDate(coachTeam.updated_at)}</p>
+				</div>
 			</CardContent>
 		</Card>
 	);
