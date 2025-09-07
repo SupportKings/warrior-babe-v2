@@ -42,7 +42,7 @@ export function CoachTeamMembersSection({
 		setDeleteModal,
 		setEditModal,
 	);
-	console.log(teamMembers)
+	console.log(teamMembers);
 	const teamMemberTable = useReactTable({
 		data: teamMembers || [],
 		columns: teamMemberColumns,

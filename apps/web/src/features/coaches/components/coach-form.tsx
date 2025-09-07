@@ -96,7 +96,7 @@ export function CoachForm({
 			return [...prev, role];
 		});
 	};
-	console.log(selectedRoles)
+	console.log(selectedRoles);
 	// Initialize form with TanStack Form
 	const form = useForm({
 		defaultValues: {
@@ -121,7 +121,7 @@ export function CoachForm({
 				...value,
 				roles: selectedRoles.join(","),
 			};
-			console.log(submitData)
+			console.log(submitData);
 			try {
 				const result = await createCoach(submitData);
 

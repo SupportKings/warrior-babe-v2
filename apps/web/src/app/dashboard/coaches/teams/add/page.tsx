@@ -2,8 +2,6 @@ import { Suspense } from "react";
 
 import { redirect } from "next/navigation";
 
-import { getUser } from "@/queries/getUser";
-
 import { createClient } from "@/utils/supabase/server";
 
 import MainLayout from "@/components/layout/main-layout";
@@ -11,6 +9,8 @@ import MainLayout from "@/components/layout/main-layout";
 import { CoachTeamsAddSkeleton } from "@/features/coach-teams/components/coach-teams.add.skeleton";
 import { CoachTeamsForm } from "@/features/coach-teams/components/coach-teams-form";
 import { CoachTeamsAddHeader } from "@/features/coach-teams/layout/coach-teams.add.header";
+
+import { getUser } from "@/queries/getUser";
 
 import {
 	dehydrate,
@@ -32,7 +32,9 @@ async function CoachTeamsAddContent() {
 	}
 
 	return (
-		<MainLayout headers={[<CoachTeamsAddHeader key="coach-teams-add-header" />]}>
+		<MainLayout
+			headers={[<CoachTeamsAddHeader key="coach-teams-add-header" />]}
+		>
 			<div className="p-6">
 				<CoachTeamsForm mode="create" teamMembers={teamMembers || []} />
 			</div>

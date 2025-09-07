@@ -1,10 +1,9 @@
 import { useState } from "react";
 
 import { cn } from "@/lib/utils";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
 	Command,
 	CommandEmpty,
@@ -13,6 +12,8 @@ import {
 	CommandItem,
 	CommandList,
 } from "@/components/ui/command";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
 	Popover,
 	PopoverContent,
@@ -141,12 +142,12 @@ export function CoachTeamBasicInfo({
 									variant="outline"
 									role="combobox"
 									aria-expanded={comboboxOpen}
-									className="mt-1 w-full justify-between font-normal h-10"
+									className="mt-1 h-10 w-full justify-between font-normal"
 								>
 									{formData.premierCoachId
 										? coaches.find(
-												(coach: any) => coach.id === formData.premierCoachId
-										  )?.name || "Unknown Coach"
+												(coach: any) => coach.id === formData.premierCoachId,
+											)?.name || "Unknown Coach"
 										: "Select premier coach..."}
 									<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 								</Button>
@@ -164,7 +165,10 @@ export function CoachTeamBasicInfo({
 													onSelect={() => {
 														setFormData((prev) => ({
 															...prev,
-															premierCoachId: coach.id === formData.premierCoachId ? "" : coach.id,
+															premierCoachId:
+																coach.id === formData.premierCoachId
+																	? ""
+																	: coach.id,
 														}));
 														setComboboxOpen(false);
 													}}
@@ -174,7 +178,7 @@ export function CoachTeamBasicInfo({
 															"mr-2 h-4 w-4",
 															formData.premierCoachId === coach.id
 																? "opacity-100"
-																: "opacity-0"
+																: "opacity-0",
 														)}
 													/>
 													{coach.name || "Unnamed Coach"}

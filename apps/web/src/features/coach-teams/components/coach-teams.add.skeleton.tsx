@@ -6,7 +6,9 @@ import { CoachTeamsAddHeader } from "../layout/coach-teams.add.header";
 
 export function CoachTeamsAddSkeleton() {
 	return (
-		<MainLayout headers={[<CoachTeamsAddHeader key="coach-teams-add-header" />]}>
+		<MainLayout
+			headers={[<CoachTeamsAddHeader key="coach-teams-add-header" />]}
+		>
 			<div className="space-y-6 p-6">
 				{/* Basic Information Section */}
 				<Card>

@@ -95,7 +95,7 @@ const paymentTableColumns = [
 			return (
 				<div className="font-medium">
 					$
-					{(amount).toLocaleString("en-US", {
+					{amount.toLocaleString("en-US", {
 						minimumFractionDigits: 2,
 						maximumFractionDigits: 2,
 					})}

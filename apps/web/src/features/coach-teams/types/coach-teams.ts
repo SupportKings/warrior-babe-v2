@@ -78,7 +78,10 @@ export const validateSingleField = (
 		return { success: true };
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			return { success: false, error: error.issues[0]?.message || "Validation failed" };
+			return {
+				success: false,
+				error: error.issues[0]?.message || "Validation failed",
+			};
 		}
 		return { success: false, error: "Validation failed" };
 	}

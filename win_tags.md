@@ -1,21 +1,18 @@
 ## Implementation Prompt Template
 
+## Create Form Fields:
+- tag name (name)
+- color
+
+# For the color input use /apps/web/src/components/ui/shadcn-io/color-picker
+
+```
+Implement a complete "Add Win Tag" feature with the following components:
 
 
-
-Implement a complete "Add Payment" feature with the following components:
-
-
-Fields to use in the form:
-amount,
-payment_date,
-payment_method,
-platform,
-status,
-
-### 1. Server Action (`/features/finance/actions/createPayment.ts`)
+### 1. Server Action (`/features/system-config/actions/createWinTags.ts`)
 - Use `actionClient` from `@/lib/safe-action`
-- Import schema from feature types: `paymentCreateSchema`
+- Import schema from feature types: `winTagsCreateSchema`
 - Include authentication check with `getUser()`
 - Validate unique constraints (e.g., email uniqueness)
 - Handle database insertion with error handling
@@ -24,7 +21,7 @@ status,
 - Use `returnValidationErrors()` for consistent error handling
 
 
-### 2. Form Component (`/features/finance/components/payment-form.tsx`)
+### 2. Form Component (`/features/system-config/components/win-tags-form.tsx`)
 - Support both "create" and "edit" modes via props
 - Use TanStack Form (`useForm`) with proper field validation
 - Include comprehensive field sections grouped logically:
@@ -47,9 +44,9 @@ status,
 - Select component can’t have empty values
 
 
-### 3. Type Definitions (`/features/[entity]/types/payment.ts`)
+### 3. Type Definitions (`/features/system-config/types/win-tags.ts`)
 - Import database types: `import type { Tables } from "@/utils/supabase/database.types"`
-- Define main entity type: `export type Payment = Tables<"[entities]">`
+- Define main entity type: `export type WinTag = Tables<"[entities]">`
 - Define entity with relations type including joined tables
 - Create comprehensive validation utilities object with Zod schemas:
  - String fields with length limits and regex patterns
@@ -60,10 +57,10 @@ status,
  - Enum validations matching database constraints
  - Optional/nullable field handling
 - Export multiple schemas:
- - `paymentCreateSchema` - strict validation for server
- - `paymentUpdateSchema` - with optional fields and ID required
- - `paymentFormSchema` - form-friendly with defaults
- - `paymentEditFormSchema` - extending form schema with ID
+ - `winTagCreateSchema` - strict validation for server
+ - `winTagUpdateSchema` - with optional fields and ID required
+ - `winTagFormSchema` - form-friendly with defaults
+ - `winTagEditFormSchema` - extending form schema with ID
 - Export TypeScript types for each schema
 - Include status/option constants arrays for dropdowns
 - Provide validation helper functions:
@@ -72,14 +69,14 @@ status,
  - Type guards and validation utilities
 
 
-### 4. Header Component (`/features/finance/layout/payment.add.header.tsx`)
+### 4. Header Component (`/features/system-config/layout/win-tags.add.header.tsx`)
 - Import UI components: `BackButton`, `SidebarTrigger`
 - Implement sticky header with proper styling
 - Include navigation elements and descriptive title
 - Use consistent height and spacing: `h-[45px]`
 
 
-### 5. Skeleton Component (`/features/finance/components/payment.add.skeleton.tsx`)
+### 5. Skeleton Component (`/features/system-config/components/win-tags.add.skeleton.tsx`)
 - Import `MainLayout` and header component
 - Create animated skeleton matching form structure
 - Include sections for all form areas:
@@ -92,7 +89,7 @@ status,
 - Mirror actual form layout structure
 
 
-### 6. App Router Page (`/app/dashboard/finance/payments/add/page.tsx`)
+### 6. App Router Page (`/app/dashboard/system-config/client-win-tags/add/page.tsx`)
 - This already exists in the codebase, search for it and find the page
 - Use Suspense with skeleton fallback
 - Implement authentication check with redirect
@@ -142,7 +139,7 @@ status,
 
 
 ### 9. Key Patterns to Follow
-- **File Organization**: All code in `/features/finance/` structure
+- **File Organization**: All code in `/features/system-config/` structure
 - **Naming Conventions**: Consistent camelCase/PascalCase usage
 - **Import Structure**: React → Next.js → Node → External → Internal
 - **Error Messages**: User-friendly, specific, and actionable
