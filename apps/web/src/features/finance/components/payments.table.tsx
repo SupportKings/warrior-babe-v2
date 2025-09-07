@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import type { Database } from "@/utils/supabase/database.types";
 
@@ -41,6 +42,7 @@ import {
 	X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { updatePaymentSlot } from "../actions/updatePaymentSlot";
 import {
 	useClientsForFilter,
 	usePaymentsWithFaceted,
@@ -48,9 +50,8 @@ import {
 } from "../queries/usePayments";
 import { useStripePaymentDetails } from "../queries/useStripePaymentDetails";
 import { PaymentDeleteModal } from "./payment-delete-modal";
-import { StripeDetailsVaul } from "./stripe-details-vaul";
 import { PaymentSlotCombobox } from "./payment-slot-combobox";
-import { updatePaymentSlot } from "../actions/updatePaymentSlot";
+import { StripeDetailsVaul } from "./stripe-details-vaul";
 
 // Type for payment row from payments_with_details view
 type PaymentRow = Database["public"]["Views"]["payments_with_details"]["Row"];
@@ -94,7 +95,7 @@ const paymentTableColumns = [
 			return (
 				<div className="font-medium">
 					$
-					{(amount / 100).toLocaleString("en-US", {
+					{(amount).toLocaleString("en-US", {
 						minimumFractionDigits: 2,
 						maximumFractionDigits: 2,
 					})}
@@ -211,6 +212,7 @@ function PaymentsTableContent({
 	filters: any;
 	setFilters: any;
 }) {
+	const router = useRouter();
 	const queryClient = useQueryClient();
 	const [paymentToDelete, setPaymentToDelete] = useState<PaymentRow | null>(
 		null,
@@ -222,31 +224,35 @@ function PaymentsTableContent({
 	const [sorting, setSorting] = useState<any[]>([]);
 
 	// Function to handle payment slot updates with toast feedback
-	const handleUpdatePaymentSlot = async (paymentId: string, paymentSlotId: string | null) => {
+	const handleUpdatePaymentSlot = async (
+		paymentId: string,
+		paymentSlotId: string | null,
+	) => {
 		const action = () => updatePaymentSlot({ paymentId, paymentSlotId });
-		
+
 		return toast.promise(action, {
-			loading: paymentSlotId 
-				? 'Assigning payment to slot and generating activity periods...' 
-				: 'Removing payment from slot and cleaning up activity periods...',
+			loading: paymentSlotId
+				? "Assigning payment to slot and generating activity periods..."
+				: "Removing payment from slot and cleaning up activity periods...",
 			success: (result) => {
 				// Refresh data after successful update
 				queryClient.invalidateQueries({ queryKey: ["payments"] });
 				queryClient.invalidateQueries({ queryKey: ["payment-slots"] });
-				
+
 				// Return success message
-				let message = result?.data?.message || 'Payment slot updated successfully';
-				
+				let message =
+					result?.data?.message || "Payment slot updated successfully";
+
 				// Add activity period info if available
 				if (result?.data?.activityMessage) {
 					message += ` - ${result.data.activityMessage}`;
 				}
-				
+
 				// Show warning as separate toast if present
 				if (result?.data?.warning) {
 					setTimeout(() => toast.warning(result?.data?.warning), 500);
 				}
-				
+
 				return message;
 			},
 			error: (error) => {
@@ -360,7 +366,7 @@ function PaymentsTableContent({
 			const paymentId = row.original.id;
 			const paymentSlotId = row.original.payment_slot_id;
 			const clientId = row.original.client_id;
-			
+
 			// Payment slot details from row data
 			const slotAmountDue = row.original.amount_due;
 			const slotDueDate = row.original.slot_due_date;
@@ -374,10 +380,14 @@ function PaymentsTableContent({
 					<div className="flex items-center justify-between gap-2">
 						<div className="text-sm">
 							<div className="font-medium">{productName}</div>
-							<div className="text-xs text-muted-foreground">
-								${slotAmountDue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+							<div className="text-muted-foreground text-xs">
+								$
+								{slotAmountDue.toLocaleString("en-US", {
+									minimumFractionDigits: 2,
+									maximumFractionDigits: 2,
+								})}
 							</div>
-							<div className="text-xs text-muted-foreground">
+							<div className="text-muted-foreground text-xs">
 								Due {format(new Date(slotDueDate), "MMM dd, yyyy")}
 							</div>
 						</div>
@@ -523,16 +533,7 @@ function PaymentsTableContent({
 			label: "View Details",
 			icon: EyeIcon,
 			onClick: (_payment: PaymentRow) => {
-				// Placeholder for view action
-				toast.info("View payment details - Coming soon");
-			},
-		},
-		{
-			label: "Edit",
-			icon: EditIcon,
-			onClick: (_payment: PaymentRow) => {
-				// Placeholder for edit action
-				toast.info("Edit payment - Coming soon");
+				router.push(`/dashboard/finance/payments/${_payment.id}`);
 			},
 		},
 		{
@@ -650,7 +651,10 @@ function PaymentsTableContent({
 
 							// Show success toast
 							toast.success(
-								`Payment of $${(amount / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} has been deleted successfully`,
+								`Payment of $${(amount / 100).toLocaleString("en-US", {
+									minimumFractionDigits: 2,
+									maximumFractionDigits: 2,
+								})} has been deleted successfully`,
 							);
 						} catch (error) {
 							// Show error toast

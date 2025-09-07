@@ -41,7 +41,7 @@ export async function getCoachTeam(id: string) {
 
 		return {
 			...coachTeam,
-			coach_count: coachCount || 0
+			coach_count: coachCount || 0,
 		};
 	} catch (error) {
 		console.error("Unexpected error in getCoachTeam:", error);
@@ -105,14 +105,17 @@ export async function getAllCoachTeams() {
 					.eq("team_id", team.id);
 
 				if (countError) {
-					console.error(`Error fetching coach count for team ${team.id}:`, countError);
+					console.error(
+						`Error fetching coach count for team ${team.id}:`,
+						countError,
+					);
 				}
 
 				return {
 					...team,
-					coach_count: coachCount || 0
+					coach_count: coachCount || 0,
 				};
-			})
+			}),
 		);
 
 		return teamsWithCounts;
@@ -225,14 +228,17 @@ export async function getCoachTeamsWithFilters(
 					.eq("team_id", team.id);
 
 				if (countError) {
-					console.error(`Error fetching coach count for team ${team.id}:`, countError);
+					console.error(
+						`Error fetching coach count for team ${team.id}:`,
+						countError,
+					);
 				}
 
 				return {
 					...team,
-					coach_count: coachCount || 0
+					coach_count: coachCount || 0,
 				};
-			})
+			}),
 		);
 
 		return { data: teamsWithCounts, count: count || 0 };

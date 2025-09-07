@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+
 import { getUser } from "@/queries/getUser";
 
 // Server action to fetch available payment slots for a specific client

@@ -108,10 +108,12 @@ export function CoachesTableContent({
 				.displayName("Team Name")
 				.icon(UsersIcon)
 				.build(),
-			options: Array.from(uniqueTeamNames).sort().map((teamName) => ({
-				value: teamName,
-				label: teamName,
-			})),
+			options: Array.from(uniqueTeamNames)
+				.sort()
+				.map((teamName) => ({
+					value: teamName,
+					label: teamName,
+				})),
 		},
 		{
 			...universalColumnHelper

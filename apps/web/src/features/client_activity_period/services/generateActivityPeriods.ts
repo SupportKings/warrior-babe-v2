@@ -1,9 +1,11 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+
 import { getUser } from "@/queries/getUser";
-import { createClientActivityPeriodAction } from "../actions/createClientActivityPeriod";
+
 import { getClientAssignedCoach } from "../../clients/actions/relations/getClientAssignedCoach";
+import { createClientActivityPeriodAction } from "../actions/createClientActivityPeriod";
 
 /**
  * Calculate the next Saturday that is at least a week away from the given date
@@ -12,7 +14,7 @@ function getNextSaturday(fromDate: Date): Date {
 	const date = new Date(fromDate);
 	const daysUntilSaturday = (6 - date.getDay()) % 7;
 	const nextSaturday = new Date(date);
-	
+
 	// If today is Saturday or the next Saturday is less than 7 days away,
 	// go to the Saturday after that
 	if (daysUntilSaturday === 0 || daysUntilSaturday < 7) {
@@ -20,7 +22,7 @@ function getNextSaturday(fromDate: Date): Date {
 	} else {
 		nextSaturday.setDate(date.getDate() + daysUntilSaturday);
 	}
-	
+
 	return nextSaturday;
 }
 
@@ -86,12 +88,14 @@ export async function generateActivityPeriods(paymentSlotId: string) {
 			throw new Error("Failed to fetch payment plan slots");
 		}
 
-		const currentSlotIndex = allSlots.findIndex(slot => slot.id === paymentSlotId);
+		const currentSlotIndex = allSlots.findIndex(
+			(slot) => slot.id === paymentSlotId,
+		);
 		const isFirstSlot = currentSlotIndex === 0;
 
 		// Determine start date for the first activity period
 		let activityStartDate: Date;
-		
+
 		if (isFirstSlot) {
 			// For first slot, use the payment plan start date
 			activityStartDate = new Date(paymentPlan.term_start_date);
@@ -105,7 +109,7 @@ export async function generateActivityPeriods(paymentSlotId: string) {
 				.order("end_date", { ascending: false })
 				.limit(1)
 				.single();
-			
+
 			if (lastPeriod?.end_date) {
 				activityStartDate = new Date(lastPeriod.end_date);
 				activityStartDate.setDate(activityStartDate.getDate() + 1);
@@ -118,7 +122,7 @@ export async function generateActivityPeriods(paymentSlotId: string) {
 		// Find the next payment slot to determine how many periods to create
 		const nextSlotIndex = currentSlotIndex + 1;
 		const nextSlot = allSlots[nextSlotIndex];
-		
+
 		// If there's a next slot, create periods until its due date
 		// If no next slot, create periods until end of payment plan
 		let targetEndDate: Date;
@@ -134,7 +138,7 @@ export async function generateActivityPeriods(paymentSlotId: string) {
 
 		while (periodStartDate <= targetEndDate) {
 			let periodEndDate: Date;
-			
+
 			if (createdPeriods.length === 0 && isFirstSlot) {
 				// First period: end on Saturday at least a week away
 				periodEndDate = getNextSaturday(periodStartDate);
@@ -152,8 +156,8 @@ export async function generateActivityPeriods(paymentSlotId: string) {
 				payment_plan: paymentPlan.id,
 				payment_slot_id: paymentSlotId,
 				coach_id: assignedCoachId,
-				start_date: periodStartDate.toISOString().split('T')[0],
-				end_date: periodEndDate.toISOString().split('T')[0],
+				start_date: periodStartDate.toISOString().split("T")[0],
+				end_date: periodEndDate.toISOString().split("T")[0],
 				active: true,
 			});
 
@@ -179,9 +183,12 @@ export async function generateActivityPeriods(paymentSlotId: string) {
 				periods: createdPeriods,
 			},
 		};
-
 	} catch (error) {
 		console.error("Error generating activity periods:", error);
-		throw new Error(error instanceof Error ? error.message : "Failed to generate activity periods");
+		throw new Error(
+			error instanceof Error
+				? error.message
+				: "Failed to generate activity periods",
+		);
 	}
 }
