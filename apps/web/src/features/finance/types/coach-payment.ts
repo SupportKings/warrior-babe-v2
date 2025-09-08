@@ -21,7 +21,7 @@ export const coachPaymentValidationUtils = {
 	
 	// Status enum matching database enum
 	status: z.enum(["Paid", "Not Paid"], {
-		errorMap: () => ({ message: "Status must be either 'Paid' or 'Not Paid'" })
+		message: "Status must be either 'Paid' or 'Not Paid'" 
 	}),
 	
 	// Date validation in YYYY-MM-DD format
@@ -90,7 +90,7 @@ export const validateSingleField = (
 		return { success: true, error: null };
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			return { success: false, error: error.errors[0].message };
+			return { success: false, error: error.message };
 		}
 		return { success: false, error: "Validation failed" };
 	}
