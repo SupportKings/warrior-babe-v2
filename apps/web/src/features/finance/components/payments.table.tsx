@@ -31,15 +31,13 @@ import { format } from "date-fns";
 import {
 	CalendarIcon,
 	CreditCardIcon,
-	DollarSignIcon,
-	EditIcon,
-	EyeIcon,
+	DollarSignIcon, EyeIcon,
 	PackageIcon,
 	PlusIcon,
 	ShieldAlertIcon,
 	TrashIcon,
 	UserIcon,
-	X,
+	X
 } from "lucide-react";
 import { toast } from "sonner";
 import { updatePaymentSlot } from "../actions/updatePaymentSlot";
@@ -431,11 +429,17 @@ function PaymentsTableContent({
 
 	// Create dynamic filter config with proper types based on database schema
 	const dynamicFilterConfig = [
-		universalColumnHelper
-			.number("amount")
-			.displayName("Amount")
-			.icon(DollarSignIcon)
-			.build(),
+		{
+			...universalColumnHelper
+				.number("amount")
+				.displayName("Amount")
+				.icon(DollarSignIcon)
+				.build(),
+			// Transform filter value from dollars to cents for backend
+			transformFilterValue: (value: number) => value * 100,
+			// Transform display value from cents to dollars for filter UI
+			transformDisplayValue: (value: number) => value / 100,
+		},
 
 		{
 			...universalColumnHelper
