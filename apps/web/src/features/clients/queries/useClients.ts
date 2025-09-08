@@ -8,7 +8,6 @@ import {
 	getAllClients,
 	getClient,
 	getClientBasic,
-	getClientsFaceted,
 	getClientsWithFaceted,
 	getClientsWithFilters,
 } from "@/features/clients/actions/getClient";
@@ -48,17 +47,6 @@ export function useClientsTableData(
 	});
 }
 
-// Faceted data query for filters
-export function useClientsFaceted(
-	columnId: string,
-	filters: FiltersState = [],
-) {
-	return useQuery({
-		queryKey: clientQueries.faceted(columnId, filters),
-		queryFn: () => getClientsFaceted(columnId, filters),
-		staleTime: STALE_TIME.MEDIUM,
-	});
-}
 
 // Combined hook for table data with faceted data - optimized single call
 export function useClientsWithFaceted(
@@ -195,14 +183,3 @@ export function prefetchClientsTableData(
 	});
 }
 
-export function prefetchClientsFaceted(
-	queryClient: ReturnType<typeof useQueryClient>,
-	columnId: string,
-	filters: FiltersState = [],
-) {
-	return queryClient.prefetchQuery({
-		queryKey: clientQueries.faceted(columnId, filters),
-		queryFn: () => getClientsFaceted(columnId, filters),
-		staleTime: STALE_TIME.MEDIUM,
-	});
-}

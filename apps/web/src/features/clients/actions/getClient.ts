@@ -239,30 +239,10 @@ export async function getClientsWithFilters(
 	try {
 		const supabase = await createClient();
 
+		// Simplified query without nested joins to prevent timeout
 		let query = supabase
 			.from("clients")
-			.select(
-				`
-				*,
-				client_assignments (
-					id,
-					coach_id,
-					assignment_type,
-					start_date,
-					end_date,
-					coach:team_members!client_assignments_coach_id_fkey (
-						id,
-						name,
-						user:user!team_members_user_id_fkey (
-							id,
-							name,
-							email
-						)
-					)
-				)
-			`,
-				{ count: "exact" },
-			)
+			.select("*", { count: "exact" })
 			.eq("is_deleted", false);
 
 		// Apply filters with proper operator support
@@ -370,18 +350,16 @@ export async function getClientsWithFilters(
 	}
 }
 
-// Combined query for clients with faceted data - optimized single call
+// Simplified clients query without faceted data - much faster
 export async function getClientsWithFaceted(
 	filters: any[] = [],
 	page = 0,
 	pageSize = 25,
 	sorting: any[] = [],
-	facetedColumns: string[] = ["overall_status"],
+	facetedColumns: string[] = [], // Not used anymore but kept for compatibility
 ) {
 	try {
-		const supabase = await createClient();
-
-		// Get main clients data
+		// Just return the clients data without any faceted counts
 		const clientsResult = await getClientsWithFilters(
 			filters,
 			page,
@@ -389,161 +367,10 @@ export async function getClientsWithFaceted(
 			sorting,
 		);
 
-		// Get faceted data for each requested column
-		const facetedData: Record<string, Map<string, number>> = {};
-
-		// Fetch faceted counts for each column in parallel
-		await Promise.all(
-			facetedColumns.map(async (columnId) => {
-				let facetQuery = supabase
-					.from("clients")
-					.select(columnId, { count: "exact" })
-					.eq("is_deleted", false);
-
-				// Apply existing filters (excluding the column we're faceting) using same operator logic
-				filters
-					.filter((filter) => filter.columnId !== columnId)
-					.forEach((filter) => {
-						if (filter.values && filter.values.length > 0) {
-							const values = filter.values;
-							const operator = filter.operator || "is";
-							const filterColumnId = filter.columnId;
-
-							// Apply same operator logic as main query
-							switch (filterColumnId) {
-								case "first_name":
-								case "last_name":
-								case "email":
-									if (operator === "contains") {
-										facetQuery = facetQuery.ilike(
-											filterColumnId,
-											`%${values[0]}%`,
-										);
-									} else if (operator === "does not contain") {
-										facetQuery = facetQuery.not(
-											filterColumnId,
-											"ilike",
-											`%${values[0]}%`,
-										);
-									}
-									break;
-
-								case "product_id":
-									if (operator === "is") {
-										facetQuery = facetQuery.eq(filterColumnId, values[0]);
-									} else if (operator === "is not") {
-										facetQuery = facetQuery.not(
-											filterColumnId,
-											"eq",
-											values[0],
-										);
-									} else if (operator === "is any of") {
-										facetQuery = facetQuery.in(filterColumnId, values);
-									} else if (operator === "is none of") {
-										facetQuery = facetQuery.not(
-											filterColumnId,
-											"in",
-											`(${values.join(",")})`,
-										);
-									}
-									break;
-
-								case "status":
-									if (operator === "contains") {
-										facetQuery = facetQuery.ilike(
-											filterColumnId,
-											`%${values[0]}%`,
-										);
-									} else if (operator === "does not contain") {
-										facetQuery = facetQuery.not(
-											filterColumnId,
-											"ilike",
-											`%${values[0]}%`,
-										);
-									} else if (operator === "is") {
-										facetQuery = facetQuery.eq(filterColumnId, values[0]);
-									} else if (operator === "is not") {
-										facetQuery = facetQuery.not(
-											filterColumnId,
-											"eq",
-											values[0],
-										);
-									} else if (operator === "is any of") {
-										facetQuery = facetQuery.in(filterColumnId, values);
-									} else if (operator === "is none of") {
-										facetQuery = facetQuery.not(
-											filterColumnId,
-											"in",
-											`(${values.join(",")})`,
-										);
-									}
-									break;
-
-								case "start_date":
-								case "end_date":
-								case "created_at":
-									if (operator === "is") {
-										facetQuery = facetQuery.eq(filterColumnId, values[0]);
-									} else if (operator === "is not") {
-										facetQuery = facetQuery.not(
-											filterColumnId,
-											"eq",
-											values[0],
-										);
-									} else if (operator === "is before") {
-										facetQuery = facetQuery.lt(filterColumnId, values[0]);
-									} else if (operator === "is on or before") {
-										facetQuery = facetQuery.lte(filterColumnId, values[0]);
-									} else if (operator === "is after") {
-										facetQuery = facetQuery.gt(filterColumnId, values[0]);
-									} else if (operator === "is on or after") {
-										facetQuery = facetQuery.gte(filterColumnId, values[0]);
-									} else if (operator === "is between" && values.length === 2) {
-										facetQuery = facetQuery
-											.gte(filterColumnId, values[0])
-											.lte(filterColumnId, values[1]);
-									} else if (
-										operator === "is not between" &&
-										values.length === 2
-									) {
-										facetQuery = facetQuery.or(
-											`${filterColumnId}.lt.${values[0]},${filterColumnId}.gt.${values[1]}`,
-										);
-									}
-									break;
-							}
-						}
-					});
-
-				const { data: facetData, error: facetError } = await facetQuery;
-
-				if (facetError) {
-					console.error(
-						`Error fetching faceted data for ${columnId}:`,
-						facetError,
-					);
-					facetedData[columnId] = new Map();
-					return;
-				}
-
-				// Convert to Map format
-				const facetMap = new Map<string, number>();
-				facetData?.forEach((item: any) => {
-					const value = item[columnId];
-					if (value) {
-						const key = String(value);
-						facetMap.set(key, (facetMap.get(key) || 0) + 1);
-					}
-				});
-
-				facetedData[columnId] = facetMap;
-			}),
-		);
-
 		return {
 			clients: clientsResult.data,
 			totalCount: clientsResult.count,
-			facetedData,
+			facetedData: {}, // Empty since we don't need counts anymore
 		};
 	} catch (error) {
 		console.error("Unexpected error in getClientsWithFaceted:", error);
@@ -555,106 +382,7 @@ export async function getClientsWithFaceted(
 	}
 }
 
-export async function getClientsFaceted(columnId: string, filters: any[] = []) {
-	try {
-		const supabase = await createClient();
-
-		let query = supabase
-			.from("clients")
-			.select(columnId, { count: "exact" })
-			.eq("is_deleted", false);
-
-		// Apply existing filters (excluding the column we're faceting) using same operator logic
-		filters
-			.filter((filter) => filter.columnId !== columnId)
-			.forEach((filter) => {
-				if (filter.values && filter.values.length > 0) {
-					const values = filter.values;
-					const operator = filter.operator || "is";
-					const filterColumnId = filter.columnId;
-
-					// Apply same operator logic as main query
-					switch (filterColumnId) {
-						case "name":
-						case "email":
-						case "phone":
-							if (operator === "contains") {
-								query = query.ilike(filterColumnId, `%${values[0]}%`);
-							} else if (operator === "does not contain") {
-								query = query.not(filterColumnId, "ilike", `%${values[0]}%`);
-							}
-							break;
-
-						case "overall_status":
-						case "everfit_access":
-							if (operator === "is") {
-								query = query.eq(filterColumnId, values[0]);
-							} else if (operator === "is not") {
-								query = query.not(filterColumnId, "eq", values[0]);
-							} else if (operator === "is any of") {
-								query = query.in(filterColumnId, values);
-							} else if (operator === "is none of") {
-								query = query.not(
-									filterColumnId,
-									"in",
-									`(${values.join(",")})`,
-								);
-							}
-							break;
-
-						case "created_at":
-						case "updated_at":
-						case "onboarding_completed_date":
-						case "offboard_date":
-							if (operator === "is") {
-								query = query.eq(filterColumnId, values[0]);
-							} else if (operator === "is not") {
-								query = query.not(filterColumnId, "eq", values[0]);
-							} else if (operator === "is before") {
-								query = query.lt(filterColumnId, values[0]);
-							} else if (operator === "is on or before") {
-								query = query.lte(filterColumnId, values[0]);
-							} else if (operator === "is after") {
-								query = query.gt(filterColumnId, values[0]);
-							} else if (operator === "is on or after") {
-								query = query.gte(filterColumnId, values[0]);
-							} else if (operator === "is between" && values.length === 2) {
-								query = query
-									.gte(filterColumnId, values[0])
-									.lte(filterColumnId, values[1]);
-							} else if (operator === "is not between" && values.length === 2) {
-								query = query.or(
-									`${filterColumnId}.lt.${values[0]},${filterColumnId}.gt.${values[1]}`,
-								);
-							}
-							break;
-					}
-				}
-			});
-
-		const { data, error } = await query;
-
-		if (error) {
-			console.error("Error fetching faceted data:", error);
-			return new Map<string, number>();
-		}
-
-		// Convert to Map format
-		const facetedMap = new Map<string, number>();
-		data?.forEach((item: any) => {
-			const value = item[columnId];
-			if (value) {
-				const key = String(value);
-				facetedMap.set(key, (facetedMap.get(key) || 0) + 1);
-			}
-		});
-
-		return facetedMap;
-	} catch (error) {
-		console.error("Unexpected error in getClientsFaceted:", error);
-		return new Map<string, number>();
-	}
-}
+// Removed getClientsFaceted since we no longer need individual faceted queries
 
 // Server-side prefetch functions for page-level prefetching
 export async function prefetchClientsTableDataServer(
@@ -666,12 +394,7 @@ export async function prefetchClientsTableDataServer(
 	return await getClientsWithFilters(filters, page, pageSize, sorting);
 }
 
-export async function prefetchClientsFacetedServer(
-	columnId: string,
-	filters: any[] = [],
-) {
-	return await getClientsFaceted(columnId, filters);
-}
+// Removed prefetchClientsFacetedServer since getClientsFaceted is no longer needed
 
 // Server-side prefetch for combined clients+faceted data
 export async function prefetchClientsWithFacetedServer(
