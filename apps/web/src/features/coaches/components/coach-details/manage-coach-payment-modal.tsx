@@ -96,12 +96,6 @@ export function ManageCoachPaymentModal({
 		try {
 			const periods = await getCoachClientActivityPeriods(coachId);
 			setActivityPeriods(periods);
-
-			if (periods.length === 0) {
-				toast.info(
-					"No activity periods found for this coach. Please ensure clients are assigned.",
-				);
-			}
 		} catch (error) {
 			console.error("Error fetching activity periods:", error);
 			toast.error("Failed to load activity periods");
@@ -132,7 +126,7 @@ export function ManageCoachPaymentModal({
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsSubmitting(true);
-
+		console.log(formData);
 		try {
 			if (mode === "create") {
 				const input: CreateCoachPaymentInput = {
@@ -200,7 +194,7 @@ export function ManageCoachPaymentModal({
 									variant="outline"
 									role="combobox"
 									aria-expanded={openCombobox}
-									className="w-full justify-between"
+									className="h-10 w-full justify-between"
 								>
 									{formData.client_activity_period_id
 										? activityPeriods.find(
@@ -217,11 +211,6 @@ export function ManageCoachPaymentModal({
 							>
 								<Command>
 									<CommandInput placeholder="Search activity period..." />
-									<CommandEmpty>
-										{activityPeriods.length === 0
-											? "No activity periods available."
-											: "No activity period found."}
-									</CommandEmpty>
 									<CommandGroup>
 										{activityPeriods.length > 0 ? (
 											activityPeriods.map((period) => (
@@ -245,27 +234,7 @@ export function ManageCoachPaymentModal({
 														)}
 													/>
 													<div className="flex flex-col">
-														<span>{period.clientName}</span>
-														<span className="text-muted-foreground text-sm">
-															{period.start_date
-																? format(
-																		new Date(period.start_date),
-																		"MMM dd, yyyy",
-																	)
-																: "N/A"}{" "}
-															-{" "}
-															{period.end_date
-																? format(
-																		new Date(period.end_date),
-																		"MMM dd, yyyy",
-																	)
-																: "Present"}
-															{period.active && (
-																<span className="ml-1 text-green-600">
-																	(Active)
-																</span>
-															)}
-														</span>
+														<span className="text-sm">{period.label}</span>
 													</div>
 												</CommandItem>
 											))
@@ -287,6 +256,7 @@ export function ManageCoachPaymentModal({
 							type="number"
 							step="0.01"
 							placeholder="0.00"
+							className="h-10"
 							value={formData.amount}
 							onChange={(e) =>
 								setFormData({ ...formData, amount: e.target.value })
@@ -296,34 +266,13 @@ export function ManageCoachPaymentModal({
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="status">Payment Status</Label>
-						<Select
-							value={formData.status}
-							onValueChange={(value) =>
-								setFormData({ ...formData, status: value })
-							}
-						>
-							<SelectTrigger id="status">
-								<SelectValue placeholder="Select status" />
-							</SelectTrigger>
-							<SelectContent>
-								{PAYMENT_STATUSES.map((status) => (
-									<SelectItem key={status.value} value={status.value}>
-										{status.label}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-
-					<div className="space-y-2">
 						<Label>Payment Date</Label>
 						<Popover>
 							<PopoverTrigger asChild>
 								<Button
 									variant="outline"
 									className={cn(
-										"w-full justify-start text-left font-normal",
+										"h-10 w-full justify-start text-left font-normal",
 										!date && "text-muted-foreground",
 									)}
 								>
@@ -348,6 +297,27 @@ export function ManageCoachPaymentModal({
 								/>
 							</PopoverContent>
 						</Popover>
+					</div>
+
+					<div className="space-y-2">
+						<Label htmlFor="status">Payment Status</Label>
+						<Select
+							value={formData.status}
+							onValueChange={(value) =>
+								setFormData({ ...formData, status: value })
+							}
+						>
+							<SelectTrigger className="h-10" id="status">
+								<SelectValue placeholder="Select status" />
+							</SelectTrigger>
+							<SelectContent>
+								{PAYMENT_STATUSES.map((status) => (
+									<SelectItem key={status.value} value={status.value}>
+										{status.label}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 					</div>
 
 					<div className="flex justify-end gap-2 pt-4">

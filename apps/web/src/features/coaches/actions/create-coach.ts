@@ -19,6 +19,7 @@ const createCoachSchema = z.object({
 export type CreateCoachInput = z.infer<typeof createCoachSchema>;
 
 export async function createCoach(input: CreateCoachInput) {
+	console.log("input", input);
 	try {
 		const supabase = await createClient();
 
@@ -39,8 +40,26 @@ export async function createCoach(input: CreateCoachInput) {
 		let userId: string;
 
 		if (existingUser) {
-			// User already exists, use their ID
+			// User already exists, use their ID and update their roles
 			userId = existingUser.id;
+
+			// Update the existing user's roles if new roles are provided
+			if (input.roles) {
+				const { error: updateError } = await supabase
+					.from("user")
+					.update({
+						role: input.roles,
+						updatedAt: new Date().toISOString(),
+					})
+					.eq("id", userId);
+
+				if (updateError) {
+					console.error("Error updating user roles:", updateError);
+					throw new Error(
+						`Failed to update user roles: ${updateError.message}`,
+					);
+				}
+			}
 		} else {
 			// Create new user in the user table
 			const { data: newUser, error: userError } = await supabase
@@ -79,7 +98,8 @@ export async function createCoach(input: CreateCoachInput) {
 				onboarding_date: input.onboarding_date ?? null,
 				created_at: new Date().toISOString(),
 			})
-			.select(`
+			.select(
+				`
 				*,
 				user:user!team_members_user_id_fkey (
 					id,
@@ -94,7 +114,8 @@ export async function createCoach(input: CreateCoachInput) {
 						name
 					)
 				)
-			`)
+			`,
+			)
 			.single();
 
 		if (teamMemberError) {

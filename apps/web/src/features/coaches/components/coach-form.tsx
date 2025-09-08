@@ -96,7 +96,7 @@ export function CoachForm({
 			return [...prev, role];
 		});
 	};
-
+	console.log(selectedRoles);
 	// Initialize form with TanStack Form
 	const form = useForm({
 		defaultValues: {
@@ -119,9 +119,9 @@ export function CoachForm({
 			// Prepare data with selected roles
 			const submitData = {
 				...value,
-				roles: selectedRoles.join(", "),
+				roles: selectedRoles.join(","),
 			};
-
+			console.log(submitData);
 			try {
 				const result = await createCoach(submitData);
 
@@ -361,9 +361,8 @@ export function CoachForm({
 								</Button>
 							</PopoverTrigger>
 							<PopoverContent
-								className="p-0"
+								className="w-[var(--radix-popover-trigger-width)] p-0"
 								align="start"
-								style={{ width: "var(--radix-popover-trigger-width)" }}
 							>
 								<Command>
 									<CommandInput placeholder="Search roles..." className="h-9" />
@@ -425,9 +424,8 @@ export function CoachForm({
 										</Button>
 									</PopoverTrigger>
 									<PopoverContent
-										className="p-0"
+										className="w-[var(--radix-popover-trigger-width)] p-0"
 										align="start"
-										style={{ width: "var(--radix-popover-trigger-width)" }}
 									>
 										<Command>
 											<CommandInput

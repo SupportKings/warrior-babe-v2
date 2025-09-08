@@ -14,7 +14,7 @@ export default function CoachPaymentsHeader() {
 			</div>
 
 			<Button asChild>
-				<Link href="#" className="flex items-center gap-2">
+				<Link href="/dashboard/finance/coach-payments/add" className="flex items-center gap-2">
 					<PlusIcon className="mr-[6px] h-4 w-4" />
 					Add Coach Payment
 				</Link>

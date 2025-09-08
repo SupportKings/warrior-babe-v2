@@ -1,26 +1,68 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
+import { actionClient } from "@/lib/safe-action";
+
 import { createClient } from "@/utils/supabase/server";
 
-export async function createPayment(data: any) {
-	// Placeholder for create payment functionality
-	try {
+import { getUser } from "@/queries/getUser";
+
+import { returnValidationErrors } from "next-safe-action";
+import { paymentCreateSchema } from "../types/payment";
+
+export const createPayment = actionClient
+	.inputSchema(paymentCreateSchema)
+	.action(async ({ parsedInput }) => {
+		// Authentication check
+		const session = await getUser();
+		if (!session) {
+			returnValidationErrors(paymentCreateSchema, {
+				_errors: ["Unauthorized: Please log in to create a payment"],
+			});
+		}
+
 		const supabase = await createClient();
 
+		// Prepare the payment data
+		const paymentData = {
+			amount: parsedInput.amount,
+			payment_date: parsedInput.payment_date,
+			payment_method: parsedInput.payment_method,
+			platform: parsedInput.platform,
+			status: parsedInput.status,
+		};
+
+		// Insert payment into database
 		const { data: payment, error } = await supabase
 			.from("payments")
-			.insert(data)
+			.insert(paymentData)
 			.select()
 			.single();
 
 		if (error) {
 			console.error("Error creating payment:", error);
-			throw new Error(error.message);
+
+			// Handle specific database errors
+			if (error.code === "23505") {
+				// Unique violation
+				returnValidationErrors(paymentCreateSchema, {
+					_errors: ["A payment with these details already exists"],
+				});
+			}
+
+			returnValidationErrors(paymentCreateSchema, {
+				_errors: [error.message || "Failed to create payment"],
+			});
 		}
 
-		return payment;
-	} catch (error) {
-		console.error("Unexpected error in createPayment:", error);
-		throw error;
-	}
-}
+		// Revalidate relevant paths
+		revalidatePath("/dashboard/finance/payments");
+		revalidatePath("/dashboard/finance");
+
+		return {
+			success: true,
+			data: payment,
+			message: "Payment created successfully",
+		};
+	});

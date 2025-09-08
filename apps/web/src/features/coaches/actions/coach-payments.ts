@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
+import { equal } from "assert";
+
 import { createClient } from "@/utils/supabase/server";
 
 import { format } from "date-fns";
@@ -43,10 +45,9 @@ export async function createCoachPayment(input: CreateCoachPaymentInput) {
 			.from("coach_payments")
 			.insert({
 				coach_id: validatedInput.coach_id,
-				client_activity_period_id: validatedInput.client_activity_period_id,
 				amount: validatedInput.amount,
 				status: validatedInput.status,
-				date: validatedInput.date, // date field in DB, not payment_date
+				date: validatedInput.date,
 				created_at: new Date().toISOString(),
 				updated_at: new Date().toISOString(),
 			})
@@ -59,6 +60,22 @@ export async function createCoachPayment(input: CreateCoachPaymentInput) {
 				success: false,
 				message: `Failed to create payment: ${error.message}`,
 			};
+		}
+
+		const { data: activityPeriodData, error: activityPeriodError } =
+			await supabase
+				.from("client_activity_period")
+				.update({ coach_payment: payment.id })
+				.eq("id", validatedInput.client_activity_period_id)
+				.select()
+				.single();
+
+		if (activityPeriodError) {
+			console.error(
+				"Error linking payment to activity period:",
+				activityPeriodError,
+			);
+			// Note: Payment was created successfully, but linking failed
 		}
 
 		// Revalidate the coach details page
@@ -122,6 +139,22 @@ export async function updateCoachPayment(input: UpdateCoachPaymentInput) {
 				success: false,
 				message: `Failed to update payment: ${error.message}`,
 			};
+		}
+
+		// Link payment to activity period if client_activity_period_id was updated
+		if (validatedInput.client_activity_period_id !== undefined && payment) {
+			const { error: activityPeriodError } = await supabase
+				.from("client_activity_period")
+				.update({ coach_payment: payment.id })
+				.eq("id", validatedInput.client_activity_period_id);
+
+			if (activityPeriodError) {
+				console.error(
+					"Error linking payment to activity period:",
+					activityPeriodError,
+				);
+				// Note: Payment was updated successfully, but linking failed
+			}
 		}
 
 		if (payment?.coach_id) {
@@ -222,6 +255,7 @@ export async function getCoachPayment(paymentId: string) {
 
 // Get client activity periods for a coach (for selection in create/edit forms)
 export async function getCoachClientActivityPeriods(coachId: string) {
+	console.log("coach id", coachId);
 	try {
 		const supabase = await createClient();
 
@@ -229,82 +263,16 @@ export async function getCoachClientActivityPeriods(coachId: string) {
 		// The coach_id field exists on client_activity_period table
 		const { data: activityPeriods, error } = await supabase
 			.from("client_activity_period")
-			.select(
-				`
-        id,
-        start_date,
-        end_date,
-        active,
-        client:clients!client_activity_period_client_id_clients_id_fk (
-          id,
-          name,
-          email
-        )
-      `,
-			)
-			.eq("coach_id", coachId) // Try with string first, as it might be UUID
+			.select("*")
+			.eq("coach_id", coachId)
 			.order("start_date", { ascending: false });
 
-		let finalActivityPeriods = activityPeriods || [];
+		console.log("Activity periods query error:", error);
 
-		if (error) {
-			console.error("Error fetching client activity periods:", error);
+		const finalActivityPeriods = activityPeriods || [];
 
-			// Fallback: If direct query fails, try through client assignments
-			const { data: clientAssignments, error: assignmentsError } =
-				await supabase
-					.from("client_assignments")
-					.select(
-						`
-          client_id
-        `,
-					)
-					.eq("coach_id", coachId);
+		console.log(activityPeriods);
 
-			if (assignmentsError) {
-				console.error("Error fetching client assignments:", assignmentsError);
-				return [];
-			}
-
-			// Get unique client IDs
-			const clientIds = [
-				...new Set(clientAssignments?.map((a) => a.client_id) || []),
-			];
-
-			if (clientIds.length === 0) {
-				return [];
-			}
-
-			// Get all activity periods for these clients
-			const { data: fallbackPeriods, error: fallbackError } = await supabase
-				.from("client_activity_period")
-				.select(
-					`
-          id,
-          start_date,
-          end_date,
-          active,
-          client:clients!client_activity_period_client_id_clients_id_fk (
-            id,
-            name,
-            email
-          )
-        `,
-				)
-				.in("client_id", clientIds)
-				.order("start_date", { ascending: false });
-
-			if (fallbackError) {
-				console.error(
-					"Error fetching activity periods (fallback):",
-					fallbackError,
-				);
-				return [];
-			}
-
-			// Use fallback periods if main query failed
-			finalActivityPeriods = fallbackPeriods || [];
-		}
 		const formattedPeriods =
 			finalActivityPeriods
 				?.filter(
@@ -313,7 +281,7 @@ export async function getCoachClientActivityPeriods(coachId: string) {
 				)
 				.map((period) => ({
 					id: period.id,
-					label: `${(period.client as any)?.name || "Unknown Client"} - ${
+					label: `${
 						period.start_date
 							? format(new Date(period.start_date), "MMM dd, yyyy")
 							: "N/A"
@@ -322,12 +290,11 @@ export async function getCoachClientActivityPeriods(coachId: string) {
 							? format(new Date(period.end_date), "MMM dd, yyyy")
 							: "Present"
 					}${period.active ? " (Active)" : ""}`,
-					clientName: (period.client as any)?.name || "Unknown Client",
 					startDate: period.start_date,
 					endDate: period.end_date,
 					active: period.active,
 				})) || [];
-
+		console.log(formattedPeriods);
 		return formattedPeriods;
 	} catch (error) {
 		console.error("Unexpected error in getCoachClientActivityPeriods:", error);

@@ -108,10 +108,12 @@ export function CoachesTableContent({
 				.displayName("Team Name")
 				.icon(UsersIcon)
 				.build(),
-			options: Array.from(uniqueTeamNames).sort().map((teamName) => ({
-				value: teamName,
-				label: teamName,
-			})),
+			options: Array.from(uniqueTeamNames)
+				.sort()
+				.map((teamName) => ({
+					value: teamName,
+					label: teamName,
+				})),
 		},
 		{
 			...universalColumnHelper
@@ -149,13 +151,6 @@ export function CoachesTableContent({
 			icon: EyeIcon,
 			onClick: (coach: CoachRow) => {
 				window.location.href = `/dashboard/coaches/${coach.id}`;
-			},
-		},
-		{
-			label: "Edit",
-			icon: EditIcon,
-			onClick: (coach: CoachRow) => {
-				window.location.href = `/dashboard/coaches/${coach.id}/edit`;
 			},
 		},
 		{
@@ -240,7 +235,7 @@ export function CoachesTableContent({
 
 			{coachToDelete && (
 				<CoachDeleteModal
-					coach={coachToDelete}
+					coach={coachToDelete.name}
 					open={!!coachToDelete}
 					onOpenChange={(open) => !open && setCoachToDelete(null)}
 					onConfirm={async () => {

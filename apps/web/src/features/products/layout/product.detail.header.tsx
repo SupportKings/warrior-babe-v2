@@ -68,7 +68,7 @@ export default function ProductDetailHeader({
 				className="flex items-center gap-2"
 			>
 				<Trash2Icon className="mr-[6px] h-4 w-4" />
-				Delete Testimonial
+				Delete Product
 			</Button>
 			{isDeleteDialogOpen && (
 				<ProductDeleteModal
@@ -78,7 +78,6 @@ export default function ProductDetailHeader({
 					onConfirm={async () => {
 						const productId = product?.id;
 						const productName = product?.name;
-
 
 						if (!productId) {
 							toast.error("Product ID is missing");

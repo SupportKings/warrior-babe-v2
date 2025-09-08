@@ -179,7 +179,10 @@ export function ManageTestimonialModal({
 						<Select
 							value={formData.testimonial_type}
 							onValueChange={(value) =>
-								setFormData({ ...formData, testimonial_type: value as "written" | "email" | "video" })
+								setFormData({
+									...formData,
+									testimonial_type: value as "written" | "email" | "video",
+								})
 							}
 						>
 							<SelectTrigger>
