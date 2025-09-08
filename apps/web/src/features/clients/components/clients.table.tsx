@@ -41,25 +41,8 @@ import {
 } from "../types/client";
 import { ClientDeleteModal } from "./client.delete.modal";
 
-// Type for client row from Supabase with relations
-type ClientRow = Database["public"]["Tables"]["clients"]["Row"] & {
-	client_assignments?: Array<{
-		id: string;
-		coach_id: string | null;
-		assignment_type: string;
-		start_date: string;
-		end_date: string | null;
-		coach: {
-			id: string;
-			name: string | null;
-			user: {
-				id: string;
-				name: string;
-				email: string;
-			} | null;
-		} | null;
-	}>;
-};
+// Type for client row from Supabase - simplified since we removed the joins
+type ClientRow = Database["public"]["Tables"]["clients"]["Row"];
 
 // Create column helper for TanStack table
 const columnHelper = createColumnHelper<ClientRow>();
@@ -201,7 +184,7 @@ function ClientsTableContent({
 		setCurrentPage(0);
 	}, [filters]);
 
-	// Fetch clients data with faceted data in single optimized call
+	// Fetch clients data - faceted data is now empty but kept for compatibility
 	const {
 		data: clientsWithFaceted,
 		isLoading,
@@ -212,7 +195,7 @@ function ClientsTableContent({
 		currentPage,
 		25,
 		sorting,
-		["overall_status", "everfit_access"], // columns to get faceted data for
+		[], // No faceted columns needed since we removed counts
 	);
 
 	// Extract data from combined result
@@ -223,7 +206,8 @@ function ClientsTableContent({
 			}
 		: { data: [], count: 0 };
 
-	const overallStatusFaceted = clientsWithFaceted?.facetedData?.overall_status;
+	// Faceted data is now empty but kept for compatibility
+	const overallStatusFaceted = new Map<string, number>();
 
 	// Create dynamic filter config with proper types based on database schema
 	const dynamicFilterConfig = [
@@ -293,7 +277,7 @@ function ClientsTableContent({
 			onFiltersChange: setFilters,
 			faceted: {
 				overall_status: overallStatusFaceted,
-				everfit_access: clientsWithFaceted?.facetedData?.everfit_access,
+				everfit_access: new Map<string, number>(),
 			},
 			enableSelection: true,
 			pageSize: 25,
