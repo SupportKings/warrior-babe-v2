@@ -16,7 +16,10 @@ export function WinTagsHeader() {
 			</div>
 
 			<Button asChild>
-				<Link href="#" className="flex items-center gap-2">
+				<Link
+					href="/dashboard/system-config/client-win-tags/add"
+					className="flex items-center gap-2"
+				>
 					<Tag className="mr-[6px] h-4 w-4" />
 					Add Win Tag
 				</Link>

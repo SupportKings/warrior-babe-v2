@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { createClient } from "@/utils/supabase/client";
 import type { Database } from "@/utils/supabase/database.types";
@@ -155,6 +156,7 @@ function CoachTeamsTableContent({
 	filters: any;
 	setFilters: any;
 }) {
+	const router = useRouter();
 	const [currentPage, setCurrentPage] = useState(0);
 	const [sorting, setSorting] = useState<any[]>([]);
 
@@ -212,17 +214,8 @@ function CoachTeamsTableContent({
 		{
 			label: "View Details",
 			icon: EyeIcon,
-			onClick: () => {
-				// Placeholder
-				toast.info("View details coming soon");
-			},
-		},
-		{
-			label: "Edit",
-			icon: EditIcon,
-			onClick: () => {
-				// Placeholder
-				toast.info("Edit coming soon");
+			onClick: (_coach_teams: CoachTeamRow) => {
+				router.push(`/dashboard/coaches/teams/${_coach_teams.id}`);
 			},
 		},
 		{

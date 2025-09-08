@@ -13,7 +13,10 @@ export default function CoachTeamsHeader() {
 				<h1 className="font-medium text-[13px] ">Coach Teams</h1>
 			</div>
 			<Button asChild>
-				<Link href="#" className="flex items-center gap-2">
+				<Link
+					href="/dashboard/coaches/teams/add"
+					className="flex items-center gap-2"
+				>
 					<UserRoundPlusIcon className="mr-[6px] h-4 w-4" />
 					Add Coach Team
 				</Link>

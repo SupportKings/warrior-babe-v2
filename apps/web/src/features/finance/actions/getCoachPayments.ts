@@ -18,7 +18,44 @@ export async function getCoachPayment(id: string) {
 			return null;
 		}
 
-		return coachPayment;
+		// Fetch related activity periods
+		const { data: activityPeriods, error: periodsError } = await supabase
+			.from("client_activity_period")
+			.select(`
+				id,
+				start_date,
+				end_date,
+				active,
+				payment_plan:payment_plans!client_activity_period_payment_plan_fkey(
+					id,
+					name,
+					client:clients!payment_plans_client_id_fkey(
+						id,
+						name
+					)
+				)
+			`)
+			.eq("coach_payment", id)
+			.order("start_date", { ascending: false });
+
+		if (periodsError) {
+			console.error("Error fetching activity periods:", periodsError);
+		}
+
+		// Transform activity periods for easier use
+		const transformedPeriods = (activityPeriods || []).map((period: any) => ({
+			id: period.id,
+			start_date: period.start_date,
+			end_date: period.end_date,
+			active: period.active,
+			client_name: period.payment_plan?.client?.name || "Unknown Client",
+			payment_plan_name: period.payment_plan?.name || "No Plan",
+		}));
+
+		return {
+			...coachPayment,
+			activity_periods: transformedPeriods,
+		};
 	} catch (error) {
 		console.error("Unexpected error in getCoachPayment:", error);
 		return null;

@@ -6,7 +6,7 @@ export async function getCoachTeam(id: string) {
 	try {
 		const supabase = await createClient();
 
-		// Fetch coach team with premier coach and count of team members
+		// Fetch coach team with premier coach and all team members
 		const { data: coachTeam, error } = await supabase
 			.from("coach_teams")
 			.select(`
@@ -14,10 +14,28 @@ export async function getCoachTeam(id: string) {
 				premier_coach:team_members!coach_teams_premier_coach_id_fkey (
 					id,
 					name,
+					contract_type,
+					onboarding_date,
+					onboarding_link,
 					user:user!team_members_user_id_fkey (
 						id,
 						name,
-						email
+						email,
+						role
+					)
+				),
+				coach_team_members:team_members!team_members_team_id_fkey (
+					id,
+					name,
+					contract_type,
+					onboarding_date,
+					onboarding_link,
+					user_id,
+					user:user!team_members_user_id_fkey (
+						id,
+						name,
+						email,
+						role
 					)
 				)
 			`)
@@ -26,26 +44,13 @@ export async function getCoachTeam(id: string) {
 
 		if (error) {
 			console.error("Error fetching coach team:", error);
-			return null;
+			throw new Error(`Failed to fetch coach team: ${error.message}`);
 		}
 
-		// Get count of team members (coaches) for this team
-		const { count: coachCount, error: countError } = await supabase
-			.from("team_members")
-			.select("*", { count: "exact", head: true })
-			.eq("team_id", id);
-
-		if (countError) {
-			console.error("Error fetching coach count:", countError);
-		}
-
-		return {
-			...coachTeam,
-			coach_count: coachCount || 0,
-		};
+		return coachTeam;
 	} catch (error) {
 		console.error("Unexpected error in getCoachTeam:", error);
-		return null;
+		throw error;
 	}
 }
 
