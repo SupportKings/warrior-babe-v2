@@ -158,7 +158,7 @@ export default function PaymentDetailView({
 			<div className="grid gap-6 md:grid-cols-2">
 				<PaymentBasicInfo
 					payment={{
-						amount: payment.amount,
+						amount: payment.amount ? payment.amount / 100 : payment.amount,
 						payment_date: payment.payment_date,
 						payment_method: payment.payment_method,
 						stripe_transaction_id: payment.stripe_transaction_id,
@@ -176,8 +176,8 @@ export default function PaymentDetailView({
 						customer_name: customerInfo?.name || null,
 						customer_billing_address: null, // Not available in current schema
 						payment_plan_name: paymentPlan?.name || null,
-						slot_amount_due: payment?.amount_due || null,
-						slot_amount_paid: payment?.amount_paid || null,
+						slot_amount_due: payment?.amount_due ? payment.amount_due / 100 : payment?.amount_due,
+						slot_amount_paid: payment?.amount_paid ? payment.amount_paid / 100 : payment?.amount_paid,
 					}}
 				/>
 			</div>
@@ -187,7 +187,7 @@ export default function PaymentDetailView({
 				dispute={{
 					declined_at: payment.declined_at,
 					disputed_status: payment.disputed_status,
-					dispute_fee: payment.dispute_fee,
+					dispute_fee: payment.dispute_fee ? payment.dispute_fee / 100 : payment.dispute_fee,
 					stripe_charge_id: payment.stripe_transaction_id, // Using transaction ID as charge ID
 				}}
 				isEditing={editState.isEditing && editState.section === "dispute"}
