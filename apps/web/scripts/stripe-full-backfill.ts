@@ -44,8 +44,8 @@ interface ScriptOptions {
 
 // Focus on the most important entities: charges and subscriptions
 const STRIPE_ENTITIES = [
-	"subscription", // Subscriptions first (customer relationships)
-	"charge", // Charges (transaction data)
+	"invoice"
+
 ];
 
 class StripeBackfillRunner {
@@ -182,7 +182,7 @@ class StripeBackfillRunner {
 		const chunkSeconds = this.options.chunkDays * 24 * 60 * 60;
 
 		// Start from 2 years ago and work forward
-		let startDate = now - 2 * 365 * 24 * 60 * 60;
+		let startDate = now - 10 * 365 * 24 * 60 * 60;
 		let chunkCount = 0;
 
 		while (startDate < now) {
@@ -329,7 +329,7 @@ function parseArgs(): ScriptOptions {
 	const args = process.argv.slice(2);
 	const options: ScriptOptions = {
 		chunkDays: 30,
-		maxRetries: 5, // More retries for critical entities
+		maxRetries: 10, // More retries for critical entities
 		delayMs: 2000, // Longer delay between entities
 		dryRun: false,
 		baseUrl: "http://localhost:3001", // Default to your port

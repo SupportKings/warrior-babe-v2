@@ -93,6 +93,7 @@ export async function POST(request: NextRequest) {
 		const sync = new StripeSync({
 			databaseUrl,
 			stripeSecretKey,
+			schema: 'stripe',
 			stripeWebhookSecret,
 			backfillRelatedEntities: true,
 			autoExpandLists: true,
@@ -124,6 +125,7 @@ export async function POST(request: NextRequest) {
 		// Run the backfill sync
 		await sync.syncBackfill({
 			object: object as any,
+			backfillRelatedEntities: true,
 			...(created && { created }),
 		});
 
