@@ -14,7 +14,7 @@ export async function getPaymentSlotsForClient(clientId: string) {
 	}
 
 	// Fetch payment slots for a specific client with plan and product details
-	// Only show slots that don't already have a payment assigned
+	// Multiple payments can now reference the same slot via payment_slot_id in payments table
 	const { data, error } = await supabase
 		.from("payment_slots")
 		.select(`
@@ -38,7 +38,6 @@ export async function getPaymentSlotsForClient(clientId: string) {
 			)
 		`)
 		.eq("payment_plans.client_id", clientId)
-		.is("payment_id", null) // Only unassigned slots
 		.order("due_date", { ascending: true });
 
 	if (error) {
@@ -58,7 +57,7 @@ export async function getAllAvailablePaymentSlots() {
 	}
 
 	// Fetch all payment slots with client, plan and product details
-	// Only show slots that don't already have a payment assigned
+	// Multiple payments can now reference the same slot via payment_slot_id in payments table
 	const { data, error } = await supabase
 		.from("payment_slots")
 		.select(`
@@ -80,7 +79,6 @@ export async function getAllAvailablePaymentSlots() {
 				)
 			)
 		`)
-		.is("payment_id", null) // Only unassigned slots
 		.order("due_date", { ascending: true });
 
 	if (error) {
