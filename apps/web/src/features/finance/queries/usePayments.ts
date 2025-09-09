@@ -8,6 +8,7 @@ import {
 	getPayment,
 	getPaymentsWithFaceted,
 	getProductsForFilter,
+	searchClientsForFilter,
 } from "@/features/finance/actions/getPayments";
 import { updatePayment } from "@/features/finance/actions/updatePayment";
 
@@ -92,6 +93,15 @@ export function useClientsForFilter() {
 		queryKey: paymentQueries.clients(),
 		queryFn: getClientsForFilter,
 		staleTime: 10 * 60 * 1000, // 10 minutes
+	});
+}
+
+export function useSearchClientsForFilter(searchTerm: string) {
+	return useQuery({
+		queryKey: [...paymentQueries.clients(), "search", searchTerm],
+		queryFn: () => searchClientsForFilter(searchTerm),
+		staleTime: 5 * 60 * 1000, // 5 minutes
+		enabled: searchTerm.length > 0, // Only search when there's a term
 	});
 }
 

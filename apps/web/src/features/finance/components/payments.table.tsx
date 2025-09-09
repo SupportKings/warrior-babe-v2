@@ -41,8 +41,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { updatePaymentSlot } from "../actions/updatePaymentSlot";
+import { updatePaymentClient } from "../actions/updatePaymentClient";
 import {
-	useClientsForFilter,
 	usePaymentsWithFaceted,
 	useProductsForFilter,
 } from "../queries/usePayments";
@@ -50,6 +50,7 @@ import { useStripePaymentDetails } from "../queries/useStripePaymentDetails";
 import { PaymentDeleteModal } from "./payment-delete-modal";
 import { PaymentSlotCombobox } from "./payment-slot-combobox";
 import { StripeDetailsVaul } from "./stripe-details-vaul";
+import { ClientEmailCombobox } from "../../clients/components/client-email-combobox";
 
 // Type for payment row from payments_with_details view
 type PaymentRow = Database["public"]["Views"]["payments_with_details"]["Row"];
@@ -167,7 +168,7 @@ const paymentTableColumns = [
 	}),
 	// Payment slot column will be defined inside the component where state is available
 	columnHelper.display({
-		id: "client_id",
+		id: "client_name",
 		header: "Client",
 		enableColumnFilter: true,
 		cell: ({ row }) => {
@@ -176,10 +177,11 @@ const paymentTableColumns = [
 
 			return <div className="font-medium">{clientName}</div>;
 		},
-		// Filter by client_id
+		// Filter by client_name using text matching
 		filterFn: (row, _columnId, filterValue) => {
-			const clientId = row.original.client_id;
-			return clientId === filterValue;
+			const clientName = row.original.client_name;
+			if (!clientName || !filterValue) return false;
+			return clientName.toLowerCase().includes(filterValue.toLowerCase());
 		},
 	}),
 	columnHelper.display({
@@ -259,6 +261,30 @@ function PaymentsTableContent({
 		});
 	};
 
+	// Function to handle payment client updates with toast feedback
+	const handleUpdatePaymentClient = async (
+		paymentId: string,
+		clientEmailId: number | null,
+	) => {
+		const action = () => updatePaymentClient({ paymentId, clientEmailId });
+
+		return toast.promise(action, {
+			loading: clientEmailId
+				? "Updating payment client..."
+				: "Removing payment client...",
+			success: (result) => {
+				// Refresh data after successful update
+				queryClient.invalidateQueries({ queryKey: ["payments"] });
+
+				return result?.data?.message || "Payment client updated successfully";
+			},
+			error: (error) => {
+				console.error("Payment client update error:", error);
+				return error.message || "Failed to update payment client";
+			},
+		});
+	};
+
 	// Reset to first page when filters change
 	useEffect(() => {
 		setCurrentPage(0);
@@ -278,8 +304,7 @@ function PaymentsTableContent({
 		["status", "platform"], // columns to get faceted data for
 	);
 
-	// Fetch filter data for client and product filters
-	const { data: clients } = useClientsForFilter();
+	// Fetch filter data for product filters
 	const { data: products } = useProductsForFilter();
 	
 	// React Query hook for Stripe details - only enabled when selectedChargeId is set
@@ -354,6 +379,57 @@ function PaymentsTableContent({
 		},
 	});
 
+	// Create client column with access to mutation
+	const clientColumn = columnHelper.display({
+		id: "client_email",
+		header: "Client",
+		enableColumnFilter: false,
+		cell: ({ row }) => {
+			const paymentId = row.original.id;
+			const clientName = row.original.client_name;
+			const clientEmail = row.original.client_email;
+
+			if (!paymentId) return "-";
+
+			// If client is assigned, show the client info with X button
+			if (clientName && clientEmail) {
+				return (
+					<div className="flex items-center justify-between gap-2">
+						<div className="text-sm">
+							<div className="font-medium">{clientName}</div>
+							<div className="text-muted-foreground text-xs">
+								{clientEmail}
+							</div>
+						</div>
+						<Button
+							size="sm"
+							variant="ghost"
+							className="h-6 w-6 p-0 hover:bg-destructive hover:text-destructive-foreground"
+							onClick={() => {
+								handleUpdatePaymentClient(paymentId, null);
+							}}
+						>
+							<X className="size-3" />
+						</Button>
+					</div>
+				);
+			}
+
+			// If no client assigned, show combobox
+			return (
+				<div className="w-full">
+					<ClientEmailCombobox
+						value={clientEmail ? parseInt(clientEmail) : null}
+						onValueChange={(newClientEmailId) => {
+							handleUpdatePaymentClient(paymentId, newClientEmailId);
+						}}
+						placeholder="Select client..."
+					/>
+				</div>
+			);
+		},
+	});
+
 	// Create payment slot column with access to mutation
 	const paymentSlotColumn = columnHelper.display({
 		id: "payment_slot",
@@ -418,12 +494,13 @@ function PaymentsTableContent({
 		},
 	});
 
-	// Dynamic columns that include platform and payment slot columns
+	// Dynamic columns that include platform, client, and payment slot columns
 	const dynamicColumns = [
 		...paymentTableColumns.slice(0, 5), // Up to disputed_status
 		platformColumn,
+		clientColumn, // Replace the static client_name column with editable client column
 		paymentSlotColumn,
-		...paymentTableColumns.slice(5), // Rest of the columns
+		...paymentTableColumns.slice(6), // Skip the original client_name column (index 5)
 	];
 
 	// Create dynamic filter config with proper types based on database schema
@@ -488,19 +565,11 @@ function PaymentsTableContent({
 					}))
 				: [],
 		},
-		{
-			...(universalColumnHelper as any)
-				.option("client_id")
-				.displayName("Client")
-				.icon(UserIcon)
-				.build(),
-			options: clients
-				? clients.map((client) => ({
-						value: client.id,
-						label: client.name,
-					}))
-				: [],
-		},
+		universalColumnHelper
+			.text("client_name")
+			.displayName("Client")
+			.icon(UserIcon)
+			.build(),
 		{
 			...(universalColumnHelper as any)
 				.option("product_id")

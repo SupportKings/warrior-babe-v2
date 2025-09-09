@@ -30,51 +30,18 @@ export const updatePaymentSlot = actionClient
 
 		// If we're assigning a new payment slot
 		if (paymentSlotId) {
-			// First, check if the payment slot is available (not already assigned)
-			const { data: existingSlot, error: checkError } = await supabase
-				.from("payment_slots")
-				.select("id, payment_id")
-				.eq("id", paymentSlotId)
-				.single();
-
-			if (checkError) {
-				throw new Error(`Failed to check payment slot: ${checkError.message}`);
-			}
-
-			if (existingSlot.payment_id && existingSlot.payment_id !== paymentId) {
-				throw new Error(
-					"This payment slot is already assigned to another payment",
-				);
-			}
-
-			// Update the payment slot to assign it to this payment
-			const { error: updateSlotError } = await supabase
-				.from("payment_slots")
+			// Update the payment to assign it to this payment slot
+			const { error: updatePaymentError } = await supabase
+				.from("payments")
 				.update({
-					payment_id: paymentId,
+					payment_slot_id: paymentSlotId,
 					updated_at: new Date().toISOString(),
 				})
-				.eq("id", paymentSlotId);
+				.eq("id", paymentId);
 
-			if (updateSlotError) {
+			if (updatePaymentError) {
 				throw new Error(
-					`Failed to assign payment slot: ${updateSlotError.message}`,
-				);
-			}
-
-			// If this payment was previously assigned to a different slot, clear that assignment
-			const { error: clearOldError } = await supabase
-				.from("payment_slots")
-				.update({
-					payment_id: null,
-					updated_at: new Date().toISOString(),
-				})
-				.eq("payment_id", paymentId)
-				.neq("id", paymentSlotId);
-
-			if (clearOldError) {
-				throw new Error(
-					`Failed to clear previous assignment: ${clearOldError.message}`,
+					`Failed to assign payment slot: ${updatePaymentError.message}`,
 				);
 			}
 
@@ -87,11 +54,22 @@ export const updatePaymentSlot = actionClient
 				revalidatePath("/dashboard/clients/activity-periods");
 				revalidatePath("/dashboard/finance");
 
+				const periodsCreated = activityResult.data.periodsCreated || 0;
+				let activityMessage = "";
+				
+				if (periodsCreated > 0) {
+					activityMessage = `Generated ${periodsCreated} activity periods for ${activityResult.data.clientName}`;
+				} else if (activityResult.data.message) {
+					activityMessage = activityResult.data.message;
+				} else {
+					activityMessage = "Activity periods already exist for this slot";
+				}
+
 				return {
 					success: true,
 					message: "Payment slot assigned successfully",
-					activityMessage: `Generated ${activityResult.data.periodsCreated} activity periods for ${activityResult.data.clientName}`,
-					periodsCreated: activityResult.data.periodsCreated,
+					activityMessage,
+					periodsCreated,
 				};
 			} catch (activityError) {
 				console.error("Failed to generate activity periods:", activityError);
@@ -112,20 +90,23 @@ export const updatePaymentSlot = actionClient
 			}
 		} else {
 			// If paymentSlotId is null, we're removing the assignment
-			// First, find which slot was previously assigned to this payment
-			const { data: previousSlot } = await supabase
-				.from("payment_slots")
-				.select("id")
-				.eq("payment_id", paymentId)
+			// First, get the current payment to find which slot was assigned
+			const { data: currentPayment } = await supabase
+				.from("payments")
+				.select("payment_slot_id")
+				.eq("id", paymentId)
 				.single();
 
+			const previousSlotId = currentPayment?.payment_slot_id;
+
+			// Clear the payment slot assignment from the payment
 			const { error: clearError } = await supabase
-				.from("payment_slots")
+				.from("payments")
 				.update({
-					payment_id: null,
+					payment_slot_id: null,
 					updated_at: new Date().toISOString(),
 				})
-				.eq("payment_id", paymentId);
+				.eq("id", paymentId);
 
 			if (clearError) {
 				throw new Error(
@@ -135,19 +116,19 @@ export const updatePaymentSlot = actionClient
 
 			// Delete activity periods that were created by this slot
 			let periodsDeleted = 0;
-			if (previousSlot?.id) {
+			if (previousSlotId) {
 				// First, count how many periods will be deleted
 				const { count } = await supabase
 					.from("client_activity_period")
 					.select("*", { count: "exact", head: true })
-					.eq("payment_slot", previousSlot.id);
+					.eq("payment_slot", previousSlotId);
 
 				periodsDeleted = count || 0;
 
 				const { error: deletePeriodsError } = await supabase
 					.from("client_activity_period")
 					.delete()
-					.eq("payment_slot", previousSlot.id);
+					.eq("payment_slot", previousSlotId);
 
 				if (deletePeriodsError) {
 					console.error(

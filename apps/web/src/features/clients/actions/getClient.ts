@@ -99,7 +99,6 @@ export async function getClient(id: string) {
 						amount_paid,
 						due_date,
 						notes,
-						payment_id,
 						created_at,
 						updated_at
 					),

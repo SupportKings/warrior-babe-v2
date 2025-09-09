@@ -40,8 +40,9 @@ export const createClientActivityPeriodAction = actionClient
 
 		if (error) {
 			console.error("Failed to create client activity period:", error);
+			console.error("Parsed input:", parsedInput);
 			return returnValidationErrors(clientActivityPeriodCreateSchema, {
-				_errors: ["Failed to create client activity period"],
+				_errors: [`Failed to create client activity period: ${error.message}`],
 			});
 		}
 

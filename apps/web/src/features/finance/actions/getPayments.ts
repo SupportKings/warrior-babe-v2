@@ -76,8 +76,8 @@ export async function getPaymentsWithFilters(
 
 				// Apply filter based on column type and operator
 				switch (columnId) {
-					case "client_id":
-						// Client filtering now works with client_id
+					case "client_name":
+						// Client filtering by name using text search
 						if (operator === "contains") {
 							query = (query as any).ilike(columnId, `%${values[0]}%`);
 						} else if (operator === "does not contain") {
@@ -475,6 +475,36 @@ export async function getClientsForFilter() {
 		return clients || [];
 	} catch (error) {
 		console.error("Unexpected error in getClientsForFilter:", error);
+		return [];
+	}
+}
+
+// Search clients for filter - only fetch matching results
+export async function searchClientsForFilter(searchTerm: string) {
+	try {
+		const supabase = await createClient();
+
+		// Only search if there's a search term, limit to 50 results
+		let query = supabase
+			.from("clients")
+			.select("id, name")
+			.order("name", { ascending: true })
+			.limit(50);
+
+		if (searchTerm.trim()) {
+			query = query.ilike("name", `%${searchTerm.trim()}%`);
+		}
+
+		const { data: clients, error } = await query;
+
+		if (error) {
+			console.error("Error searching clients for filter:", error);
+			return [];
+		}
+
+		return clients || [];
+	} catch (error) {
+		console.error("Unexpected error in searchClientsForFilter:", error);
 		return [];
 	}
 }

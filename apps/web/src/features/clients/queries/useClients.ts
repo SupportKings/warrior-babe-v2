@@ -11,6 +11,7 @@ import {
 	getClientsWithFaceted,
 	getClientsWithFilters,
 } from "@/features/clients/actions/getClient";
+import { searchClientEmails } from "@/features/clients/actions/searchClients";
 import { updateClientAction } from "@/features/clients/actions/updateClient";
 import type {
 	ClientEditFormInput,
@@ -85,6 +86,15 @@ export function useClientBasic(id: string) {
 		queryFn: () => getClientBasic(id),
 		enabled: !!id,
 		staleTime: STALE_TIME.SHORT,
+	});
+}
+
+export function useSearchClientEmails(searchTerm: string, limit = 50) {
+	return useQuery({
+		queryKey: ["client-emails", "search", searchTerm, limit],
+		queryFn: () => searchClientEmails(searchTerm, limit),
+		enabled: !!searchTerm.trim(),
+		staleTime: STALE_TIME.LONG, // Search results can be cached longer
 	});
 }
 

@@ -17,11 +17,13 @@ import { StatusBadge } from "@/components/ui/status-badge";
 import { format } from "date-fns";
 import {
 	CalendarIcon,
+	CopyIcon,
 	CreditCardIcon,
 	DollarSignIcon,
 	InfoIcon,
 	XIcon,
 } from "lucide-react";
+import { toast } from "sonner";
 
 type StripeCharge = Database["stripe"]["Tables"]["charges"]["Row"];
 
@@ -49,6 +51,16 @@ export function StripeDetailsVaul({
 	const formatDate = (timestamp: number | null) => {
 		if (!timestamp) return "N/A";
 		return format(new Date(timestamp * 1000), "MMM dd, yyyy 'at' h:mm a");
+	};
+
+	const copyToClipboard = async (text: string) => {
+		try {
+			await navigator.clipboard.writeText(text);
+			toast.success("Receipt email copied to clipboard");
+		} catch (err) {
+			console.error("Failed to copy text: ", err);
+			toast.error("Failed to copy receipt email");
+		}
 	};
 
 	if (isLoading) {
@@ -273,9 +285,19 @@ export function StripeDetailsVaul({
 											<p className="text-muted-foreground text-sm">
 												Receipt Email
 											</p>
-											<p className="font-medium">
-												{stripeDetails.receipt_email}
-											</p>
+											<div className="flex items-center justify-between">
+												<p className="font-medium">
+													{stripeDetails.receipt_email}
+												</p>
+												<Button
+													variant="ghost"
+													size="sm"
+													onClick={() => copyToClipboard(stripeDetails.receipt_email!)}
+													className="ml-2 h-6 w-6 p-0"
+												>
+													<CopyIcon className="h-3 w-3" />
+												</Button>
+											</div>
 										</div>
 									)}
 									{stripeDetails.receipt_number && (

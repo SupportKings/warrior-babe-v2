@@ -73,6 +73,38 @@ export async function generateActivityPeriods(paymentSlotId: string) {
 		// Get the assigned coach for this client
 		const assignedCoachId = await getClientAssignedCoach(paymentPlan.client_id);
 
+		if (!assignedCoachId) {
+			throw new Error(
+				`No active coach assignment found for client: ${client.name}`,
+			);
+		}
+
+		// Check if activity periods already exist for this payment slot
+		const { data: existingPeriods, error: existingPeriodsError } = await supabase
+			.from("client_activity_period")
+			.select("id")
+			.eq("payment_slot", paymentSlotId)
+			.limit(1);
+
+		if (existingPeriodsError) {
+			console.error("Error checking existing activity periods:", existingPeriodsError);
+			// Continue anyway, don't fail the whole operation
+		}
+
+		if (existingPeriods && existingPeriods.length > 0) {
+			// Activity periods already exist for this slot
+			return {
+				success: true,
+				data: {
+					periodsCreated: 0,
+					clientName: client.name,
+					coachId: assignedCoachId,
+					periods: [],
+					message: "Activity periods already exist for this payment slot",
+				},
+			};
+		}
+
 		// Check if this is the first slot in the payment plan
 		if (!paymentSlot.plan_id) {
 			throw new Error("Payment slot has no plan associated");
@@ -80,7 +112,7 @@ export async function generateActivityPeriods(paymentSlotId: string) {
 
 		const { data: allSlots, error: allSlotsError } = await supabase
 			.from("payment_slots")
-			.select("id, due_date, payment_id")
+			.select("id, due_date")
 			.eq("plan_id", paymentSlot.plan_id)
 			.order("due_date", { ascending: true });
 
@@ -164,7 +196,10 @@ export async function generateActivityPeriods(paymentSlotId: string) {
 			if (result?.data?.success) {
 				createdPeriods.push(result.data.data);
 			} else {
-				throw new Error("Failed to create activity period");
+				console.error("Activity period creation failed:", result);
+				throw new Error(
+					`Failed to create activity period for ${periodStartDate.toISOString().split("T")[0]} - ${periodEndDate.toISOString().split("T")[0]}`,
+				);
 			}
 
 			// Next period starts the day after this one ends
