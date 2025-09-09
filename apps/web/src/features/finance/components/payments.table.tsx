@@ -216,8 +216,7 @@ function PaymentsTableContent({
 		null,
 	);
 	const [stripeDetailsOpen, setStripeDetailsOpen] = useState(false);
-	const [selectedStripeDetails, setSelectedStripeDetails] = useState<any>(null);
-	const [isLoadingStripeDetails, setIsLoadingStripeDetails] = useState(false);
+	const [selectedChargeId, setSelectedChargeId] = useState<string>("");
 	const [currentPage, setCurrentPage] = useState(0);
 	const [sorting, setSorting] = useState<any[]>([]);
 
@@ -276,12 +275,15 @@ function PaymentsTableContent({
 		currentPage,
 		25,
 		sorting,
-		["status", "disputed_status", "platform"], // columns to get faceted data for
+		["status", "platform"], // columns to get faceted data for
 	);
 
 	// Fetch filter data for client and product filters
 	const { data: clients } = useClientsForFilter();
 	const { data: products } = useProductsForFilter();
+	
+	// React Query hook for Stripe details - only enabled when selectedChargeId is set
+	const { data: stripeDetails, isLoading: isLoadingStripeDetails } = useStripePaymentDetails(selectedChargeId);
 
 	// Extract data from combined result
 	const paymentsData = paymentsWithFaceted
@@ -317,12 +319,9 @@ function PaymentsTableContent({
 				.join(" ");
 
 			const StripeButton = ({ chargeId }: { chargeId: string }) => {
-				const { data, isLoading } = useStripePaymentDetails(chargeId);
-
 				const handleStripeDetails = () => {
+					setSelectedChargeId(chargeId);
 					setStripeDetailsOpen(true);
-					setSelectedStripeDetails(data);
-					setIsLoadingStripeDetails(isLoading);
 				};
 
 				return (
@@ -674,11 +673,10 @@ function PaymentsTableContent({
 				onOpenChange={(open) => {
 					setStripeDetailsOpen(open);
 					if (!open) {
-						setSelectedStripeDetails(null);
-						setIsLoadingStripeDetails(false);
+						setSelectedChargeId("");
 					}
 				}}
-				stripeDetails={selectedStripeDetails}
+				stripeDetails={stripeDetails}
 				isLoading={isLoadingStripeDetails}
 			/>
 		</div>
