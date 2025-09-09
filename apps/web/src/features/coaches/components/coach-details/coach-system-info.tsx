@@ -21,7 +21,7 @@ const formatDate = (dateString: string | null) => {
 interface CoachSystemInfoProps {
 	coach: {
 		created_at: string;
-		updated_at?: string;
+		updated_at?: string | null;
 	};
 }
 

@@ -745,7 +745,7 @@ function PaymentsTableContent({
 						setSelectedChargeId("");
 					}
 				}}
-				stripeDetails={stripeDetails}
+				stripeDetails={stripeDetails ?? null}
 				isLoading={isLoadingStripeDetails}
 			/>
 		</div>
