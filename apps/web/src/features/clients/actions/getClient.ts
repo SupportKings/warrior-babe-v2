@@ -287,23 +287,58 @@ export async function getClientsWithFilters(
 					case "onboarding_completed_date":
 					case "offboard_date":
 						// Date fields - support various date operators
+						// Convert dates to proper format for timestamptz fields
+						const formatDateForQuery = (date: any, isEndOfDay = false) => {
+							let dateObj: Date;
+							if (date instanceof Date) {
+								dateObj = new Date(date);
+							} else {
+								dateObj = new Date(date);
+							}
+							
+							// For timestamptz fields, we need to handle date ranges properly
+							if (isEndOfDay) {
+								// Set to end of day (23:59:59.999)
+								dateObj.setHours(23, 59, 59, 999);
+							} else {
+								// Set to start of day (00:00:00.000)
+								dateObj.setHours(0, 0, 0, 0);
+							}
+							
+							return dateObj.toISOString();
+						};
+
 						if (operator === "is") {
-							query = query.eq(columnId, values[0]);
+							// For "is" operator on timestamptz, use date range for the entire day
+							const startOfDay = formatDateForQuery(values[0], false);
+							const endOfDay = formatDateForQuery(values[0], true);
+							query = query.gte(columnId, startOfDay).lte(columnId, endOfDay);
 						} else if (operator === "is not") {
-							query = query.not(columnId, "eq", values[0]);
+							// For "is not" operator, exclude the entire day
+							const startOfDay = formatDateForQuery(values[0], false);
+							const endOfDay = formatDateForQuery(values[0], true);
+							query = query.or(`${columnId}.lt.${startOfDay},${columnId}.gt.${endOfDay}`);
 						} else if (operator === "is before") {
-							query = query.lt(columnId, values[0]);
+							const startOfDay = formatDateForQuery(values[0], false);
+							query = query.lt(columnId, startOfDay);
 						} else if (operator === "is on or before") {
-							query = query.lte(columnId, values[0]);
+							const endOfDay = formatDateForQuery(values[0], true);
+							query = query.lte(columnId, endOfDay);
 						} else if (operator === "is after") {
-							query = query.gt(columnId, values[0]);
+							const endOfDay = formatDateForQuery(values[0], true);
+							query = query.gt(columnId, endOfDay);
 						} else if (operator === "is on or after") {
-							query = query.gte(columnId, values[0]);
+							const startOfDay = formatDateForQuery(values[0], false);
+							query = query.gte(columnId, startOfDay);
 						} else if (operator === "is between" && values.length === 2) {
-							query = query.gte(columnId, values[0]).lte(columnId, values[1]);
+							const startOfDay = formatDateForQuery(values[0], false);
+							const endOfDay = formatDateForQuery(values[1], true);
+							query = query.gte(columnId, startOfDay).lte(columnId, endOfDay);
 						} else if (operator === "is not between" && values.length === 2) {
+							const startOfDay = formatDateForQuery(values[0], false);
+							const endOfDay = formatDateForQuery(values[1], true);
 							query = query.or(
-								`${columnId}.lt.${values[0]},${columnId}.gt.${values[1]}`,
+								`${columnId}.lt.${startOfDay},${columnId}.gt.${endOfDay}`,
 							);
 						}
 						break;

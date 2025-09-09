@@ -633,8 +633,20 @@ export function FilterValueDateController<TData>({
 
 		setDate({ from: start, to: end });
 
+		// Ensure dates maintain local timezone by setting time to noon
+		// This prevents timezone conversion issues when serializing to URL
+		const normalizeDate = (date: Date) => {
+			const normalized = new Date(date);
+			normalized.setHours(12, 0, 0, 0);
+			return normalized;
+		};
+
 		const isRange = start && end;
-		const newValues = isRange ? [start, end] : start ? [start] : [];
+		const newValues = isRange 
+			? [normalizeDate(start), normalizeDate(end)] 
+			: start 
+			? [normalizeDate(start)] 
+			: [];
 
 		actions.setFilterValue(column, newValues);
 	}
