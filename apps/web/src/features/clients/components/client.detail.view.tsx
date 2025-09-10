@@ -154,7 +154,7 @@ export default function ClientDetailView({ clientId }: ClientDetailViewProps) {
 		try {
 			switch (deleteModal.type) {
 				case "email":
-					await deleteClientEmail(deleteModal.id);
+					await deleteClientEmail(Number(deleteModal.id));
 					toast.success("Email deleted successfully");
 					break;
 				case "goal":
