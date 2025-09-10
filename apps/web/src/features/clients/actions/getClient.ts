@@ -11,6 +11,11 @@ export async function getClient(id: string) {
 			.from("clients")
 			.select(`
 				*,
+				client_emails (
+					id,
+					email,
+					created_at
+				),
 				client_assignments (
 					id,
 					coach_id,
