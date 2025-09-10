@@ -36,7 +36,6 @@ export const coachTeamsValidation = {
 export const coachTeamsCreateSchema = z.object({
 	team_name: coachTeamsValidation.teamName,
 	premier_coach_id: coachTeamsValidation.premierCoachId,
-	coach_id: coachTeamsValidation.coachId,
 });
 
 // Update schema with optional fields and required ID
@@ -44,7 +43,6 @@ export const coachTeamsUpdateSchema = z.object({
 	id: z.string().uuid("Invalid ID format"),
 	team_name: coachTeamsValidation.teamName.optional(),
 	premier_coach_id: coachTeamsValidation.premierCoachId.optional(),
-	coach_id: coachTeamsValidation.coachId,
 });
 
 // Form-friendly schema with defaults

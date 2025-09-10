@@ -19,7 +19,7 @@ export const createCoachTeams = actionClient
 		}
 		return next({ ctx: { user } });
 	})
-	.schema(coachTeamsCreateSchema)
+	.inputSchema(coachTeamsCreateSchema)
 	.action(async ({ parsedInput, ctx }) => {
 		const supabase = await createClient();
 
@@ -54,38 +54,6 @@ export const createCoachTeams = actionClient
 				});
 			}
 
-			// Check if coach exists (if provided)
-			if (parsedInput.coach_id) {
-				const { data: coach } = await supabase
-					.from("team_members")
-					.select("id, name")
-					.eq("id", parsedInput.coach_id)
-					.single();
-
-				if (!coach) {
-					returnValidationErrors(coachTeamsCreateSchema, {
-						coach_id: {
-							_errors: ["Coach not found"],
-						},
-					});
-				}
-
-				// Check if coach is not already in a team
-				const { data: coachInTeam } = await supabase
-					.from("team_members")
-					.select("team_id")
-					.eq("id", parsedInput.coach_id)
-					.not("team_id", "is", null)
-					.single();
-
-				if (coachInTeam) {
-					returnValidationErrors(coachTeamsCreateSchema, {
-						coach_id: {
-							_errors: ["This coach is already assigned to a team"],
-						},
-					});
-				}
-			}
 
 			// Create the coach team
 			const { data: newTeam, error } = await supabase
@@ -102,19 +70,6 @@ export const createCoachTeams = actionClient
 				throw new Error("Failed to create coach team");
 			}
 
-			// Update the coach's team_id if a coach was selected
-			if (parsedInput.coach_id && newTeam) {
-				const { error: updateError } = await supabase
-					.from("team_members")
-					.update({ team_id: newTeam.id })
-					.eq("id", parsedInput.coach_id);
-
-				if (updateError) {
-					console.error("Error updating coach team assignment:", updateError);
-					// Note: Team was created but coach assignment failed
-					// You may want to handle this differently
-				}
-			}
 
 			// Revalidate relevant paths
 			revalidatePath("/dashboard/coaches/teams");
