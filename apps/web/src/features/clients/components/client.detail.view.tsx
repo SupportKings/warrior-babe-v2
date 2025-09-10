@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { deleteClientActivityPeriod } from "../actions/relations/activity-periods";
 import { deleteClientAssignment } from "../actions/relations/assignments";
+import { deleteClientEmail } from "../actions/relations/client-emails";
 import { deleteClientGoal } from "../actions/relations/goals";
 import { deleteClientNPSScore } from "../actions/relations/nps-scores";
 import { deleteClientPaymentPlan } from "../actions/relations/payment-plans";
@@ -19,6 +20,7 @@ import { clientQueries, useClient } from "../queries/useClients";
 import { ClientActivityPeriodsSection } from "./detail-sections/client-activity-periods-section";
 import { ClientAssignmentsSection } from "./detail-sections/client-assignments-section";
 import { ClientBasicInfo } from "./detail-sections/client-basic-info";
+import { ClientEmailsSection } from "./detail-sections/client-emails-section";
 import { ClientGoalsSection } from "./detail-sections/client-goals-section";
 import { ClientNPSSection } from "./detail-sections/client-nps-section";
 import { ClientOnboardingStatus } from "./detail-sections/client-onboarding-status";
@@ -151,6 +153,10 @@ export default function ClientDetailView({ clientId }: ClientDetailViewProps) {
 	const handleDelete = async () => {
 		try {
 			switch (deleteModal.type) {
+				case "email":
+					await deleteClientEmail(Number(deleteModal.id));
+					toast.success("Email deleted successfully");
+					break;
 				case "goal":
 					await deleteClientGoal(deleteModal.id);
 					toast.success("Goal deleted successfully");
@@ -246,8 +252,9 @@ export default function ClientDetailView({ clientId }: ClientDetailViewProps) {
 			</div>
 
 			{/* Children Level Info Sections */}
-			<Tabs defaultValue="assignments" className="w-full">
-				<TabsList className="grid w-full grid-cols-7">
+			<Tabs defaultValue="emails" className="w-full">
+				<TabsList className="grid w-full grid-cols-8">
+					<TabsTrigger value="emails">Emails</TabsTrigger>
 					<TabsTrigger value="assignments">Assignments</TabsTrigger>
 					<TabsTrigger value="goals">Goals</TabsTrigger>
 					<TabsTrigger value="wins">Wins</TabsTrigger>
@@ -256,6 +263,14 @@ export default function ClientDetailView({ clientId }: ClientDetailViewProps) {
 					<TabsTrigger value="testimonials">Testimonials</TabsTrigger>
 					<TabsTrigger value="payment-plans">Payment Plans</TabsTrigger>
 				</TabsList>
+
+				<TabsContent value="emails">
+					<ClientEmailsSection
+						clientId={clientId}
+						emails={client.client_emails}
+						setDeleteModal={setDeleteModal}
+					/>
+				</TabsContent>
 
 				<TabsContent value="assignments">
 					<ClientAssignmentsSection
