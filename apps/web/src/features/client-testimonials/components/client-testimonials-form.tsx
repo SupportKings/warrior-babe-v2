@@ -68,9 +68,7 @@ export function ClientTestimonialsForm({
             | "email"
             | "video",
         };
-        console.log(transformedData);
         const result = await createClientTestimonial(transformedData as any);
-        console.log(result);
 
         if (result?.data?.success) {
           toast.success("Testimonial created successfully");

@@ -194,6 +194,27 @@ export async function getClientBasic(id: string) {
 	}
 }
 
+export async function getClientsBasic() {
+	try {
+		const supabase = await createClient();
+
+		const { data: client, error } = await supabase
+			.from("clients")
+			.select("*")
+			.eq("is_deleted", false)
+
+		if (error) {
+			console.error("Error fetching client basic data:", error);
+			return null;
+		}
+
+		return client;
+	} catch (error) {
+		console.error("Unexpected error in getClientBasic:", error);
+		return null;
+	}
+}
+
 export async function getAllClients() {
 	try {
 		const supabase = await createClient();
