@@ -26,7 +26,7 @@ export const createPayment = actionClient
 
 		// Prepare the payment data
 		const paymentData = {
-			amount: parsedInput.amount,
+			amount: Math.round(parsedInput.amount * 100), // Convert to cents
 			payment_date: parsedInput.payment_date,
 			payment_method: parsedInput.payment_method,
 			platform: parsedInput.platform,
