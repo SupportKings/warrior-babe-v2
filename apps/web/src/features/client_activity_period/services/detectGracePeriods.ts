@@ -2,7 +2,6 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { getClientAssignedCoach } from "../../clients/actions/relations/getClientAssignedCoach";
-import { createClientActivityPeriodAction } from "../actions/createClientActivityPeriod";
 
 /**
  * Detect payment plans that need grace periods and create them
@@ -175,7 +174,7 @@ export async function detectAndCreateGracePeriods() {
 						clientName: plan.clients.name,
 						action: "created",
 						reason: `Grace period created: ${gracePeriodStart.toISOString().split("T")[0]} to ${gracePeriodEnd.toISOString().split("T")[0]}`,
-						gracePeriodId: result.data.data.id,
+						gracePeriodId: result.data.data?.id,
 					});
 				} else {
 					console.error(`❌ Failed to create grace period for plan ${plan.id}:`, result);

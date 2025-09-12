@@ -137,7 +137,33 @@ export async function getAllClientActivityPeriods() {
 
 // Helper function to build filter query based on FiltersState using the view
 function buildFilterQuery(supabase: any, filters: FiltersState) {
-	let query = supabase.from("v_client_activity_period_core").select("*");
+	// Query the main table with proper joins to get all fields including is_grace
+	let query = supabase
+		.from("client_activity_period")
+		.select(`
+			*,
+			clients!inner (
+				id,
+				name
+			),
+			team_members (
+				id,
+				name
+			),
+			payment_plans!inner (
+				id,
+				product_id,
+				type,
+				products (
+					id,
+					name
+				),
+				payment_plan_templates (
+					id,
+					name
+				)
+			)
+		`);
 
 	// Apply filters based on their type and operator
 	for (const filter of filters) {
@@ -342,6 +368,8 @@ function getDbColumnName(columnId: string): string {
 			return "active";
 		case "payment_plan":
 			return "payment_plan";
+		case "type":
+			return "is_grace";
 		default:
 			return columnId;
 	}
