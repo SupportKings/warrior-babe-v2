@@ -77,7 +77,6 @@ export default function ClientForm({ onSuccess }: ClientFormProps) {
 			phone: "",
 			overall_status: "new",
 			everfit_access: "new",
-			team_ids: "",
 			onboarding_call_completed: false,
 			two_week_check_in_call_completed: false,
 			vip_terms_signed: false,
@@ -409,32 +408,6 @@ export default function ClientForm({ onSuccess }: ClientFormProps) {
 				</div>
 			</div>
 
-			{/* Team Assignment */}
-			<div className="space-y-4">
-				<h3 className="font-medium text-lg">Team Assignment</h3>
-
-				<form.Field name="team_ids">
-					{(field) => (
-						<div className="space-y-2">
-							<Label htmlFor={field.name}>Team IDs</Label>
-							<Input
-								id={field.name}
-								name={field.name}
-								placeholder="Enter team IDs (comma separated)"
-								value={field.state.value}
-								onBlur={field.handleBlur}
-								onChange={(e) => field.handleChange(e.target.value)}
-							/>
-							{field.state.meta.errors &&
-								field.state.meta.errors.length > 0 && (
-									<p className="text-red-500 text-sm">
-										{String(field.state.meta.errors[0] || "")}
-									</p>
-								)}
-						</div>
-					)}
-				</form.Field>
-			</div>
 
 			{/* Notes */}
 			<div className="space-y-4">

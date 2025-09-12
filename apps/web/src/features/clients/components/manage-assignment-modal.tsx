@@ -107,11 +107,17 @@ export function ManageAssignmentModal({
 		setIsLoading(true);
 
 		try {
+			// Prepare the data with proper null handling
+			const submissionData = {
+				...formData,
+				end_date: formData.end_date.trim() === "" ? null : formData.end_date,
+			};
+
 			if (isEdit && assignment) {
-				await updateClientAssignment(assignment.id, formData);
+				await updateClientAssignment(assignment.id, submissionData);
 				toast.success("Assignment updated successfully!");
 			} else {
-				await createClientAssignment(clientId, formData);
+				await createClientAssignment(clientId, submissionData);
 				toast.success("Assignment added successfully!");
 			}
 
@@ -191,15 +197,20 @@ export function ManageAssignmentModal({
 
 					<div>
 						<Label htmlFor="assignment_type">Assignment Type *</Label>
-						<Input
-							id="assignment_type"
-							placeholder="e.g., Primary Coach, Nutrition Coach, etc."
-							value={formData.assignment_type}
-							onChange={(e) =>
-								setFormData({ ...formData, assignment_type: e.target.value })
+						<Select
+							value={formData.assignment_type || ""}
+							onValueChange={(value) =>
+								setFormData({ ...formData, assignment_type: value })
 							}
-							required
-						/>
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="Select assignment type" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="coach">Coach</SelectItem>
+								<SelectItem value="cs_rep">CS Rep</SelectItem>
+							</SelectContent>
+						</Select>
 					</div>
 
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">

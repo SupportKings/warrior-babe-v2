@@ -84,6 +84,7 @@ export function ManageActivityPeriodModal({
 		end_date: "",
 		coach_id: null as string | null,
 		payment_plan: null as string | null,
+		is_grace: false,
 	});
 
 	// Populate form data when editing
@@ -99,6 +100,7 @@ export function ManageActivityPeriodModal({
 					: "",
 				coach_id: activityPeriod.coach_id || null,
 				payment_plan: activityPeriod.payment_plan || null,
+				is_grace: activityPeriod.is_grace || false,
 			});
 		} else if (!isEdit) {
 			// Reset form for add mode
@@ -108,6 +110,7 @@ export function ManageActivityPeriodModal({
 				end_date: "",
 				coach_id: null,
 				payment_plan: null,
+				is_grace: false,
 			});
 		}
 	}, [isEdit, activityPeriod, open]);
@@ -173,15 +176,27 @@ export function ManageActivityPeriodModal({
 				</DialogHeader>
 
 				<form onSubmit={handleSubmit} className="space-y-4">
-					<div className="flex items-center space-x-2">
-						<Switch
-							id="active"
-							checked={formData.active}
-							onCheckedChange={(checked) =>
-								setFormData({ ...formData, active: checked })
-							}
-						/>
-						<Label htmlFor="active">Active</Label>
+					<div className="grid grid-cols-2 gap-4">
+						<div className="flex items-center space-x-2">
+							<Switch
+								id="active"
+								checked={formData.active}
+								onCheckedChange={(checked) =>
+									setFormData({ ...formData, active: checked })
+								}
+							/>
+							<Label htmlFor="active">Active</Label>
+						</div>
+						<div className="flex items-center space-x-2">
+							<Switch
+								id="is_grace"
+								checked={formData.is_grace}
+								onCheckedChange={(checked) =>
+									setFormData({ ...formData, is_grace: checked })
+								}
+							/>
+							<Label htmlFor="is_grace">Grace Period</Label>
+						</div>
 					</div>
 
 					{/* Coach Selection */}

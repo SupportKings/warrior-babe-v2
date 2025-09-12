@@ -157,9 +157,8 @@ export function ClientAssignmentsForm({
 										<SelectValue placeholder="Select assignment type" />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="primary">Primary</SelectItem>
-										<SelectItem value="secondary">Secondary</SelectItem>
-										<SelectItem value="temporary">Temporary</SelectItem>
+										<SelectItem value="coach">Coach</SelectItem>
+										<SelectItem value="cs_rep">CS Rep</SelectItem>
 									</SelectContent>
 								</Select>
 							</div>

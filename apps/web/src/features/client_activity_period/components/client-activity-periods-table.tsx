@@ -127,6 +127,29 @@ const clientActivityPeriodTableColumns = [
 			return <StatusBadge>{isActive ? "Active" : "Inactive"}</StatusBadge>;
 		},
 	}),
+	columnHelper.display({
+		id: "type",
+		header: "Type",
+		enableColumnFilter: true,
+		cell: ({ row }) => {
+			const data = row.original as any;
+			const isGrace = data.is_grace;
+			
+			if (isGrace === true) {
+				return (
+					<StatusBadge colorScheme="yellow">
+						Grace Period
+					</StatusBadge>
+				);
+			} else {
+				return (
+					<StatusBadge colorScheme="green">
+						Regular
+					</StatusBadge>
+				);
+			}
+		},
+	}),
 ];
 
 // Filter configuration using universal column helper
@@ -272,6 +295,20 @@ function ClientActivityPeriodsTableContent({
 			.displayName("End Date")
 			.icon(CalendarIcon)
 			.build(),
+		{
+			id: "type",
+			type: "option" as const,
+			displayName: "Type",
+			icon: UserIcon,
+			accessor: (row: ClientActivityPeriodRow) => {
+				const data = row as any;
+				return data.is_grace ? "grace" : "regular";
+			},
+			options: [
+				{ value: "regular", label: "Regular", count: 0 },
+				{ value: "grace", label: "Grace Period", count: 0 }
+			],
+		},
 	];
 
 	const rowActions = [

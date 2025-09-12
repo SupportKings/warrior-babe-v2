@@ -149,7 +149,8 @@ export async function getClient(id: string) {
 				product_id,
 				product_name,
 				created_at,
-				updated_at
+				updated_at,
+				is_grace
 			`)
 			.eq("client_id", id);
 

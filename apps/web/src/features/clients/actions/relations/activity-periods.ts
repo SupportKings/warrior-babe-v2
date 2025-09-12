@@ -8,9 +8,12 @@ interface ClientActivityPeriod {
 	id?: string;
 	active: boolean;
 	start_date: string;
-	end_date: string;
+	end_date: string | null;
 	coach_id: string | null;
-	payment_plan?: string | null;
+	coach_payment?: string | null;
+	payment_plan: string | null;
+	payment_slot?: string | null;
+	is_grace?: boolean | null;
 }
 
 export async function saveClientActivityPeriods(
@@ -48,9 +51,12 @@ export async function saveClientActivityPeriods(
 				.update({
 					active: period.active,
 					start_date: period.start_date,
-					end_date: period.end_date || null,
+					end_date: period.end_date,
 					coach_id: period.coach_id,
-					payment_plan: period.payment_plan || null,
+					coach_payment: period.coach_payment,
+					payment_plan: period.payment_plan,
+					payment_slot: period.payment_slot,
+					is_grace: period.is_grace,
 				})
 				.eq("id", period.id);
 		} else {
@@ -58,9 +64,12 @@ export async function saveClientActivityPeriods(
 			await supabase.from("client_activity_period").insert({
 				active: period.active,
 				start_date: period.start_date,
-				end_date: period.end_date || null,
+				end_date: period.end_date,
 				coach_id: period.coach_id,
-				payment_plan: period.payment_plan || null,
+				coach_payment: period.coach_payment,
+				payment_plan: period.payment_plan,
+				payment_slot: period.payment_slot,
+				is_grace: period.is_grace,
 			});
 		}
 	}
@@ -125,8 +134,14 @@ export async function createClientActivityPeriod(
 	const { data, error } = await supabase
 		.from("client_activity_period")
 		.insert({
-			client_id: clientId,
-			...activityPeriodData,
+			active: activityPeriodData.active,
+			start_date: activityPeriodData.start_date,
+			end_date: activityPeriodData.end_date,
+			coach_id: activityPeriodData.coach_id,
+			coach_payment: activityPeriodData.coach_payment,
+			payment_plan: activityPeriodData.payment_plan,
+			payment_slot: activityPeriodData.payment_slot,
+			is_grace: activityPeriodData.is_grace,
 		})
 		.select()
 		.single();

@@ -105,6 +105,41 @@ export async function generateActivityPeriods(paymentSlotId: string) {
 			};
 		}
 
+		// GRACE PERIOD HANDLING: When payment is received, mark any grace periods as regular periods
+		const { data: gracePeriods, error: gracePeriodsError } = await supabase
+			.from("client_activity_period")
+			.select("id")
+			.eq("payment_plan", paymentPlan.id)
+			.eq("is_grace", true);
+
+		if (gracePeriodsError) {
+			console.error("Error checking grace periods:", gracePeriodsError);
+			// Continue anyway, don't fail the whole operation
+		}
+
+		let gracePeriodsConverted = 0;
+		if (gracePeriods && gracePeriods.length > 0) {
+			console.log(`Found ${gracePeriods.length} grace periods to convert for payment plan ${paymentPlan.id}`);
+			
+			// Convert grace periods to regular periods (mark as paid)
+			const { error: convertError } = await supabase
+				.from("client_activity_period")
+				.update({ 
+					is_grace: false,
+					updated_at: new Date().toISOString(),
+				})
+				.eq("payment_plan", paymentPlan.id)
+				.eq("is_grace", true);
+
+			if (convertError) {
+				console.error("Error converting grace periods:", convertError);
+				// Continue anyway, don't fail the whole operation
+			} else {
+				gracePeriodsConverted = gracePeriods.length;
+				console.log(`✅ Converted ${gracePeriodsConverted} grace periods to regular periods`);
+			}
+		}
+
 		// Check if this is the first slot in the payment plan
 		if (!paymentSlot.plan_id) {
 			throw new Error("Payment slot has no plan associated");
@@ -213,6 +248,7 @@ export async function generateActivityPeriods(paymentSlotId: string) {
 			success: true,
 			data: {
 				periodsCreated: createdPeriods.length,
+				gracePeriodsConverted,
 				clientName: client.name,
 				coachId: assignedCoachId,
 				periods: createdPeriods,

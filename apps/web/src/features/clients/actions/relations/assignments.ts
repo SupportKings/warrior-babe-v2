@@ -84,9 +84,15 @@ export async function updateClientAssignment(
 		throw new Error("Authentication required");
 	}
 
+	// Prepare the update data, converting empty strings to null
+	const updateData = {
+		...assignmentData,
+		end_date: assignmentData.end_date?.trim() === "" ? null : assignmentData.end_date,
+	};
+
 	const { error } = await supabase
 		.from("client_assignments")
-		.update(assignmentData)
+		.update(updateData)
 		.eq("id", assignmentId);
 
 	if (error) {

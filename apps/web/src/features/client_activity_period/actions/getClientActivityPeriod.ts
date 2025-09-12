@@ -342,6 +342,8 @@ function getDbColumnName(columnId: string): string {
 			return "active";
 		case "payment_plan":
 			return "payment_plan";
+		case "type":
+			return "is_grace";
 		default:
 			return columnId;
 	}
