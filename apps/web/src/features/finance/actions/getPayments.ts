@@ -150,9 +150,18 @@ export async function getPaymentsWithFilters(
           case "dispute_fee": {
             // Number fields - convert string values to numbers
             const numValues = values.map((v: any) => {
-              // Handle currency format (e.g., "100" or "100.50")
-              const num = Number.parseFloat(String(v).replace(/[^0-9.-]/g, ""));
+              // Handle currency format (e.g., "$100", "100", "100.50", "$100.50")
+              const cleanedValue = String(v).replace(/[$,]/g, "").trim();
+              const num = Number.parseFloat(cleanedValue);
+              
+              // Check if the number is valid
+              if (isNaN(num)) {
+                console.warn(`Invalid number value for ${columnId}: ${v}`);
+                return 0;
+              }
+              
               // Amount is stored as cents in DB (e.g., 499900 for $4999.00)
+              // So we multiply by 100 to convert dollars to cents
               return Math.round(num * 100);
             });
 
@@ -170,8 +179,8 @@ export async function getPaymentsWithFilters(
               query = (query as any).lte(columnId, numValues[0]);
             } else if (operator === "is between" && numValues.length === 2) {
               query = query
-                .gte(columnId, numValues[0])
-                .lte(columnId, numValues[1]);
+                .gte(columnId, Math.min(numValues[0], numValues[1]))
+                .lte(columnId, Math.max(numValues[0], numValues[1]));
             }
             break;
           }
@@ -346,11 +355,18 @@ export async function getPaymentsWithFaceted(
                 case "dispute_fee": {
                   // Number fields - convert string values to cents
                   const numValues = values.map((v: any) => {
-                    // Handle currency format (e.g., "100" or "100.50")
-                    const num = Number.parseFloat(
-                      String(v).replace(/[^0-9.-]/g, "")
-                    );
+                    // Handle currency format (e.g., "$100", "100", "100.50", "$100.50")
+                    const cleanedValue = String(v).replace(/[$,]/g, "").trim();
+                    const num = Number.parseFloat(cleanedValue);
+                    
+                    // Check if the number is valid
+                    if (isNaN(num)) {
+                      console.warn(`Invalid number value for ${filterColumnId}: ${v}`);
+                      return 0;
+                    }
+                    
                     // Amount is stored as cents in DB (e.g., 499900 for $4999.00)
+                    // So we multiply by 100 to convert dollars to cents
                     return Math.round(num * 100);
                   });
 
@@ -375,8 +391,8 @@ export async function getPaymentsWithFaceted(
                     numValues.length === 2
                   ) {
                     facetQuery = facetQuery
-                      .gte(filterColumnId, numValues[0])
-                      .lte(filterColumnId, numValues[1]);
+                      .gte(filterColumnId, Math.min(numValues[0], numValues[1]))
+                      .lte(filterColumnId, Math.max(numValues[0], numValues[1]));
                   }
                   break;
                 }
