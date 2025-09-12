@@ -9,7 +9,7 @@ export type Payment = Tables<"payments">;
 export const PAYMENT_STATUS_OPTIONS = ["paid", "not_paid"] as const;
 
 // Platform options (common payment platforms)
-export const PAYMENT_PLATFORM_OPTIONS = ["stripe"] as const;
+export const PAYMENT_PLATFORM_OPTIONS = ["stripe", "ach"] as const;
 
 // Payment method options
 export const PAYMENT_METHOD_OPTIONS = [
@@ -40,7 +40,9 @@ export const validateSingleField = (
 		return { isValid: false, error: "Unknown field" };
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			return { isValid: false, error: error?.message };
+			// Extract the first error message from the issues array
+			const firstError = error.issues[0];
+			return { isValid: false, error: firstError?.message || "Validation failed" };
 		}
 		return { isValid: false, error: "Validation failed" };
 	}
@@ -84,6 +86,14 @@ export const paymentCreateSchema = z.object({
 		.min(1, "Status is required")
 		.refine((val) => PAYMENT_STATUS_OPTIONS.includes(val as any), {
 			message: "Invalid status",
+		}),
+	client_email: z
+		.number()
+		.int()
+		.positive("Client is required")
+		.nullable()
+		.refine((val) => val !== null, {
+			message: "Client is required",
 		}),
 });
 
@@ -142,6 +152,7 @@ export const paymentFormSchema = z.object({
 	payment_method: z.string().min(1, "Payment method is required"),
 	platform: z.string().min(1, "Platform is required"),
 	status: z.string().min(1, "Status is required"),
+	client_email: z.number().int().positive("Client is required").nullable(),
 });
 
 export const paymentEditFormSchema = paymentFormSchema.extend({

@@ -13,6 +13,7 @@ export async function getClientAssignedCoach(clientId: string) {
 		.from("client_assignments")
 		.select("coach_id")
 		.eq("client_id", clientId)
+		.eq("assignment_type", "coach")
 		.is("end_date", null) // Active assignment (no end date)
 		.single();
 

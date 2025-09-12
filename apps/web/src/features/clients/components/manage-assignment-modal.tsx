@@ -191,15 +191,20 @@ export function ManageAssignmentModal({
 
 					<div>
 						<Label htmlFor="assignment_type">Assignment Type *</Label>
-						<Input
-							id="assignment_type"
-							placeholder="e.g., Primary Coach, Nutrition Coach, etc."
-							value={formData.assignment_type}
-							onChange={(e) =>
-								setFormData({ ...formData, assignment_type: e.target.value })
+						<Select
+							value={formData.assignment_type || ""}
+							onValueChange={(value) =>
+								setFormData({ ...formData, assignment_type: value })
 							}
-							required
-						/>
+						>
+							<SelectTrigger>
+								<SelectValue placeholder="Select assignment type" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="coach">Coach</SelectItem>
+								<SelectItem value="cs_rep">CS Rep</SelectItem>
+							</SelectContent>
+						</Select>
 					</div>
 
 					<div className="grid grid-cols-1 gap-4 md:grid-cols-2">

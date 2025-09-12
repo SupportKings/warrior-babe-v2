@@ -31,6 +31,7 @@ export const createPayment = actionClient
 			payment_method: parsedInput.payment_method,
 			platform: parsedInput.platform,
 			status: parsedInput.status,
+			client_email: parsedInput.client_email,
 		};
 
 		// Insert payment into database

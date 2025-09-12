@@ -22,6 +22,17 @@ export const createActivityPeriodColumns = () => {
 				<StatusBadge>{info.getValue() ? "Active" : "Inactive"}</StatusBadge>
 			),
 		}),
+		activityPeriodColumnHelper.accessor("is_grace", {
+			header: "Type",
+			cell: (info) => {
+				const isGrace = info.getValue();
+				return (
+					<StatusBadge colorScheme={isGrace ? "yellow" : "green"}>
+						{isGrace ? "Grace Period" : "Regular"}
+					</StatusBadge>
+				);
+			},
+		}),
 		activityPeriodColumnHelper.accessor("start_date", {
 			header: "Start Date",
 			cell: (info) => formatDate(info.getValue()),

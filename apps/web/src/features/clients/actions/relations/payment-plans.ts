@@ -11,7 +11,6 @@ interface PaymentSlot {
 	amount_due: number;
 	due_date: string;
 	notes: string;
-	payment_id: string;
 }
 
 interface ClientPaymentPlan {
@@ -236,7 +235,6 @@ export async function savePaymentSlots(
 					amount_due: slot.amount_due,
 					due_date: slot.due_date,
 					notes: slot.notes,
-					payment_id: slot.payment_id,
 				})
 				.eq("id", slot.id);
 		} else {
@@ -246,7 +244,6 @@ export async function savePaymentSlots(
 				amount_due: slot.amount_due,
 				due_date: slot.due_date,
 				notes: slot.notes,
-				payment_id: slot.payment_id,
 			});
 		}
 	}
@@ -283,10 +280,8 @@ export async function createPaymentSlotsFromTemplate(
 		return {
 			plan_id: planId,
 			amount_due: templateSlot.amount_due,
-			amount_paid: 0,
 			due_date: format(dueDate, "yyyy-MM-dd"),
 			notes: "Auto-generated from template",
-			payment_id: null,
 		};
 	});
 
@@ -321,10 +316,8 @@ export async function createPaymentSlotsFromCustom(
 		return {
 			plan_id: planId,
 			amount_due: customSlot.amount_due,
-			amount_paid: 0,
 			due_date: format(dueDate, "yyyy-MM-dd"),
 			notes: "Custom payment slot",
-			payment_id: null,
 		};
 	});
 

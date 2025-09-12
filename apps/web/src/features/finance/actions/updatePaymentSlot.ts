@@ -55,10 +55,18 @@ export const updatePaymentSlot = actionClient
 				revalidatePath("/dashboard/finance");
 
 				const periodsCreated = activityResult.data.periodsCreated || 0;
+				const gracePeriodsConverted = activityResult.data.gracePeriodsConverted || 0;
 				let activityMessage = "";
 				
-				if (periodsCreated > 0) {
-					activityMessage = `Generated ${periodsCreated} activity periods for ${activityResult.data.clientName}`;
+				if (periodsCreated > 0 || gracePeriodsConverted > 0) {
+					const parts = [];
+					if (periodsCreated > 0) {
+						parts.push(`Generated ${periodsCreated} activity periods`);
+					}
+					if (gracePeriodsConverted > 0) {
+						parts.push(`Converted ${gracePeriodsConverted} grace periods to regular periods`);
+					}
+					activityMessage = `${parts.join(" and ")} for ${activityResult.data.clientName}`;
 				} else if (activityResult.data.message) {
 					activityMessage = activityResult.data.message;
 				} else {
@@ -70,6 +78,7 @@ export const updatePaymentSlot = actionClient
 					message: "Payment slot assigned successfully",
 					activityMessage,
 					periodsCreated,
+					gracePeriodsConverted,
 				};
 			} catch (activityError) {
 				console.error("Failed to generate activity periods:", activityError);

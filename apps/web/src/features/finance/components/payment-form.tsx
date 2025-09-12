@@ -23,6 +23,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 
+import { ClientEmailCombobox } from "@/features/clients/components/client-email-combobox";
+
 import { useForm } from "@tanstack/react-form";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
@@ -60,12 +62,15 @@ export default function PaymentForm({
 	// Initialize form with TanStack Form
 	const form = useForm({
 		defaultValues: {
-			amount: initialData?.amount?.toString() || "",
+			amount: initialData?.amount 
+				? (initialData.amount / 100).toFixed(2) // Convert cents to dollars for display
+				: "",
 			payment_date:
 				initialData?.payment_date || format(new Date(), "yyyy-MM-dd"),
 			payment_method: initialData?.payment_method || "",
 			platform: initialData?.platform || "",
 			status: initialData?.status || "",
+			client_email: initialData?.client_email || null,
 			...(mode === "edit" && { id: initialData?.id }),
 		} as PaymentFormInput | PaymentEditFormInput,
 		onSubmit: async ({ value }) => {
@@ -154,17 +159,57 @@ export default function PaymentForm({
 					{(field) => (
 						<div className="space-y-2">
 							<Label htmlFor="amount" className="required">
-								Amount
+								Amount (USD)
 							</Label>
-							<Input
-								id="amount"
-								type="text"
-								placeholder="0.00"
+							<div className="relative">
+								<span className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground">$</span>
+								<Input
+									id="amount"
+									type="text"
+									placeholder="0.00"
+									value={field.state.value}
+									onChange={(e) => field.handleChange(e.target.value)}
+									onBlur={field.handleBlur}
+									className={cn("h-10 pl-6")}
+								/>
+							</div>
+							{field.state.meta.errors &&
+								field.state.meta.errors.length > 0 && (
+									<p className="text-destructive text-sm">
+										{field.state.meta.errors[0]}
+									</p>
+								)}
+						</div>
+					)}
+				</form.Field>
+
+				{/* Client Field */}
+				<form.Field
+					name="client_email"
+					validators={{
+						onBlur: ({ value }) => {
+							const validation = validateSingleField("client_email", value);
+							return validation.isValid ? undefined : validation.error;
+						},
+					}}
+				>
+					{(field) => (
+						<div className="space-y-2">
+							<Label htmlFor="client_email" className="required">
+								Client
+							</Label>
+							<ClientEmailCombobox
 								value={field.state.value}
-								onChange={(e) => field.handleChange(e.target.value)}
-								onBlur={field.handleBlur}
-								className={cn("h-10")}
+								onValueChange={field.handleChange}
+								placeholder="Search and select client..."
+								disabled={isSubmitting}
 							/>
+							{field.state.meta.errors &&
+								field.state.meta.errors.length > 0 && (
+									<p className="text-destructive text-sm">
+										{field.state.meta.errors[0]}
+									</p>
+								)}
 						</div>
 					)}
 				</form.Field>

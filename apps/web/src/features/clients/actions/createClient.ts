@@ -87,7 +87,21 @@ export const createClientAction = actionClient
 				});
 			}
 
-			// 3. Revalidate relevant paths
+			// 3. Add email to client_emails table
+			const { error: emailError } = await supabase
+				.from("client_emails")
+				.insert({
+					client_id: newClient.id,
+					email: email,
+				});
+
+			if (emailError) {
+				console.error("Error adding client email:", emailError);
+				// Don't fail the whole operation, but log the error
+				// The client was already created successfully
+			}
+
+			// 4. Revalidate relevant paths
 			revalidatePath("/dashboard/clients");
 			revalidatePath("/dashboard");
 
