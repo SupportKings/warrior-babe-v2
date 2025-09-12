@@ -43,7 +43,7 @@ export function CoachActivitiesTabs({
 					Client Assignments ({assignments?.length || 0})
 				</TabsTrigger>
 				<TabsTrigger value="payments">
-					Payments ({payments?.length || 0})
+					Payroll Payments ({payments?.length || 0})
 				</TabsTrigger>
 			</TabsList>
 			<TabsContent value="assignments">

@@ -70,11 +70,11 @@ export function CoachPaymentsTable({
 					<div className="flex items-center justify-between">
 						<CardTitle className="flex items-center gap-2">
 							<DollarSign className="h-5 w-5" />
-							Coach Payments
+							Payroll Payments
 						</CardTitle>
 						<Button onClick={() => setIsAddModalOpen(true)} size="sm">
 							<Plus className="mr-2 h-4 w-4" />
-							Add Payment
+							Add Payroll Payment
 						</Button>
 					</div>
 				</CardHeader>
@@ -87,13 +87,13 @@ export function CoachPaymentsTable({
 					) : (
 						<div className="flex flex-col items-center justify-center py-8 text-center">
 							<DollarSign className="mb-4 h-12 w-12 text-muted-foreground" />
-							<h3 className="font-semibold text-lg">No Payments</h3>
+							<h3 className="font-semibold text-lg">No Payroll Payments</h3>
 							<p className="mb-4 text-muted-foreground">
-								No payments have been recorded for this team member yet.
+								No payroll payments have been recorded for this team member yet.
 							</p>
 							<Button onClick={() => setIsAddModalOpen(true)} variant="outline">
 								<Plus className="mr-2 h-4 w-4" />
-								Add First Payment
+								Add First Payroll Payment
 							</Button>
 						</div>
 					)}
