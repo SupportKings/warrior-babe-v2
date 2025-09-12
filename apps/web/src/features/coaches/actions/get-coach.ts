@@ -62,13 +62,9 @@ export async function getCoachClientAssignments(coachId: string) {
 					email,
 					payment_plans (
 						id,
-						name,
 						term_start_date,
 						term_end_date,
-						total_amount,
-						total_amount_paid,
 						type,
-						platform,
 						subscription_id,
 						notes,
 						created_at,

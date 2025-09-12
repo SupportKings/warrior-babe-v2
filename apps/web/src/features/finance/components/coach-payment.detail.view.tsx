@@ -111,7 +111,7 @@ export default function CoachPaymentDetailView({
       toast.error("Failed to update coach payment");
     }
   };
-
+  console.log(coachPayment)
   const handleCancel = () => {
     setEditState({ isEditing: false, section: null });
   };

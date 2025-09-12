@@ -14,7 +14,6 @@ import { updatePayment } from "@/features/finance/actions/updatePayment";
 
 import {
 	type QueryClient,
-	type UseQueryResult,
 	useMutation,
 	useQuery,
 	useQueryClient,

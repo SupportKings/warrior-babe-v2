@@ -126,9 +126,7 @@ export function CoachPaymentBasicInfo({
               placeholder="Select a coach"
               options={coaches.map((coach: any) => ({
                 value: coach.id,
-                label: `${coach.name}${
-                  coach.contract_type ? ` (${coach.contract_type})` : ""
-                }`,
+                label: coach.name,
               }))}
               value={formData.coach_id}
               onValueChange={(value) =>

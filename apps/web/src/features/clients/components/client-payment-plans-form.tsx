@@ -21,7 +21,6 @@ import { DollarSign, PlusIcon, TrashIcon } from "lucide-react";
 interface PaymentSlot {
 	id?: string;
 	amount_due: number;
-	amount_paid: number;
 	due_date: string;
 	notes: string;
 	payment_id: string;
@@ -29,15 +28,11 @@ interface PaymentSlot {
 
 interface ClientPaymentPlan {
 	id?: string;
-	name: string;
 	notes: string;
-	platform: string;
 	product_id: string;
 	subscription_id: string;
 	term_start_date: string;
 	term_end_date: string;
-	total_amount: number;
-	total_amount_paid: number;
 	type: string;
 	payment_slots?: PaymentSlot[];
 }
@@ -53,15 +48,11 @@ export function ClientPaymentPlansForm({
 }: ClientPaymentPlansFormProps) {
 	const addPaymentPlan = () => {
 		const newPaymentPlan: ClientPaymentPlan = {
-			name: "",
 			notes: "",
-			platform: "",
 			product_id: "",
 			subscription_id: "",
 			term_start_date: format(new Date(), "yyyy-MM-dd"),
 			term_end_date: "",
-			total_amount: 0,
-			total_amount_paid: 0,
 			type: "PIF",
 			payment_slots: [],
 		};
@@ -87,7 +78,6 @@ export function ClientPaymentPlansForm({
 		const plan = paymentPlans[planIndex];
 		const newSlot: PaymentSlot = {
 			amount_due: 0,
-			amount_paid: 0,
 			due_date: format(new Date(), "yyyy-MM-dd"),
 			notes: "",
 			payment_id: "",
@@ -158,17 +148,6 @@ export function ClientPaymentPlansForm({
 					</div>
 
 					<div className="space-y-4">
-						<div>
-							<Label>Plan Name *</Label>
-							<Input
-								placeholder="Payment plan name..."
-								value={paymentPlan.name}
-								onChange={(e) =>
-									updatePaymentPlan(planIndex, { name: e.target.value })
-								}
-							/>
-						</div>
-
 						<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 							<div>
 								<Label>Type</Label>
@@ -191,16 +170,6 @@ export function ClientPaymentPlansForm({
 								</Select>
 							</div>
 
-							<div>
-								<Label>Platform</Label>
-								<Input
-									placeholder="Platform (e.g., Stripe, PayPal)"
-									value={paymentPlan.platform || ""}
-									onChange={(e) =>
-										updatePaymentPlan(planIndex, { platform: e.target.value })
-									}
-								/>
-							</div>
 						</div>
 
 						<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -252,49 +221,6 @@ export function ClientPaymentPlansForm({
 									}
 									placeholder="Select end date"
 								/>
-							</div>
-						</div>
-
-						<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-							<div>
-								<Label>Total Amount</Label>
-								<div className="relative">
-									<DollarSign className="absolute top-3 left-3 h-4 w-4 text-muted-foreground" />
-									<Input
-										type="number"
-										step="0.01"
-										min="0"
-										placeholder="0.00"
-										value={paymentPlan.total_amount || ""}
-										onChange={(e) =>
-											updatePaymentPlan(planIndex, {
-												total_amount: Number.parseFloat(e.target.value) || 0,
-											})
-										}
-										className="pl-10"
-									/>
-								</div>
-							</div>
-
-							<div>
-								<Label>Total Amount Paid</Label>
-								<div className="relative">
-									<DollarSign className="absolute top-3 left-3 h-4 w-4 text-muted-foreground" />
-									<Input
-										type="number"
-										step="0.01"
-										min="0"
-										placeholder="0.00"
-										value={paymentPlan.total_amount_paid || ""}
-										onChange={(e) =>
-											updatePaymentPlan(planIndex, {
-												total_amount_paid:
-													Number.parseFloat(e.target.value) || 0,
-											})
-										}
-										className="pl-10"
-									/>
-								</div>
 							</div>
 						</div>
 
@@ -373,26 +299,6 @@ export function ClientPaymentPlansForm({
 													</div>
 												</div>
 
-												<div>
-													<Label className="text-xs">Amount Paid</Label>
-													<div className="relative">
-														<DollarSign className="absolute top-2 left-2 h-3 w-3 text-muted-foreground" />
-														<Input
-															type="number"
-															step="0.01"
-															min="0"
-															placeholder="0.00"
-															value={slot.amount_paid || ""}
-															onChange={(e) =>
-																updatePaymentSlot(planIndex, slotIndex, {
-																	amount_paid:
-																		Number.parseFloat(e.target.value) || 0,
-																})
-															}
-															className="pl-8 text-sm"
-														/>
-													</div>
-												</div>
 
 												<div>
 													<Label className="text-xs">Due Date</Label>

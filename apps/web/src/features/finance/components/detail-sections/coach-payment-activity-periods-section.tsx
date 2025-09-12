@@ -28,7 +28,6 @@ export function CoachPaymentActivityPeriodsSection({
   const queryClient = useQueryClient();
 
   const handleStatusChange = async (id: string, active: boolean) => {
-	console.log(id, active)
     try {
       const result = await updateActivityPeriodStatusAction({
         id,

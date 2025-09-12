@@ -108,7 +108,7 @@ export function StripeDetailsVaul({
 	return (
 		<Drawer open={open} onOpenChange={onOpenChange} direction="right">
 			<DrawerContent className="w-[600px]">
-				<div className="flex h-full w-full grow flex-col">
+				<div className="flex h-full w-full grow flex-col overflow-auto">
 					<div className="p-6">
 						<DrawerTitle className="mb-2 flex items-center gap-2 font-semibold text-foreground">
 							<CreditCardIcon className="h-5 w-5" />

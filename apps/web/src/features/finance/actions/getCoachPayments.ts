@@ -28,7 +28,6 @@ export async function getCoachPayment(id: string) {
 				active,
 				payment_plan:payment_plans!client_activity_period_payment_plan_fkey(
 					id,
-					name,
 					client:clients!payment_plans_client_id_fkey(
 						id,
 						name

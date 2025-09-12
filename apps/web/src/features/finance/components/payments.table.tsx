@@ -83,7 +83,7 @@ const paymentTableColumns = [
 		enableHiding: false,
 		enableColumnFilter: false,
 	}),
-	columnHelper.accessor("amount", {
+	columnHelper.accessor("payment_amount", {
 		id: "amount",
 		header: "Amount",
 		enableColumnFilter: true,
@@ -507,7 +507,7 @@ function PaymentsTableContent({
 	const dynamicFilterConfig = [
 		{
 			...universalColumnHelper
-				.number("amount")
+				.number("payment_amount")
 				.displayName("Amount")
 				.icon(DollarSignIcon)
 				.build(),
@@ -704,7 +704,7 @@ function PaymentsTableContent({
 					onOpenChange={(open) => !open && setPaymentToDelete(null)}
 					onConfirm={async () => {
 						const paymentId = paymentToDelete.id;
-						const amount = paymentToDelete.amount || 0;
+						const amount = paymentToDelete.payment_amount || 0;
 
 						if (!paymentId) {
 							toast.error("Payment ID is missing");
@@ -784,7 +784,7 @@ export function PaymentsDataTable() {
 					.icon(ShieldAlertIcon)
 					.build(),
 				universalColumnHelper
-					.number("amount")
+					.number("payment_amount")
 					.displayName("Amount")
 					.icon(DollarSignIcon)
 					.build(),

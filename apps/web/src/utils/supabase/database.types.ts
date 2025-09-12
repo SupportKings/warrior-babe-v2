@@ -1230,17 +1230,13 @@ export type Database = {
           closer_id: string | null
           created_at: string
           id: string
-          name: string
           notes: string | null
-          platform: string | null
           product_id: string | null
           product_links: string | null
           setter_id: string | null
           subscription_id: string | null
           term_end_date: string
           term_start_date: string
-          total_amount: number | null
-          total_amount_paid: number | null
           type: string | null
           updated_at: string
         }
@@ -1249,17 +1245,13 @@ export type Database = {
           closer_id?: string | null
           created_at?: string
           id?: string
-          name: string
           notes?: string | null
-          platform?: string | null
           product_id?: string | null
           product_links?: string | null
           setter_id?: string | null
           subscription_id?: string | null
           term_end_date: string
           term_start_date: string
-          total_amount?: number | null
-          total_amount_paid?: number | null
           type?: string | null
           updated_at?: string
         }
@@ -1268,17 +1260,13 @@ export type Database = {
           closer_id?: string | null
           created_at?: string
           id?: string
-          name?: string
           notes?: string | null
-          platform?: string | null
           product_id?: string | null
           product_links?: string | null
           setter_id?: string | null
           subscription_id?: string | null
           term_end_date?: string
           term_start_date?: string
-          total_amount?: number | null
-          total_amount_paid?: number | null
           type?: string | null
           updated_at?: string
         }
@@ -1379,7 +1367,6 @@ export type Database = {
       payment_slots: {
         Row: {
           amount_due: number
-          amount_paid: number
           created_at: string
           due_date: string
           id: string
@@ -1389,7 +1376,6 @@ export type Database = {
         }
         Insert: {
           amount_due: number
-          amount_paid?: number
           created_at?: string
           due_date: string
           id?: string
@@ -1399,7 +1385,6 @@ export type Database = {
         }
         Update: {
           amount_due?: number
-          amount_paid?: number
           created_at?: string
           due_date?: string
           id?: string
@@ -1830,14 +1815,11 @@ export type Database = {
           number_of_activity_periods: number | null
           onboarding_date: string | null
           plan_id: string | null
-          plan_name: string | null
           product_id: string | null
           product_name: string | null
           status:
             | Database["public"]["Enums"]["coach_payment_status_enum"]
             | null
-          total_amount: number | null
-          total_amount_paid: number | null
           updated_at: string | null
           user_id: string | null
         }
@@ -1845,9 +1827,10 @@ export type Database = {
       }
       payments_with_details: {
         Row: {
-          amount: number | null
           amount_due: number | null
-          amount_paid: number | null
+          balance_amount: number | null
+          balance_fee: number | null
+          balance_net: number | null
           client_email: string | null
           client_id: string | null
           client_name: string | null
@@ -1856,20 +1839,20 @@ export type Database = {
           dispute_fee: number | null
           disputed_status: Database["public"]["Enums"]["disputed_status"] | null
           id: string | null
+          payment_amount: number | null
           payment_date: string | null
           payment_method: string | null
           payment_plan_id: string | null
-          payment_plan_name: string | null
           payment_slot_id: string | null
-          plan_platform: string | null
-          plan_total_amount: number | null
           plan_type: string | null
           platform: string | null
           product_id: string | null
           product_name: string | null
+          duration: number | null
           slot_due_date: string | null
           slot_notes: string | null
           status: string | null
+          stripe_charge_amount: number | null
           stripe_transaction_id: string | null
           term_end_date: string | null
           term_start_date: string | null

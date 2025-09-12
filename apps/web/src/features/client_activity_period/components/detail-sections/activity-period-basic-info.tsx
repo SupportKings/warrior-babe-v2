@@ -42,6 +42,10 @@ interface ActivityPeriodBasicInfoProps {
     coach_payment_amount?: number;
     payment_plan_detail: { name: string };
     coach_payment_detail: { amount: string };
+    product: {
+      name: string;
+      default_duration_months: number;
+    };
     coach: { name: string };
   };
   isEditing?: boolean;
@@ -212,8 +216,8 @@ export function ActivityPeriodBasicInfo({
             </Select>
           ) : (
             <p className="text-sm">
-              {Boolean(activityPeriod.payment_plan_detail.name)
-                ? activityPeriod.payment_plan_detail.name
+              {Boolean(activityPeriod.product.name)
+                ? activityPeriod.product.name + " - " + activityPeriod.product.default_duration_months + " Months"
                 : "Not set"}
             </p>
           )}

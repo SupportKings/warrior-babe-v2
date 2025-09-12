@@ -9,7 +9,6 @@ import { addMonths, format } from "date-fns";
 interface PaymentSlot {
 	id?: string;
 	amount_due: number;
-	amount_paid: number;
 	due_date: string;
 	notes: string;
 	payment_id: string;
@@ -17,12 +16,10 @@ interface PaymentSlot {
 
 interface ClientPaymentPlan {
 	id?: string;
-	name: string;
 	notes: string;
 	product_id: string;
 	term_start_date: string;
 	term_end_date: string;
-	total_amount: number;
 	type: string; // This is now the payment_plan_template ID
 	payment_slots?: PaymentSlot[];
 }
@@ -60,12 +57,10 @@ export async function saveClientPaymentPlans(
 			await supabase
 				.from("payment_plans")
 				.update({
-					name: plan.name,
 					notes: plan.notes,
 					product_id: plan.product_id,
 					term_start_date: plan.term_start_date,
 					term_end_date: plan.term_end_date,
-					total_amount: plan.total_amount,
 					type: plan.type,
 					updated_at: new Date().toISOString(),
 				})
@@ -81,12 +76,10 @@ export async function saveClientPaymentPlans(
 				.from("payment_plans")
 				.insert({
 					client_id: clientId,
-					name: plan.name,
 					notes: plan.notes,
 					product_id: plan.product_id,
 					term_start_date: plan.term_start_date,
 					term_end_date: plan.term_end_date,
-					total_amount: plan.total_amount,
 					type: plan.type,
 				})
 				.select("id")
@@ -241,7 +234,6 @@ export async function savePaymentSlots(
 				.from("payment_slots")
 				.update({
 					amount_due: slot.amount_due,
-					amount_paid: slot.amount_paid,
 					due_date: slot.due_date,
 					notes: slot.notes,
 					payment_id: slot.payment_id,
@@ -252,7 +244,6 @@ export async function savePaymentSlots(
 			await supabase.from("payment_slots").insert({
 				plan_id: planId,
 				amount_due: slot.amount_due,
-				amount_paid: slot.amount_paid,
 				due_date: slot.due_date,
 				notes: slot.notes,
 				payment_id: slot.payment_id,
