@@ -153,13 +153,13 @@ export async function getPaymentsWithFilters(
               // Handle currency format (e.g., "$100", "100", "100.50", "$100.50")
               const cleanedValue = String(v).replace(/[$,]/g, "").trim();
               const num = Number.parseFloat(cleanedValue);
-              
+
               // Check if the number is valid
               if (isNaN(num)) {
                 console.warn(`Invalid number value for ${columnId}: ${v}`);
                 return 0;
               }
-              
+
               // Amount is stored as cents in DB (e.g., 499900 for $4999.00)
               // So we multiply by 100 to convert dollars to cents
               return Math.round(num * 100);
@@ -181,6 +181,16 @@ export async function getPaymentsWithFilters(
               query = query
                 .gte(columnId, Math.min(numValues[0], numValues[1]))
                 .lte(columnId, Math.max(numValues[0], numValues[1]));
+            } else if (
+              operator === "is not between" &&
+              numValues.length === 2
+            ) {
+              // "is not between" means: value < min OR value > max
+              const minValue = Math.min(numValues[0], numValues[1]);
+              const maxValue = Math.max(numValues[0], numValues[1]);
+              query = (query as any).or(
+                `${columnId}.lt.${minValue},${columnId}.gt.${maxValue}`
+              );
             }
             break;
           }
@@ -351,20 +361,22 @@ export async function getPaymentsWithFaceted(
                   }
                   break;
 
-                case "payment_amount":
+                case "amount":
                 case "dispute_fee": {
                   // Number fields - convert string values to cents
                   const numValues = values.map((v: any) => {
                     // Handle currency format (e.g., "$100", "100", "100.50", "$100.50")
                     const cleanedValue = String(v).replace(/[$,]/g, "").trim();
                     const num = Number.parseFloat(cleanedValue);
-                    
+
                     // Check if the number is valid
                     if (isNaN(num)) {
-                      console.warn(`Invalid number value for ${filterColumnId}: ${v}`);
+                      console.warn(
+                        `Invalid number value for ${filterColumnId}: ${v}`
+                      );
                       return 0;
                     }
-                    
+
                     // Amount is stored as cents in DB (e.g., 499900 for $4999.00)
                     // So we multiply by 100 to convert dollars to cents
                     return Math.round(num * 100);
@@ -392,7 +404,20 @@ export async function getPaymentsWithFaceted(
                   ) {
                     facetQuery = facetQuery
                       .gte(filterColumnId, Math.min(numValues[0], numValues[1]))
-                      .lte(filterColumnId, Math.max(numValues[0], numValues[1]));
+                      .lte(
+                        filterColumnId,
+                        Math.max(numValues[0], numValues[1])
+                      );
+                  } else if (
+                    operator === "is not between" &&
+                    numValues.length === 2
+                  ) {
+                    // "is not between" means: value < min OR value > max
+                    const minValue = Math.min(numValues[0], numValues[1]);
+                    const maxValue = Math.max(numValues[0], numValues[1]);
+                    facetQuery = facetQuery.or(
+                      `${filterColumnId}.lt.${minValue},${filterColumnId}.gt.${maxValue}`
+                    );
                   }
                   break;
                 }
