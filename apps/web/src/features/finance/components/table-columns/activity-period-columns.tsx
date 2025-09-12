@@ -1,7 +1,6 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import { StatusBadge } from "@/components/ui/status-badge";
 import { format } from "date-fns";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -71,12 +70,25 @@ const StatusCell = React.memo(({
           }}
           defaultOpen
         >
-          <SelectTrigger className="h-7 w-24" onClick={(e) => e.stopPropagation()}>
+          <SelectTrigger className="h-8 w-full border-primary/50 focus:ring-2 focus:ring-primary/20" onClick={(e) => e.stopPropagation()}>
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
+          <SelectContent className="w-full">
+            <SelectItem value="active" className="cursor-pointer">
+              <span className="flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                Active
+              </span>
+            </SelectItem>
+            <SelectItem value="inactive" className="cursor-pointer">
+              <span className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-gray-400"></span>
+                Inactive
+              </span>
+            </SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -86,11 +98,32 @@ const StatusCell = React.memo(({
   return (
     <div 
       onClick={handleClick}
-      className="cursor-pointer inline-block"
+      className="cursor-pointer inline-flex items-center gap-1.5 group hover:opacity-80 transition-all duration-200"
+      title="Click to change status"
     >
-      <StatusBadge>
-        {status ? "Active" : "Inactive"}
-      </StatusBadge>
+      <div className={`
+        inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium
+        ${status 
+          ? "bg-green-50 text-green-700 border border-green-200 dark:bg-green-950/50 dark:text-green-400 dark:border-green-800" 
+          : "bg-gray-50 text-gray-700 border border-gray-200 dark:bg-gray-950/50 dark:text-gray-400 dark:border-gray-800"
+        }
+      `}>
+        {status ? (
+          <>
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+            </span>
+            Active
+          </>
+        ) : (
+          <>
+            <span className="h-2 w-2 rounded-full bg-gray-400"></span>
+            Inactive
+          </>
+        )}
+      </div>
+      <Edit2 className="h-3 w-3 text-muted-foreground transition-opacity duration-200" />
     </div>
   );
 });
@@ -104,6 +137,11 @@ export const createActivityPeriodColumns = (options?: ActivityPeriodColumnOption
     activityPeriodColumnHelper.accessor("client_name", {
       header: "Client",
       cell: (info) => info.getValue() || "Unknown",
+    }),
+    
+    activityPeriodColumnHelper.accessor("payment_plan_name", {
+      header: "Payment Plan",
+      cell: (info) => info.getValue() || "No Plan",
     }),
 
     activityPeriodColumnHelper.accessor("start_date", {

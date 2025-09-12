@@ -111,7 +111,7 @@ export default function CoachPaymentDetailView({
       toast.error("Failed to update coach payment");
     }
   };
-  console.log(coachPayment)
+
   const handleCancel = () => {
     setEditState({ isEditing: false, section: null });
   };
@@ -179,6 +179,7 @@ export default function CoachPaymentDetailView({
 
       <CoachPaymentActivityPeriodsSection
         coachPaymentId={coachPaymentId}
+        coachId={coachPayment.coach_id || ""}
         activityPeriods={coachPayment.activity_periods || []}
         setDeleteModal={setDeleteModal}
       />

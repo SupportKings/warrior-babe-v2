@@ -6,16 +6,29 @@ export async function getCoachPayment(id: string) {
 	try {
 		const supabase = await createClient();
 
-		// Fetch coach payment with related data from the view
+		// Fetch coach payment from the main table
 		const { data: coachPayment, error } = await supabase
-			.from("coach_payments_list_view")
-			.select("*")
-			.eq("coach_payment_id", id)
+			.from("coach_payments")
+			.select(`
+				*,
+				coach:team_members!coach_payments_coach_id_fkey(
+					id,
+					name
+				)
+			`)
+			.eq("id", id)
 			.single();
 
 		if (error) {
 			console.error("Error fetching coach payment:", error);
 			return null;
+		}
+		
+		// Transform the data to match expected structure
+		const transformedCoachPayment = {
+			...coachPayment,
+			coach_id: coachPayment.coach_id,
+			coach_name: coachPayment.coach?.name || "Unknown Coach",
 		}
 
 		// Fetch related activity periods
@@ -65,7 +78,7 @@ export async function getCoachPayment(id: string) {
 		});
 
 		return {
-			...coachPayment,
+			...transformedCoachPayment,
 			activity_periods: transformedPeriods,
 		};
 	} catch (error) {

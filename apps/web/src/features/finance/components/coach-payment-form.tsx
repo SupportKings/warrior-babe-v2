@@ -3,13 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -19,9 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Combobox } from "@/components/ui/combobox";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Combobox as RadixCombobox } from "@/components/ui/combobox";
 import { DatePicker } from "@/components/ui/date-picker";
+import { Combobox } from "@base-ui-components/react/combobox";
+import { Check, ChevronDown } from "lucide-react";
 
 import { createCoachPaymentAction } from "../actions/createCoachPayment";
 import { updateCoachPaymentAction } from "../actions/updateCoachPayment";
@@ -57,6 +51,7 @@ export default function CoachPaymentForm({
   const [selectedCoachId, setSelectedCoachId] = useState<string>(
     initialData?.coach_id || ""
   );
+  const [searchValue, setSearchValue] = useState("");
 
   // Fetch coaches
   const { data: coaches = [] } = useQuery({
@@ -225,13 +220,13 @@ export default function CoachPaymentForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Basic Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
-          <CardDescription>Select the coach and payment status</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <form.Field
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">Basic Information</h3>
+          <p className="text-sm text-muted-foreground">Select the coach and payment status</p>
+        </div>
+        
+        <form.Field
             name="coach_id"
             validators={{
               onChange: ({ value }) => {
@@ -243,11 +238,14 @@ export default function CoachPaymentForm({
             {(field) => (
               <div className="space-y-2">
                 <Label htmlFor="coach_id">Coach *</Label>
-                <Combobox
+                <RadixCombobox
                   placeholder="Select a coach"
                   options={coachOptions}
                   value={field.state.value}
-                  onValueChange={(value) => field.handleChange(value)}
+                  onValueChange={(value) => {
+                    field.handleChange(value);
+                    setSelectedCoachId(value);
+                  }}
                   className="w-full h-10"
                   disabled={isEdit}
                 />
@@ -367,80 +365,134 @@ export default function CoachPaymentForm({
               </div>
             )}
           </form.Field>
-        </CardContent>
-      </Card>
 
-      {/* Client Activity Periods */}
-      {selectedCoachId && availableActivityPeriods.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Client Activity Periods</CardTitle>
-            <CardDescription>
-              Select activity periods to attach to this payment (end date must
-              be before today)
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form.Field name="activity_period_ids">
-              {(field) => (
-                <div className="space-y-3">
-                  {availableActivityPeriods.map((period: any) => {
-                    const isChecked =
-                      field.state.value?.includes(period.id) || false;
-                    const clientName =
-                      period.payment_plan?.client?.name || "Unknown Client";
-                    const productName = period.payment_plan?.product?.name;
-                    const duration =
-                      period.payment_plan?.product?.default_duration_months;
-                    const planName =
-                      productName && duration
-                        ? `${productName} - ${duration} Months`
-                        : productName || "No Plan";
-                    const startDate = period.start_date
-                      ? format(new Date(period.start_date), "MMM dd, yyyy")
-                      : "";
-                    const endDate = period.end_date
-                      ? format(new Date(period.end_date), "MMM dd, yyyy")
-                      : "Ongoing";
-
-                    return (
-                      <div
-                        key={period.id}
-                        className="flex items-start space-x-3 rounded-lg border p-3"
-                      >
-                        <Checkbox
-                          id={period.id}
-                          checked={isChecked}
-                          onCheckedChange={(checked) => {
-                            const currentValue = field.state.value || [];
-                            if (checked) {
-                              field.handleChange([...currentValue, period.id]);
-                            } else {
-                              field.handleChange(
-                                currentValue.filter(
-                                  (id: string) => id !== period.id
-                                )
-                              );
-                            }
-                          }}
-                        />
-                        <div className="flex-1">
-                          <Label htmlFor={period.id} className="cursor-pointer">
-                            <div className="font-medium">{clientName}</div>
-                            <div className="text-muted-foreground text-sm">
-                              {planName} • {startDate} - {endDate}
+          {/* Activity Periods Combobox - Always visible, no card */}
+          <form.Field name="activity_period_ids">
+            {(field) => (
+              <div className="space-y-2">
+                <Label>Activity Periods (Optional)</Label>
+                <p className="text-xs text-muted-foreground">
+                  Link activity periods to this payment
+                </p>
+                <Combobox.Root
+                  multiple
+                  value={field.state.value || []}
+                  onValueChange={(value) => field.handleChange(value as string[])}
+                  disabled={!selectedCoachId}
+                >
+                  <div className="relative">
+                    <Combobox.Input
+                      placeholder={!selectedCoachId 
+                        ? "Select a coach first..." 
+                        : availableActivityPeriods.length === 0
+                        ? "No activity periods available"
+                        : "Search and select activity periods..."}
+                      value={searchValue}
+                      onChange={(e) => setSearchValue(e.target.value)}
+                      disabled={!selectedCoachId || availableActivityPeriods.length === 0}
+                      className="w-full h-10 px-3 pr-10 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    />
+                    <Combobox.Trigger 
+                      className="absolute right-2 top-2 h-6 w-6 flex items-center justify-center"
+                      disabled={!selectedCoachId || availableActivityPeriods.length === 0}
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                    </Combobox.Trigger>
+                  </div>
+                  
+                  {selectedCoachId && availableActivityPeriods.length > 0 && (
+                    <Combobox.Portal>
+                      <Combobox.Positioner className="outline-none z-[60]" sideOffset={4}>
+                        <Combobox.Popup className="w-[var(--anchor-width)] max-h-[300px] overflow-y-auto rounded-md border bg-popover shadow-md p-1 z-[60]">
+                          <Combobox.List>
+                            {availableActivityPeriods
+                              .filter((period: any) => {
+                                const clientName = period.payment_plan?.client?.name || "Unknown Client";
+                                const productName = period.payment_plan?.product?.name || "";
+                                const searchText = `${clientName} ${productName}`.toLowerCase();
+                                return searchText.includes(searchValue.toLowerCase());
+                              })
+                              .map((period: any) => {
+                                const clientName = period.payment_plan?.client?.name || "Unknown Client";
+                                const productName = period.payment_plan?.product?.name;
+                                const duration = period.payment_plan?.product?.default_duration_months;
+                                const planName = productName && duration 
+                                  ? `${productName} - ${duration} Months`
+                                  : productName || "No Plan";
+                                const startDate = period.start_date 
+                                  ? format(new Date(period.start_date), "MMM dd, yyyy")
+                                  : "";
+                                const endDate = period.end_date 
+                                  ? format(new Date(period.end_date), "MMM dd, yyyy")
+                                  : "Ongoing";
+                                
+                                return (
+                                  <Combobox.Item
+                                    key={period.id}
+                                    value={period.id}
+                                    className="relative flex cursor-pointer select-none items-start rounded-sm py-2 px-8 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground"
+                                  >
+                                    <Combobox.ItemIndicator className="absolute left-2 top-2.5">
+                                      <Check className="h-4 w-4" />
+                                    </Combobox.ItemIndicator>
+                                    <div className="flex-1">
+                                      <div className="font-medium">{clientName}</div>
+                                      <div className="text-xs text-muted-foreground">
+                                        {planName} • {startDate} - {endDate}
+                                      </div>
+                                      <div className="text-xs text-muted-foreground mt-0.5">
+                                        Status: {period.active ? "Active" : "Inactive"}
+                                      </div>
+                                    </div>
+                                  </Combobox.Item>
+                                );
+                              })}
+                          </Combobox.List>
+                          {availableActivityPeriods.filter((period: any) => {
+                            const clientName = period.payment_plan?.client?.name || "Unknown Client";
+                            const productName = period.payment_plan?.product?.name || "";
+                            const searchText = `${clientName} ${productName}`.toLowerCase();
+                            return searchText.includes(searchValue.toLowerCase());
+                          }).length === 0 && (
+                            <div className="py-4 px-2 text-center text-sm text-muted-foreground">
+                              No matching activity periods found
                             </div>
-                          </Label>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </form.Field>
-          </CardContent>
-        </Card>
-      )}
+                          )}
+                        </Combobox.Popup>
+                      </Combobox.Positioner>
+                    </Combobox.Portal>
+                  )}
+                </Combobox.Root>
+                
+                {/* Show selected periods summary */}
+                {field.state.value && field.state.value.length > 0 && (
+                  <div className="rounded-lg border p-3 bg-muted/50 mt-2">
+                    <p className="text-sm font-medium mb-2">
+                      Selected Periods ({field.state.value.length})
+                    </p>
+                    <div className="space-y-1">
+                      {field.state.value.map((id: string) => {
+                        const period = availableActivityPeriods.find((p: any) => p.id === id);
+                        if (!period) return null;
+                        const clientName = period.payment_plan?.client?.name || "Unknown Client";
+                        const productName = period.payment_plan?.product?.name;
+                        const duration = period.payment_plan?.product?.default_duration_months;
+                        const planName = productName && duration 
+                          ? `${productName} - ${duration} Months`
+                          : productName || "No Plan";
+                        return (
+                          <div key={id} className="text-xs text-muted-foreground">
+                            • {clientName} - {planName}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </form.Field>
+      </div>
 
       {/* Action Buttons */}
       <div className="flex justify-end gap-4">
