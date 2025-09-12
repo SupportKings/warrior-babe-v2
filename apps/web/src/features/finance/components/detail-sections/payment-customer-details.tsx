@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-import { User } from "lucide-react";
+import Link from "next/link";
+import { User, ExternalLink } from "lucide-react";
 
 interface PaymentCustomerDetailsProps {
 	customer: {
@@ -10,6 +10,7 @@ interface PaymentCustomerDetailsProps {
 		payment_plan_name: string | null;
 		slot_amount_due: number | null;
 		slot_amount_paid: number | null;
+		client_id?: string | null;
 	};
 }
 
@@ -46,7 +47,18 @@ export function PaymentCustomerDetails({
 					<label className="font-medium text-muted-foreground text-sm">
 						Customer Name
 					</label>
-					<p className="text-sm">{customer.customer_name || "Not provided"}</p>
+					{customer.client_id && customer.customer_name ? (
+						<Link 
+							href={`/dashboard/clients/${customer.client_id}`}
+							target="_blank"
+							className="text-sm text-primary hover:underline flex items-center gap-1 group"
+						>
+							{customer.customer_name}
+							<ExternalLink className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+						</Link>
+					) : (
+						<p className="text-sm">{customer.customer_name || "Not provided"}</p>
+					)}
 				</div>
 				<div>
 					<label className="font-medium text-muted-foreground text-sm">

@@ -182,6 +182,7 @@ export default function PaymentDetailView({
             slot_amount_paid: payment?.payment_amount
               ? payment.payment_amount / 100
               : payment?.payment_amount,
+            client_id: payment?.client_id || null,
           }}
         />
       </div>
