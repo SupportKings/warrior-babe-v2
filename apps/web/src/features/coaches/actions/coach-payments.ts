@@ -255,7 +255,7 @@ export async function getCoachClientActivityPeriods(coachId: string) {
     const supabase = await createClient();
 
     // Fetch activity periods with payment plan and client details
-    const { data: activityPeriods, error } = await supabase
+    const { data: activityPeriods } = await supabase
       .from("client_activity_period")
       .select(
         `

@@ -107,7 +107,6 @@ export default function ActivityPeriodDetailView({
 	if (!activityPeriod) {
 		return <div>Activity period not found</div>;
 	}
-	console.log(activityPeriod);
 	// Get client initials for avatar
 	const getInitials = (name: string | null | undefined): string => {
 		if (!name) return "??";

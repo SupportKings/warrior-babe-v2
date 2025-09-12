@@ -47,6 +47,11 @@ interface ActivityPeriodBasicInfoProps {
       default_duration_months: number;
     };
     coach: { name: string };
+    client?: {
+      id: string;
+      name: string;
+      email?: string;
+    } | null;
   };
   isEditing?: boolean;
   onEditToggle?: () => void;
@@ -79,9 +84,12 @@ export function ActivityPeriodBasicInfo({
         : "none",
   });
 
+  // Get client ID from the payment plan detail
+  const clientId = activityPeriod.client?.id || null;
+  
   // Fetch data for dropdowns when editing
   const { data: coaches = [] } = useActiveCoaches();
-  const { data: paymentPlans = [] } = useActivePaymentPlans(isEditing);
+  const { data: paymentPlans = [] } = useActivePaymentPlans(clientId, isEditing);
   const { data: coachPayments = [] } = useActiveCoachPayments(isEditing);
 
   useEffect(() => {
@@ -186,7 +194,7 @@ export function ActivityPeriodBasicInfo({
             <span className="font-medium text-muted-foreground text-sm">
               Client
             </span>
-            <p className="text-sm">{activityPeriod.client_name}</p>
+            <p className="text-sm">{activityPeriod.client?.name}</p>
           </div>
         )}
 
@@ -207,17 +215,22 @@ export function ActivityPeriodBasicInfo({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
-                {paymentPlans.map((plan: any) => (
-                  <SelectItem key={plan.id} value={String(plan.id)}>
-                    {plan.name} ({plan.client?.name})
-                  </SelectItem>
-                ))}
+                {paymentPlans.map((plan: any) => {
+                  const client = plan.client.name || "Unknown Client" 
+                  const productName = plan.product?.name || "Unknown Product";
+                  const duration = plan.duration_months || plan.product?.default_duration_months || 0;
+                  return (
+                    <SelectItem key={plan.id} value={String(plan.id)}>
+                      {client} - {productName} - {duration} Months
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           ) : (
             <p className="text-sm">
               {Boolean(activityPeriod.product.name)
-                ? activityPeriod.product.name + " - " + activityPeriod.product.default_duration_months + " Months"
+                ? activityPeriod?.client?.name + " - " + activityPeriod.product.name + " - " + activityPeriod.product.default_duration_months + " Months"
                 : "Not set"}
             </p>
           )}

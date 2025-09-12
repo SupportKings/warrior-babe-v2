@@ -2,22 +2,32 @@ import { createClient } from "@/utils/supabase/client";
 
 import { useQuery } from "@tanstack/react-query";
 
-export function useActivePaymentPlans(enabled = true) {
+export function useActivePaymentPlans(clientId?: string | null, enabled = true) {
 	return useQuery({
-		queryKey: ["payment-plans", "active"],
+		queryKey: ["payment-plans", "active", clientId],
 		queryFn: async () => {
 			const supabase = createClient();
-			const { data, error } = await supabase
+			let query = supabase
 				.from("payment_plans")
 				.select(`
 					id, 
-					name,
 					client:clients!payment_plans_client_id_fkey(
 						id,
 						name
+					),
+					product:products!payment_plans_product_id_fkey(
+						id,
+						name,
+						default_duration_months
 					)
-				`)
-				.order("name");
+				`);
+			
+			// Filter by client if clientId is provided
+			if (clientId) {
+				query = query.eq("client_id", clientId);
+			}
+			
+			const { data, error } = await query;
 
 			if (error) throw error;
 			return data || [];
