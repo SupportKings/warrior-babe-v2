@@ -73,11 +73,9 @@ const clientActivityPeriodTableColumns = [
 		header: "Client & Payment Plan",
 		enableColumnFilter: true,
 		cell: ({ row }) => {
-			// Handle the new nested structure
-			const data = row.original as any;
-			const clientName = data.clients?.name;
-			const planName = data.payment_plans?.payment_plan_templates?.name || "No payment plan";
-			const productName = data.payment_plans?.products?.name;
+			const clientName = row.original.client_name;
+			const planName = row.original.ppt_name || "No payment plan";
+			const productName = row.original.product_name;
 			return (
 				<div>
 					<div className="font-medium">{clientName || "Unknown Client"}</div>
@@ -116,9 +114,7 @@ const clientActivityPeriodTableColumns = [
 		header: "Coach",
 		enableColumnFilter: true,
 		cell: ({ row }) => {
-			// Handle the new nested structure
-			const data = row.original as any;
-			const coachName = data.team_members?.name;
+			const coachName = row.original.coach_name;
 			return <div className="text-sm">{coachName || "No coach assigned"}</div>;
 		},
 	}),
@@ -136,12 +132,9 @@ const clientActivityPeriodTableColumns = [
 		header: "Type",
 		enableColumnFilter: true,
 		cell: ({ row }) => {
-			// The is_grace field might not be in the view, so we need to check if it exists
-			// For now, let's check if we can access it from the row data
 			const data = row.original as any;
 			const isGrace = data.is_grace;
 			
-			// If is_grace is not available, we'll show as "Regular" by default
 			if (isGrace === true) {
 				return (
 					<StatusBadge colorScheme="yellow">
@@ -261,7 +254,7 @@ function ClientActivityPeriodsTableContent({
 			type: "option" as const,
 			displayName: "Client",
 			icon: UserIcon,
-			accessor: (row: any) => row.clients?.id,
+			accessor: (row: ClientActivityPeriodRow) => row.client_id,
 			options: clientFaceted.map((item: any) => ({
 				value: item.value,
 				label: item.label,
@@ -273,7 +266,7 @@ function ClientActivityPeriodsTableContent({
 			type: "option" as const,
 			displayName: "Product",
 			icon: UserIcon,
-			accessor: (row: any) => row.payment_plans?.product_id,
+			accessor: (row: ClientActivityPeriodRow) => row.product_id,
 			options: productFaceted.map((item: any) => ({
 				value: item.value,
 				label: item.label,
@@ -307,7 +300,10 @@ function ClientActivityPeriodsTableContent({
 			type: "option" as const,
 			displayName: "Type",
 			icon: UserIcon,
-			accessor: (row: ClientActivityPeriodRow) => (row as any).is_grace ? "grace" : "regular",
+			accessor: (row: ClientActivityPeriodRow) => {
+				const data = row as any;
+				return data.is_grace ? "grace" : "regular";
+			},
 			options: [
 				{ value: "regular", label: "Regular", count: 0 },
 				{ value: "grace", label: "Grace Period", count: 0 }

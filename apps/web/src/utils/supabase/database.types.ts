@@ -1916,6 +1916,7 @@ export type Database = {
           created_at: string | null
           end_date: string | null
           id: string | null
+          is_grace: boolean | null
           payment_plan: string | null
           ppt_created_at: string | null
           ppt_id: string | null
