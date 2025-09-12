@@ -126,7 +126,6 @@ export function ManageCoachPaymentModal({
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setIsSubmitting(true);
-		console.log(formData);
 		try {
 			if (mode === "create") {
 				const input: CreateCoachPaymentInput = {
@@ -176,12 +175,12 @@ export function ManageCoachPaymentModal({
 			<DialogContent className="max-w-md">
 				<DialogHeader>
 					<DialogTitle>
-						{mode === "create" ? "Add New Payment" : "Edit Payment"}
+						{mode === "create" ? "Add New Payroll Payment" : "Edit Payroll Payment"}
 					</DialogTitle>
 					<DialogDescription>
 						{mode === "create"
-							? "Create a new payment record for this coach."
-							: "Update the payment details."}
+							? "Create a new payroll payment record for this coach."
+							: "Update the payroll payment details."}
 					</DialogDescription>
 				</DialogHeader>
 
@@ -335,8 +334,8 @@ export function ManageCoachPaymentModal({
 									? "Creating..."
 									: "Updating..."
 								: mode === "create"
-									? "Create Payment"
-									: "Update Payment"}
+									? "Create Payroll Payment"
+									: "Update Payroll Payment"}
 						</Button>
 					</div>
 				</form>
