@@ -38,6 +38,7 @@ import { useForm } from "@tanstack/react-form";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { activityPeriodQueries } from "@/features/client_activity_period/queries/useActivityPeriods";
 
 interface CoachPaymentFormProps {
   mode: "create" | "edit";
@@ -72,12 +73,12 @@ export default function CoachPaymentForm({
     },
   });
 
-
   // Fetch available activity periods for selected coach
   const { data: availableActivityPeriods = [] } = useQuery({
     queryKey: ["availableActivityPeriods", selectedCoachId],
     queryFn: async () => {
       if (!selectedCoachId) return [];
+      const today = new Date().toISOString().split("T")[0]; // "2025-09-12"
 
       const supabase = createClient();
       const { data, error } = await supabase
@@ -90,25 +91,29 @@ export default function CoachPaymentForm({
           active,
           payment_plan:payment_plans!client_activity_period_payment_plan_fkey(
             id,
-            name,
             client:clients!payment_plans_client_id_fkey(
               id,
               name
+            ),
+            product:products!payment_plans_product_id_fkey(
+              id,
+              name,
+              default_duration_months
             )
           )
         `
         )
         .eq("coach_id", selectedCoachId)
-        .lte("end_date", new Date().toISOString())
+        .or(`end_date.gte.${today},end_date.is.null`) // handles NULL end_date
         .is("coach_payment", null)
         .order("end_date", { ascending: false });
 
       if (error) throw error;
       return data || [];
     },
-    enabled: !!selectedCoachId && !isEdit,
+    enabled: !!selectedCoachId,
   });
-
+  console.log(availableActivityPeriods);
   // Form setup
   const form = useForm({
     defaultValues: {
@@ -223,9 +228,7 @@ export default function CoachPaymentForm({
       <Card>
         <CardHeader>
           <CardTitle>Basic Information</CardTitle>
-          <CardDescription>
-            Select the coach and payment status
-          </CardDescription>
+          <CardDescription>Select the coach and payment status</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form.Field
@@ -261,8 +264,10 @@ export default function CoachPaymentForm({
             name="amount"
             validators={{
               onChange: ({ value }) => {
-                if (value === null || value === undefined || value <= 0) return "Amount must be greater than 0";
-                if (value > 999999.99) return "Amount cannot exceed $999,999.99";
+                if (value === null || value === undefined || value <= 0)
+                  return "Amount must be greater than 0";
+                if (value > 999999.99)
+                  return "Amount cannot exceed $999,999.99";
                 return undefined;
               },
             }}
@@ -328,7 +333,8 @@ export default function CoachPaymentForm({
             validators={{
               onChange: ({ value }) => {
                 if (!value) return "Status is required";
-                if (!["Paid", "Not Paid"].includes(value)) return "Invalid status";
+                if (!["Paid", "Not Paid"].includes(value))
+                  return "Invalid status";
                 return undefined;
               },
             }}
@@ -338,7 +344,9 @@ export default function CoachPaymentForm({
                 <Label htmlFor="status">Status *</Label>
                 <Select
                   value={field.state.value}
-                  onValueChange={(value) => field.handleChange(value as "Paid" | "Not Paid")}
+                  onValueChange={(value) =>
+                    field.handleChange(value as "Paid" | "Not Paid")
+                  }
                 >
                   <SelectTrigger className="h-10">
                     <SelectValue placeholder="Select status" />
@@ -363,12 +371,13 @@ export default function CoachPaymentForm({
       </Card>
 
       {/* Client Activity Periods */}
-      {!isEdit && selectedCoachId && availableActivityPeriods.length > 0 && (
+      {selectedCoachId && availableActivityPeriods.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Client Activity Periods</CardTitle>
             <CardDescription>
-              Select activity periods to attach to this payment (end date must be before today)
+              Select activity periods to attach to this payment (end date must
+              be before today)
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -376,14 +385,29 @@ export default function CoachPaymentForm({
               {(field) => (
                 <div className="space-y-3">
                   {availableActivityPeriods.map((period: any) => {
-                    const isChecked = field.state.value?.includes(period.id) || false;
-                    const clientName = period.payment_plan?.client?.name || "Unknown Client";
-                    const planName = period.payment_plan?.name || "No Plan";
-                    const startDate = period.start_date ? format(new Date(period.start_date), "MMM dd, yyyy") : "";
-                    const endDate = period.end_date ? format(new Date(period.end_date), "MMM dd, yyyy") : "Ongoing";
-                    
+                    const isChecked =
+                      field.state.value?.includes(period.id) || false;
+                    const clientName =
+                      period.payment_plan?.client?.name || "Unknown Client";
+                    const productName = period.payment_plan?.product?.name;
+                    const duration =
+                      period.payment_plan?.product?.default_duration_months;
+                    const planName =
+                      productName && duration
+                        ? `${productName} - ${duration} Months`
+                        : productName || "No Plan";
+                    const startDate = period.start_date
+                      ? format(new Date(period.start_date), "MMM dd, yyyy")
+                      : "";
+                    const endDate = period.end_date
+                      ? format(new Date(period.end_date), "MMM dd, yyyy")
+                      : "Ongoing";
+
                     return (
-                      <div key={period.id} className="flex items-start space-x-3 rounded-lg border p-3">
+                      <div
+                        key={period.id}
+                        className="flex items-start space-x-3 rounded-lg border p-3"
+                      >
                         <Checkbox
                           id={period.id}
                           checked={isChecked}
@@ -392,7 +416,11 @@ export default function CoachPaymentForm({
                             if (checked) {
                               field.handleChange([...currentValue, period.id]);
                             } else {
-                              field.handleChange(currentValue.filter((id: string) => id !== period.id));
+                              field.handleChange(
+                                currentValue.filter(
+                                  (id: string) => id !== period.id
+                                )
+                              );
                             }
                           }}
                         />

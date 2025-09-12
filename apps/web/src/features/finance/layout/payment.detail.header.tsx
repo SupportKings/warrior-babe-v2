@@ -49,7 +49,9 @@ export default function PaymentDetailHeader({
 
 	// Extract display name from payment data
 	const customerName = payment?.client_name;
-	const planName = payment?.payment_plan_name;
+	const productName = payment?.product_name;
+	const duration = payment?.duration;
+	const planName = productName && duration ? `${productName} - ${duration} Months` : productName;
 	const displayName = customerName || planName || "Payment";
 
 	return (

@@ -193,9 +193,18 @@ export function ClientActivityPeriodForm({
 												className="h-10 w-full justify-between"
 											>
 												{selectedPlan
-													? selectedPlan.client?.name
-														? `${selectedPlan.client.name} - ${selectedPlan.payment_plan_template?.name || selectedPlan.name}${selectedPlan.product?.name ? ` - ${selectedPlan.product.name}` : ""}`
-														: `${selectedPlan.payment_plan_template?.name || selectedPlan.name}${selectedPlan.product?.name ? ` - ${selectedPlan.product.name}` : ""}`
+													? (() => {
+															const clientName = selectedPlan.client?.name;
+															const productName = selectedPlan.product?.name;
+															const duration = selectedPlan.product?.default_duration_months;
+															const planDisplayName = productName && duration 
+																? `${productName} - ${duration} Months`
+																: productName || "Payment Plan";
+															
+															return clientName 
+																? `${clientName} - ${planDisplayName}`
+																: planDisplayName;
+														})()
 													: "Select payment plan "}
 												<ChevronsUpDown className="opacity-50" />
 											</Button>
@@ -231,11 +240,16 @@ export function ClientActivityPeriodForm({
 															/>
 														</CommandItem>
 														{paymentPlans.map((plan) => {
-															const planName =
-																plan.payment_plan_template?.name || plan.name;
-															const displayName = plan.client?.name
-																? `${plan.client.name} - ${planName}${plan.product?.name ? ` - ${plan.product.name}` : ""}`
-																: `${planName}${plan.product?.name ? ` - ${plan.product.name}` : ""}`;
+															const clientName = plan.client?.name;
+															const productName = plan.product?.name;
+															const duration = plan.product?.default_duration_months;
+															const planDisplayName = productName && duration 
+																? `${productName} - ${duration} Months`
+																: productName || "Payment Plan";
+															
+															const displayName = clientName 
+																? `${clientName} - ${planDisplayName}`
+																: planDisplayName;
 															return (
 																<CommandItem
 																	key={plan.id}

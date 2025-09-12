@@ -141,20 +141,11 @@ export default function PaymentDetailView({
     name: payment.client_name,
   };
   const paymentPlan = {
-    name: payment.product_name
-      ? payment.product_name + payment.duration + " Months"
-      : "",
+    name: payment.product_name && payment.duration
+      ? `${payment.product_name} - ${payment.duration} Months`
+      : payment.product_name || "",
   };
 
-  // Generate initials for avatar
-  const displayName = customerInfo.name || paymentPlan?.name || "Payment";
-
-  const initials = displayName
-    .split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
 
   return (
     <div className="space-y-6 p-6">

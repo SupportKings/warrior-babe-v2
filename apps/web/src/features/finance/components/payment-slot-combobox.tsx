@@ -9,26 +9,6 @@ import { format } from "date-fns";
 import { Check, ChevronDown, X } from "lucide-react";
 import { usePaymentSlotsForClient } from "../queries/usePaymentSlots";
 
-type PaymentSlot = {
-	id: string;
-	due_date: string;
-	amount_due: number;
-	notes: string | null;
-	payment_plans: {
-		id: string;
-		name: string;
-		product_id: string;
-		clients: {
-			id: string;
-			name: string;
-		};
-		products: {
-			id: string;
-			name: string;
-		};
-	};
-};
-
 interface PaymentSlotComboboxProps {
 	value?: string | null;
 	onValueChange: (value: string | null) => void;
@@ -54,14 +34,21 @@ export function PaymentSlotCombobox({
 
 	// Create items array for the combobox
 	const items = React.useMemo(() => {
-		return paymentSlots.map((slot) => ({
-			id: slot.id,
-			productName: slot.payment_plans.products.name,
-			amountDue: slot.amount_due,
-			dueDate: slot.due_date,
-			searchableText:
-				`${slot.payment_plans.products.name} ${slot.amount_due.toLocaleString()} ${format(new Date(slot.due_date), "MMMM dd yyyy")}`.toLowerCase(),
-		}));
+		return paymentSlots.map((slot) => {
+			const duration = slot.payment_plans.products.default_duration_months;
+			const productDisplayName = duration 
+				? `${slot.payment_plans.products.name} - ${duration} Months`
+				: slot.payment_plans.products.name;
+			
+			return {
+				id: slot.id,
+				productName: productDisplayName,
+				amountDue: slot.amount_due,
+				dueDate: slot.due_date,
+				searchableText:
+					`${productDisplayName} ${slot.amount_due.toLocaleString()} ${format(new Date(slot.due_date), "MMMM dd yyyy")}`.toLowerCase(),
+			};
+		});
 	}, [paymentSlots]);
 
 	// Filter items based on search

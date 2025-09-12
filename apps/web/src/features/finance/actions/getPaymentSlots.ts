@@ -24,7 +24,6 @@ export async function getPaymentSlotsForClient(clientId: string) {
 			notes,
 			payment_plans!inner(
 				id,
-				name,
 				client_id,
 				product_id,
 				clients!inner(
@@ -33,7 +32,8 @@ export async function getPaymentSlotsForClient(clientId: string) {
 				),
 				products!inner(
 					id,
-					name
+					name,
+					default_duration_months
 				)
 			)
 		`)
@@ -67,7 +67,6 @@ export async function getAllAvailablePaymentSlots() {
 			notes,
 			payment_plans!inner(
 				id,
-				name,
 				product_id,
 				clients!inner(
 					id,
@@ -75,7 +74,8 @@ export async function getAllAvailablePaymentSlots() {
 				),
 				products!inner(
 					id,
-					name
+					name,
+					default_duration_months
 				)
 			)
 		`)

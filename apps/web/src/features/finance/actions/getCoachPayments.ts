@@ -31,6 +31,11 @@ export async function getCoachPayment(id: string) {
 					client:clients!payment_plans_client_id_fkey(
 						id,
 						name
+					),
+					product:products!payment_plans_product_id_fkey(
+						id,
+						name,
+						default_duration_months
 					)
 				)
 			`)
@@ -42,14 +47,22 @@ export async function getCoachPayment(id: string) {
 		}
 
 		// Transform activity periods for easier use
-		const transformedPeriods = (activityPeriods || []).map((period: any) => ({
-			id: period.id,
-			start_date: period.start_date,
-			end_date: period.end_date,
-			active: period.active,
-			client_name: period.payment_plan?.client?.name || "Unknown Client",
-			payment_plan_name: period.payment_plan?.name || "No Plan",
-		}));
+		const transformedPeriods = (activityPeriods || []).map((period: any) => {
+			const productName = period.payment_plan?.product?.name;
+			const duration = period.payment_plan?.product?.default_duration_months;
+			const paymentPlanName = productName && duration 
+				? `${productName} - ${duration} Months`
+				: productName || "No Plan";
+			
+			return {
+				id: period.id,
+				start_date: period.start_date,
+				end_date: period.end_date,
+				active: period.active,
+				client_name: period.payment_plan?.client?.name || "Unknown Client",
+				payment_plan_name: paymentPlanName,
+			};
+		});
 
 		return {
 			...coachPayment,

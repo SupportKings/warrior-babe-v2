@@ -18,7 +18,8 @@ export async function getAllPaymentPlansWithClients() {
 				product:products (
 					id,
 					name,
-					description
+					description,
+					default_duration_months
 				),
 				payment_plan_template:payment_plan_templates!payment_plans_type_fkey (
 					id,

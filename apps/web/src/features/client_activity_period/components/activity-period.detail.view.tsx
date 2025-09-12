@@ -132,7 +132,16 @@ export default function ActivityPeriodDetailView({
 						{activityPeriod.client?.name || "Unknown Client"}
 					</h1>
 					<p className="truncate text-muted-foreground">
-						{activityPeriod.payment_plan_detail?.name || "No payment plan"}
+						{(() => {
+							if (activityPeriod.product?.name) {
+								const duration = activityPeriod.product?.default_duration_months
+								if (duration) {
+									return `${activityPeriod.product.name} - ${duration} Months`;
+								}
+								return activityPeriod.product.name;
+							}
+							return "No payment plan";
+						})()}
 					</p>
 				</div>
 			</div>

@@ -93,12 +93,10 @@ export function ManagePaymentPlanModal({
 		useActiveProducts();
 
 	const [formData, setFormData] = useState({
-		name: "",
 		notes: "",
 		product_id: "",
 		term_start_date: format(new Date(), "yyyy-MM-dd"),
 		term_end_date: "",
-		total_amount: 0,
 		type: "", // This will now be the payment_plan_template ID
 	});
 
@@ -106,7 +104,6 @@ export function ManagePaymentPlanModal({
 	useEffect(() => {
 		if (isEdit && paymentPlan) {
 			setFormData({
-				name: paymentPlan.name || "",
 				notes: paymentPlan.notes || "",
 				product_id: paymentPlan.product_id || "",
 				term_start_date: paymentPlan.term_start_date
@@ -115,18 +112,15 @@ export function ManagePaymentPlanModal({
 				term_end_date: paymentPlan.term_end_date
 					? format(new Date(paymentPlan.term_end_date), "yyyy-MM-dd")
 					: "",
-				total_amount: paymentPlan.total_amount || 0,
 				type: paymentPlan.type || "",
 			});
 		} else if (!isEdit) {
 			// Reset form for add mode
 			setFormData({
-				name: "",
 				notes: "",
 				product_id: "",
 				term_start_date: format(new Date(), "yyyy-MM-dd"),
 				term_end_date: "",
-				total_amount: 0,
 				type: "",
 			});
 		}
@@ -182,32 +176,7 @@ export function ManagePaymentPlanModal({
 		}
 	}, [formData.type, formData.term_start_date, templates]);
 
-	// Auto-calculate total amount from template slots or custom slots
-	useEffect(() => {
-		if (formData.type === "custom" && customSlots.length > 0) {
-			const totalAmount = customSlots.reduce(
-				(sum, slot) => sum + slot.amount_due,
-				0,
-			);
-			if (formData.total_amount !== totalAmount) {
-				setFormData((prev) => ({
-					...prev,
-					total_amount: totalAmount,
-				}));
-			}
-		} else if (templateSlots.length > 0 && formData.type !== "custom") {
-			const totalAmount = templateSlots.reduce(
-				(sum, slot) => sum + slot.amount_due,
-				0,
-			);
-			if (formData.total_amount !== totalAmount) {
-				setFormData((prev) => ({
-					...prev,
-					total_amount: totalAmount,
-				}));
-			}
-		}
-	}, [templateSlots, customSlots, formData.type, formData.total_amount]);
+	// Note: total_amount calculation removed as it's no longer stored in payment_plans table
 
 	// Custom slot management functions
 	const addCustomSlot = () => {

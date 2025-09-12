@@ -280,9 +280,14 @@ export function ManageActivityPeriodModal({
 												const selectedPlan = clientPaymentPlans.find(
 													(plan) => plan.id === formData.payment_plan,
 												);
-												return selectedPlan
-													? `${selectedPlan.name}${selectedPlan.products?.name ? ` - ${selectedPlan.products.name}` : ""}`
-													: "Unknown Plan";
+												if (selectedPlan) {
+													const productName = selectedPlan.products?.name;
+													const duration = selectedPlan.products?.default_duration_months;
+													return productName && duration 
+														? `${productName} - ${duration} Months`
+														: productName || "Payment Plan";
+												}
+												return "Unknown Plan";
 											})()
 										: "Select payment plan (optional)"}
 									<ChevronsUpDown className="opacity-50" />
@@ -319,7 +324,11 @@ export function ManageActivityPeriodModal({
 												/>
 											</CommandItem>
 											{clientPaymentPlans.map((plan) => {
-												const displayName = `${plan.name}${plan.products?.name ? ` - ${plan.products.name}` : ""}`;
+												const productName = plan.products?.name;
+												const duration = plan.products?.default_duration_months;
+												const displayName = productName && duration 
+													? `${productName} - ${duration} Months`
+													: productName || "Payment Plan";
 												return (
 													<CommandItem
 														key={plan.id}

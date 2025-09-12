@@ -53,8 +53,15 @@ export default function ActivityPeriodDetailHeader({
 		if (activityPeriod.client?.name) {
 			parts.push(activityPeriod.client.name);
 		}
-		if (activityPeriod.payment_plan_detail?.name) {
-			parts.push(activityPeriod.payment_plan_detail.name);
+		// Build payment plan name from product + duration
+		if (activityPeriod.product?.name) {
+			const duration = activityPeriod.product?.default_duration_months || 
+			                activityPeriod.payment_plan_template?.program_length_months;
+			if (duration) {
+				parts.push(`${activityPeriod.product.name} - ${duration} Months`);
+			} else {
+				parts.push(activityPeriod.product.name);
+			}
 		}
 		return parts.length > 0
 			? `${parts.join(" - ")} - Details`
