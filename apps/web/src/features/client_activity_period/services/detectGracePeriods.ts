@@ -246,7 +246,7 @@ async function createGracePeriodActivityPeriod(data: {
 				start_date: data.start_date,
 				end_date: data.end_date,
 				active: data.active,
-				is_grace: data.is_grace,
+				is_grace: true,
 			})
 			.select()
 			.single();

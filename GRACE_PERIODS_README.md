@@ -53,16 +53,22 @@ The `client_activity_period` table already includes:
 ### Expected Behavior
 1. **Grace Period Creation**:
    - Only creates grace periods for plans where last period has ended
+   - **Only if no payment exists** for the last activity period's payment slot
    - Grace periods are 14 days long
    - Marked with `is_grace: true`
    - No `payment_slot` assigned
 
-2. **Payment Processing**:
+2. **Payment Verification**:
+   - System checks `payments` table for records with matching `payment_slot_id`
+   - If payment found: No grace period created, marked as "paid"
+   - If no payment found: Grace period created as normal
+
+3. **Payment Processing**:
    - When payment slot is assigned, grace periods become regular periods (`is_grace: false`)
    - Normal activity period generation continues
    - UI shows conversion message
 
-3. **UI Display**:
+4. **UI Display**:
    - Grace periods show as "Grace Period" with yellow badge
    - Regular periods show as "Regular" with blue badge
    - Activity period tables include Type column

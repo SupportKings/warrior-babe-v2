@@ -107,11 +107,17 @@ export function ManageAssignmentModal({
 		setIsLoading(true);
 
 		try {
+			// Prepare the data with proper null handling
+			const submissionData = {
+				...formData,
+				end_date: formData.end_date.trim() === "" ? null : formData.end_date,
+			};
+
 			if (isEdit && assignment) {
-				await updateClientAssignment(assignment.id, formData);
+				await updateClientAssignment(assignment.id, submissionData);
 				toast.success("Assignment updated successfully!");
 			} else {
-				await createClientAssignment(clientId, formData);
+				await createClientAssignment(clientId, submissionData);
 				toast.success("Assignment added successfully!");
 			}
 
