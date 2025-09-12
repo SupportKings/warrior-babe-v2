@@ -22,7 +22,7 @@
 	"dependencies": {},
 	"devDependencies": {
 		"@biomejs/biome": "^2.0.0",
-		"supabase": "^2.33.9",
+		"supabase": "^2.40.7",
 		"turbo": "^2.5.4"
 	},
 	"engines": {

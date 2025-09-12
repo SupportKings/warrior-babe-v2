@@ -128,6 +128,7 @@ export type Database = {
           created_at: string
           end_date: string | null
           id: string
+          is_grace: boolean | null
           payment_plan: string | null
           payment_slot: string | null
           start_date: string
@@ -140,6 +141,7 @@ export type Database = {
           created_at?: string
           end_date?: string | null
           id?: string
+          is_grace?: boolean | null
           payment_plan?: string | null
           payment_slot?: string | null
           start_date: string
@@ -152,6 +154,7 @@ export type Database = {
           created_at?: string
           end_date?: string | null
           id?: string
+          is_grace?: boolean | null
           payment_plan?: string | null
           payment_slot?: string | null
           start_date?: string
@@ -1838,6 +1841,7 @@ export type Database = {
           declined_at: string | null
           dispute_fee: number | null
           disputed_status: Database["public"]["Enums"]["disputed_status"] | null
+          duration: number | null
           id: string | null
           payment_amount: number | null
           payment_date: string | null
@@ -1848,7 +1852,6 @@ export type Database = {
           platform: string | null
           product_id: string | null
           product_name: string | null
-          duration: number | null
           slot_due_date: string | null
           slot_notes: string | null
           status: string | null
